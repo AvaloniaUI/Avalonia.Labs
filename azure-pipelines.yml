@@ -1,0 +1,28 @@
+pool:
+    vmImage: ubuntu-latest
+steps:
+    - task: UseDotNet@2
+      displayName: Use .NET SDK
+      inputs:
+          packageType: sdk
+          version: 7.0.102
+    - task: CmdLine@2
+      displayName: Install workload
+      inputs:
+          script: dotnet workload install ios android wasm-tools wasm-experimental
+    - task: DotNetCoreCLI@2
+      inputs:
+          command: test
+    - task: DotNetCoreCLI@2
+      displayName: Pack Templates
+      inputs:
+          packagesToPack: Avalonia.Labs.sln
+          command: pack
+          outputDir: $(Build.ArtifactStagingDirectory)/NuGet
+          verbosityPack: normal
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Build Artifacts
+      inputs:
+          pathtoPublish: $(Build.ArtifactStagingDirectory)/NuGet
+          artifactName: NuGet
+      condition: succeeded()
