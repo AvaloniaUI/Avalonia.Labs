@@ -1,9 +1,5 @@
-﻿using Avalonia.Interactivity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Avalonia.Interactivity;
 
 namespace Avalonia.Labs.Controls
 {

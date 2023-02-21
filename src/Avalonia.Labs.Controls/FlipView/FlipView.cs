@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
@@ -8,11 +9,6 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Avalonia.Labs.Controls
 {

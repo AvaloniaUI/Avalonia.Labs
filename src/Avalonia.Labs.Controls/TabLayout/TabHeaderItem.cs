@@ -1,7 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Shapes;
 
 namespace Avalonia.Labs.Controls
 {

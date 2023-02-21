@@ -12,7 +12,6 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
-using Avalonia.Reactive;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.VisualTree;

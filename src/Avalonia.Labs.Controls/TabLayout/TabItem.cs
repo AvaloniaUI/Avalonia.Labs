@@ -6,7 +6,6 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Labs.Controls.Helpers;
 using Avalonia.LogicalTree;
 using Avalonia.Reactive;
 using Avalonia.Styling;
@@ -108,7 +107,7 @@ namespace Avalonia.Labs.Controls
 
             if (Parent is TabControl pivot)
             {
-                _boundsObservable = pivot.GetObservable(BoundsProperty).Subscribe(new LambdaObserver<Rect>(ParentBoundsChanged));
+                _boundsObservable = pivot.GetObservable(BoundsProperty).Subscribe(new AnonymousObserver<Rect>(ParentBoundsChanged));
             }
         }
 
