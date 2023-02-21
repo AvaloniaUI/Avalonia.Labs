@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
@@ -24,13 +25,18 @@ namespace Avalonia.Labs.Controls
                 Orientation = Orientation.Horizontal
             });
 
+        public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<FlipView, Vector>(nameof(Offset));
+
         private Button? _previousButtonVertical;
         private Button? _nextButtonHorizontal;
         private Button? _previousButtonHorizontal;
         private Button? _nextButtonVertical;
+        private VectorTransition? _offsetTransistion;
         private bool _isApplied;
         private ImplicitAnimationCollection? _implicitAnimations;
         private bool _animationsDisabled;
+        private bool _isAnimating;
+        private Vector? _finalValue;
 
         internal ItemsPresenter? ItemsPresenterPart { get; private set; }
         internal ScrollViewer? ScrollViewerPart { get; private set; }
@@ -51,6 +57,12 @@ namespace Avalonia.Labs.Controls
                 //viewItem.Content = null;
             }
             base.PrepareContainerForItemOverride(element, item, index);
+        }
+
+        public Vector Offset
+        {
+            get => GetValue(OffsetProperty);
+            set => SetValue(OffsetProperty, value);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -113,6 +125,22 @@ namespace Avalonia.Labs.Controls
             var grid = e.NameScope.Find<Grid>("PART_Grid");
             ScrollViewerPart = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
 
+            if (ScrollViewerPart != null)
+            {
+                ScrollViewerPart.PropertyChanged += ScrollViewerPart_PropertyChanged;
+            }
+
+            _offsetTransistion = new VectorTransition()
+            {
+                Property = OffsetProperty,
+                Duration = TimeSpan.FromMilliseconds(250)
+            };
+
+            Transitions = new Transitions
+            {
+                _offsetTransistion
+            };
+
             _isApplied = true;
 
             SetButtonsVisibility();
@@ -124,12 +152,64 @@ namespace Avalonia.Labs.Controls
             }
         }
 
+        private void ScrollViewerPart_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if(e.Property == ScrollViewer.OffsetProperty && e.NewValue != null)
+            {
+                var newValue = (Vector?)e.NewValue;
+
+                if (_animationsDisabled)
+                {
+                    _isAnimating = false;
+                    Offset = (Vector)e.NewValue;
+                }
+                else
+                {
+                    if (ItemsPresenterPart != null)
+                    {
+                        var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
+
+                        if (composition != null)
+                        {
+                            composition.ImplicitAnimations = null;
+                        }
+                    }
+
+                    if (_isAnimating)
+                    {
+                        if (newValue == _finalValue)
+                        {
+                            _isAnimating = false;
+                        }
+                        return;
+                    }
+                    _isAnimating = true;
+                    _finalValue =  newValue;
+
+                    Offset = (Vector)e.NewValue;
+
+                    if (ScrollViewerPart != null)
+                    {
+                        ScrollViewerPart.Offset = (Vector?)e.OldValue ?? default;
+                    }
+
+                }
+            }
+        }
+
         private void ScrollEndedEventHandler(object? sender, ScrollGestureEndedEventArgs e)
         {
             UpdateAnimation(true);
 
             if (ItemsPresenterPart != null && ScrollViewerPart != null && ItemCount > 0)
             {
+                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
+
+                if (composition != null)
+                {
+                    composition.ImplicitAnimations = _implicitAnimations;
+                }
+
                 bool isHorizontal = _nextButtonHorizontal!.IsVisible;
 
                 var offset = isHorizontal ? ScrollViewerPart.Offset.X : ScrollViewerPart.Offset.Y;
@@ -213,17 +293,22 @@ namespace Avalonia.Labs.Controls
         {
             if (ItemsPresenterPart != null && (!_animationsDisabled || enable))
             {
-                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                if (composition != null)
+                if (_offsetTransistion != null)
                 {
-                    if (_implicitAnimations != null)
+                    if (enable)
                     {
-                        composition.ImplicitAnimations = enable ? _implicitAnimations : null;
-
-                        _animationsDisabled = !enable;
+                        if (this.Transitions?.Contains(_offsetTransistion) == false)
+                        {
+                            this.Transitions?.Add(_offsetTransistion);
+                        }
+                    }
+                    else
+                    {
+                        this?.Transitions?.Remove(_offsetTransistion);
                     }
                 }
+
+                _animationsDisabled = !enable;
             }
         }
 
@@ -234,6 +319,13 @@ namespace Avalonia.Labs.Controls
             if(change.Property == ItemsPanelProperty)
             {
                 SetButtonsVisibility();
+            }
+            else if(change.Property == OffsetProperty)
+            {
+                if(Offset == ScrollViewerPart?.Offset)
+                {
+                    _isAnimating = false;
+                }
             }
         }
     }

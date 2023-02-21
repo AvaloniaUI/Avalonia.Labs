@@ -263,6 +263,7 @@
                         VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                         IsScrollChainingEnabled="{TemplateBinding ScrollViewer.IsScrollChainingEnabled}"
                         IsScrollInertiaEnabled="False"
+                        Offset="{TemplateBinding Offset}"
                         VerticalAlignment="Stretch">
             <ItemsPresenter Name="PART_ItemsPresenter"
                             ItemsPanel="{TemplateBinding ItemsPanel}"/>
