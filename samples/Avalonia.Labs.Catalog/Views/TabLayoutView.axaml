@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:TabLayoutViewModel"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.TabLayoutView">
+    <labs:TabControl HorizontalAlignment="Stretch"
+                     TabStripPlacement="Bottom"
+                     VerticalAlignment="Stretch">
+        <labs:TabItem Header="Page 1">
+            This is Page 1
+        </labs:TabItem>
+        <labs:TabItem Header="Page 2">
+            This is Page 2
+        </labs:TabItem>
+    </labs:TabControl>
+</UserControl>

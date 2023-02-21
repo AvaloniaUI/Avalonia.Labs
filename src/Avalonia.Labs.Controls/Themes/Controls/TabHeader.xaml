@@ -1,0 +1,80 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:control="using:Avalonia.Labs.Controls"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <control:TabHeader>
+                <control:TabHeaderItem>Item 1</control:TabHeaderItem>
+                <control:TabHeaderItem>Item 2</control:TabHeaderItem>
+                <control:TabHeaderItem IsEnabled="False">Disabled</control:TabHeaderItem>
+            </control:TabHeader>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type control:TabHeader}"
+                  TargetType="control:TabHeader">
+        <ControlTheme.Resources>
+
+        </ControlTheme.Resources>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Padding="{TemplateBinding Padding}">
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                        VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        HorizontalSnapPointsAlignment="Near"
+                        HorizontalSnapPointsType="MandatorySingle">
+                        <ItemsPresenter Name="PART_ItemsPresenter"
+                                        AreHorizontalSnapPointsRegular="False"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <StackPanel/>
+            </ItemsPanelTemplate>
+        </Setter>
+
+        <Style Selector="^ /template/ ItemsPresenter#PART_ItemsPresenter > StackPanel">
+            <Setter Property="Orientation"
+                    Value="Horizontal" />
+        </Style>
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ Border#AdornerRect">
+            <Setter Property="VerticalAlignment"
+                    Value="Top" />
+        </Style>
+        <Style Selector="^[TabStripPlacement=Top] /template/ Border#AdornerRect">
+            <Setter Property="VerticalAlignment"
+                    Value="Bottom" />
+        </Style>
+        <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > StackPanel">
+            <Setter Property="Orientation"
+                    Value="Vertical" />
+        </Style>
+        <Style Selector="^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter > StackPanel">
+            <Setter Property="Orientation"
+                    Value="Vertical" />
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Bottom], ^[TabStripPlacement=Top]">
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                    Value="Hidden" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
+                    Value="Disabled" />
+        </Style>
+        <Style Selector="^[TabStripPlacement=Left], ^[TabStripPlacement=Right]">
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+                    Value="Disabled" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
+                    Value="Hidden" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

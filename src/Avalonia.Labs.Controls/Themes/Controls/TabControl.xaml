@@ -1,0 +1,86 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:control="using:Avalonia.Labs.Controls"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Width="400">
+        <control:TabControl>
+            <control:TabItem Header="Arch">
+          <Border Background="AntiqueWhite" Height="100">
+            <TextBlock Text="Content" Foreground="Black" FontSize="20"/>
+          </Border>
+        </control:TabItem>
+            <control:TabItem Header="Disabled" IsEnabled="False" >
+          <Button>Disabled</Button>
+        </control:TabItem>
+            <control:TabItem Header="Leaf">
+          <Border Background="Green"
+                  Height="100" >
+            <TextBlock>Label</TextBlock>
+          </Border>
+        </control:TabItem>
+      </control:TabControl>
+    </Border>
+  </Design.PreviewWith>
+
+  <Thickness x:Key="TabControlTopPlacementItemMargin">0 0 0 2</Thickness>
+
+  <ControlTheme x:Key="{x:Type control:TabControl}" TargetType="control:TabControl">
+    <Setter Property="Padding" Value="{DynamicResource TabControlMargin}" />
+    <Setter Property="Background" Value="{DynamicResource TabControlBackground}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Background="{TemplateBinding Background}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalAlignment}">
+          <DockPanel>
+            <ContentControl>
+              <Grid>
+                <control:TabHeader Name="PART_Header"
+                           ItemsPanel="{TemplateBinding HeaderPanel}"
+                           ItemTemplate="{TemplateBinding HeaderTemplate}"/>
+              </Grid>
+            </ContentControl>
+            <Border Name="PART_Border"
+                    Margin="{TemplateBinding Padding}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+              <Border.GestureRecognizers>
+                <ScrollGestureRecognizer CanHorizontallyScroll="True" />
+              </Border.GestureRecognizers>
+              <ScrollViewer Name="PART_ScrollViewer"
+                            HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Disabled"
+                            HorizontalAlignment="Stretch"
+                            HorizontalSnapPointsType="MandatorySingle"
+                            HorizontalSnapPointsAlignment="Near"
+                            IsScrollInertiaEnabled="False"
+                            VerticalAlignment="Stretch">
+                <ItemsPresenter Name="PART_ItemsPresenter"
+                                ItemsPanel="{TemplateBinding ItemsPanel}"/>                
+              </ScrollViewer>
+            </Border>
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^[TabStripPlacement=Top] /template/ control|TabHeader#PART_Header">
+      <Setter Property="Margin" Value="{DynamicResource TabControlTopPlacementItemMargin}" />
+    </Style>
+    <Style Selector="^[TabStripPlacement=Top] /template/ DockPanel ContentControl">
+      <Setter Property="DockPanel.Dock" Value="Top" />
+    </Style>
+    <Style Selector="^[TabStripPlacement=Bottom] /template/ DockPanel ContentControl">
+      <Setter Property="DockPanel.Dock" Value="Bottom" />
+    </Style>
+    <Style Selector="^[TabStripPlacement=Left] /template/ DockPanel ContentControl">
+      <Setter Property="DockPanel.Dock" Value="Left" />
+    </Style>
+    <Style Selector="^[TabStripPlacement=Right] /template/ DockPanel ContentControl">
+      <Setter Property="DockPanel.Dock" Value="Right" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

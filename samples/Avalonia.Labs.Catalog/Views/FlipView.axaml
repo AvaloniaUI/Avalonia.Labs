@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.FlipView">
+    <labs:FlipView MaxWidth="640" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Image Source="/Assets/delicate-arch-896885_640.jpg"/>
+        <Image Source="/Assets/hirsch-899118_640.jpg"/>
+        <Image Source="/Assets/maple-leaf-888807_640.jpg"/>
+    </labs:FlipView>
+</UserControl>
