@@ -49,19 +49,19 @@
             </Border>
         </ControlTemplate>
     </Setter>
-      <Style Selector="^.loaded /template/ Image#PART_Image">
+      <Style Selector="^[State=Loaded] /template/ Image#PART_Image">
           <Setter Property="Opacity"
                   Value="1.0" />
       </Style>
-      <Style Selector="^.loaded /template/ Image#PART_PlaceholderImage">
+      <Style Selector="^[State=Loaded] /template/ Image#PART_PlaceholderImage">
           <Setter Property="Opacity"
                   Value="0.0" />
       </Style>
-      <Style Selector="^.loading /template/ Image#PART_Image, ^.failed /template/ Image#PART_Image">
+      <Style Selector="^[State=Loading] /template/ Image#PART_Image, ^[State=Failed] /template/ Image#PART_Image">
           <Setter Property="Opacity"
                   Value="0.0" />
       </Style>
-      <Style Selector="^.loading /template/ Image#PART_PlaceholderImage, ^.failed /template/ Image#PART_PlaceholderImage">
+      <Style Selector="^[State=Loading] /template/ Image#PART_PlaceholderImage, ^[State=Failed] /template/ Image#PART_PlaceholderImage">
           <Setter Property="Opacity"
                   Value="1.0" />
       </Style>

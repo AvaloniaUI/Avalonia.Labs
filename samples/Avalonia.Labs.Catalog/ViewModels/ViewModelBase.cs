@@ -4,11 +4,12 @@ namespace Avalonia.Labs.Catalog.ViewModels;
 
 public class ViewModelBase : ReactiveObject
 {
-    private string _title;
+    private string? _title;
 
-    public string Title
+    public string? Title
     {
-        get => _title; set
+        get => _title; 
+        set
         {
             this.RaiseAndSetIfChanged(ref _title, value);
         }

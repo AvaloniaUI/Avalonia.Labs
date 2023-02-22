@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using System;
+using Avalonia.Media;
 
 namespace Avalonia.Labs.Controls
 {
@@ -7,8 +8,8 @@ namespace Avalonia.Labs.Controls
         public static readonly StyledProperty<IImage> PlaceholderSourceProperty =
             AvaloniaProperty.Register<AsyncImage, IImage>(nameof(PlaceholderSource));
 
-        public static readonly StyledProperty<object> SourceProperty =
-            AvaloniaProperty.Register<AsyncImage, object>(nameof(Source));
+        public static readonly StyledProperty<Uri> SourceProperty =
+            AvaloniaProperty.Register<AsyncImage, Uri>(nameof(Source));
 
         public static readonly StyledProperty<Stretch> StretchProperty =
             AvaloniaProperty.Register<AsyncImage, Stretch>(nameof(Stretch), Stretch.Uniform);
@@ -22,7 +23,7 @@ namespace Avalonia.Labs.Controls
             set => SetValue(PlaceholderSourceProperty, value);
         }
 
-        public object Source
+        public Uri Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);

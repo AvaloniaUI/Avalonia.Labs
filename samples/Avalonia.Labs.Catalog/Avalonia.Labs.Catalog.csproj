@@ -26,13 +26,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Views\AsyncImageView.axaml.cs">
-      <DependentUpon>AsyncImageView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\WelcomeView.axaml.cs">
-      <DependentUpon>WelcomeView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
 </Project>

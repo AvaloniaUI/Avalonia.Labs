@@ -1,15 +1,14 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Avalonia.Labs.Controls
 {
@@ -21,6 +20,14 @@ namespace Avalonia.Labs.Controls
         private bool _isInitialized;
         private CancellationTokenSource? _tokenSource;
 
+        internal static readonly StyledProperty<AsyncImageState> StateProperty = AvaloniaProperty.Register<AsyncImage, AsyncImageState>(nameof(State));
+
+        internal AsyncImageState State
+        {
+            get => GetValue(StateProperty);
+            set => SetValue(StateProperty, value);
+        }
+
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
@@ -30,7 +37,7 @@ namespace Avalonia.Labs.Controls
 
             _isInitialized = true;
 
-            if(Source != null)
+            if (Source != null)
             {
                 SetSource(Source);
             }
@@ -54,7 +61,7 @@ namespace Avalonia.Labs.Controls
                 return;
             }
 
-            SetLoading();
+            State = AsyncImageState.Loading;
 
             if (Source is IImage image)
             {
@@ -63,153 +70,123 @@ namespace Avalonia.Labs.Controls
                 return;
             }
 
-            var uri = Source as Uri;
-
-            if(uri == null)
+            if (Source == null)
             {
-                var path = Source as string ?? source.ToString();
-
-                if(!Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out uri))
-                {
-                    SetFailed();
-
-                    RaiseEvent(new AsyncImageFailedEventArgs(new UriFormatException($"Invalid Uri: {path}")));
-
-                    return;
-                }
+                return;
             }
 
-            if (uri != null)
+            var uri = Source;
+
+            if (uri != null && uri.IsAbsoluteUri)
             {
-                if (uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https"))
+                if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
+                    Bitmap? bitmap = null;
                     // Android doesn't allow network requests on the main thread, even though we are using async apis.
-                    await Task.Run(async () =>
+                    if (OperatingSystem.IsAndroid())
+                    {
+                        await Task.Run(async () =>
+                        {
+                            try
+                            {
+                                bitmap = await LoadImageAsync(uri, _tokenSource.Token);
+                            }
+                            catch (Exception ex)
+                            {
+                                State = AsyncImageState.Failed;
+
+                                RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                            }
+                        });
+                    }
+                    else
                     {
                         try
                         {
-                            await LoadImageAsync(uri, _tokenSource.Token);
+                            bitmap = await LoadImageAsync(uri, _tokenSource.Token);
                         }
                         catch (Exception ex)
                         {
-                            SetFailed();
+                            State = AsyncImageState.Failed;
 
                             RaiseEvent(new AsyncImageFailedEventArgs(ex));
                         }
-                    });
+                    }
+
+                    AttachSource(bitmap);
                 }
-                else if (File.Exists(uri.AbsolutePath))
+                else if (uri.Scheme == "avares" || uri.Scheme == "resx")
                 {
-                    AttachSource(new Bitmap(uri.AbsolutePath));
+                    try
+                    {
+                        var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
+
+                        AttachSource(new Bitmap(assetLoader!.Open(uri)));
+                    }
+                    catch (Exception ex)
+                    {
+                        State = AsyncImageState.Failed;
+
+                        RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                    }
+                }
+                else if (uri.Scheme == "file" && File.Exists(uri.LocalPath))
+                {
+                    AttachSource(new Bitmap(uri.LocalPath));
+                }
+                else
+                {
+                    RaiseEvent(new AsyncImageFailedEventArgs(new UriFormatException($"Uri has unsupported scheme. Uri:{source}")));
                 }
             }
             else
             {
-                try
-                {
-                    var path = source.ToString();
-                    uri = new Uri(path!, path!.StartsWith("/") ? UriKind.Relative : UriKind.RelativeOrAbsolute);
-                    var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
-
-                    AttachSource(new Bitmap(assetLoader!.Open(uri)));
-                }
-                catch(Exception ex)
-                {
-                    SetFailed();
-
-                    RaiseEvent(new AsyncImageFailedEventArgs(ex));
-                }
+                RaiseEvent(new AsyncImageFailedEventArgs(new UriFormatException($"Relative paths aren't supported. Uri:{source}")));
             }
         }
 
         private void AttachSource(IImage? image)
         {
-            Dispatcher.UIThread.Post(() =>
+            if (ImagePart != null)
             {
-                if (ImagePart != null)
-                {
-                    ImagePart.Source = image;
-                }
+                ImagePart.Source = image;
+            }
 
-                if (image == null)
-                {
-                    SetUnLoaded();
-                }
-                else if (!image.Size.IsDefault)
-                {
-                    SetLoaded();
+            if (image == null)
+            {
+                State = AsyncImageState.Unloaded;
+            }
+            else if (!image.Size.IsDefault)
+            {
+                State = AsyncImageState.Loaded;
 
-                    RaiseEvent(new Interactivity.RoutedEventArgs(OpenedEvent));
-                }
-            });
+                RaiseEvent(new Interactivity.RoutedEventArgs(OpenedEvent));
+            }
         }
 
-        private void SetLoading()
+        private async Task<Bitmap> LoadImageAsync(Uri? url, CancellationToken token)
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                this.Classes.Remove("loaded");
-                this.Classes.Remove("failed");
-                this.Classes.Add("loading");
-            });
-        }
-
-        private void SetLoaded()
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                this.Classes.Add("loaded");
-                this.Classes.Remove("failed");
-                this.Classes.Remove("loading");
-            });
-        }
-
-        private void SetUnLoaded()
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                this.Classes.Remove("loaded");
-                this.Classes.Remove("failed");
-                this.Classes.Remove("loading");
-            });
-        }
-
-        private void SetFailed()
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                this.Classes.Remove("loaded");
-                this.Classes.Add("failed");
-                this.Classes.Remove("loading");
-            });
-        }
-
-        private async Task LoadImageAsync(Uri url, CancellationToken token)
-        {
-            if(url != null)
-            {
 #if NET6_0_OR_GREATER
-                using var client = new HttpClient();
-                var stream = await client.GetStreamAsync(url, token);
+            using var client = new HttpClient();
+            var stream = await client.GetStreamAsync(url, token);
 
-                using var memoryStream = new MemoryStream();
-                stream.CopyTo(memoryStream);
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
 #elif NETSTANDARD2_0
-                using var client = new WebClient();
-                var data = await client.DownloadDataTaskAsync(url);
-                using var memoryStream = new MemoryStream(data);
+            using var client = new WebClient();
+            var data = await client.DownloadDataTaskAsync(url);
+            using var memoryStream = new MemoryStream(data);
 #endif
 
-                memoryStream.Position = 0;
-                AttachSource(new Bitmap(memoryStream));
-            }
+            memoryStream.Position = 0;
+            return new Bitmap(memoryStream);
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
 
-            if(change.Property == SourceProperty)
+            if (change.Property == SourceProperty)
             {
                 SetSource(Source);
             }

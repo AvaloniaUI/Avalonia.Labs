@@ -1,10 +1,16 @@
-﻿using Avalonia.Labs.Controls;
+﻿using Avalonia.Labs.Catalog.Views;
+using Avalonia.Labs.Controls;
 using ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        static MainViewModel()
+        {
+            ViewLocator.Register(typeof(MainViewModel), () => new MainView());
+        }
+
         private bool? _showNavBar = true;
         private bool? _showBackButton = true;
         private INavigationRouter _navigationRouter;

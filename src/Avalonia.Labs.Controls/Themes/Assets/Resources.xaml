@@ -1,25 +1,25 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key="Default">
-    
-            <!-- Resources for NavigationControl.xaml-->
-            <x:Double x:Key="NavigationControlNavBarHeight" >45</x:Double>
-            <Thickness x:Key="NavigationControlPageMargin">0,5</Thickness>
-    
-            <!-- Resources for TabControl.xaml -->
-            <Thickness x:Key="TabControlMargin">12,0,12,0</Thickness>
-            <x:Double x:Key="TabItemHeaderFontSize">24</x:Double>
-            <FontWeight x:Key="TabItemHeaderThemeFontWeight">SemiLight</FontWeight>
-            <x:Double x:Key="TabItemHeaderMinHeight">48</x:Double>
-            <x:Double x:Key="TabItemHeaderVerticalPipeHeight">24</x:Double>
-            <x:Double x:Key="TabItemHeaderPipeThickness">2</x:Double>
-            <Thickness x:Key="TabItemHeaderAdornedMargin">0,0,0,2</Thickness>
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Default">
 
-            <!-- Resources for FlipView.xaml -->
-            <x:Double x:Key="FlipViewButtonFontSize">16</x:Double>
-            <x:Double x:Key="FlipViewButtonScalePressed">0.875</x:Double>
+      <!-- Resources for NavigationControl.xaml-->
+      <x:Double x:Key="NavigationControlNavBarHeight" >45</x:Double>
+      <Thickness x:Key="NavigationControlPageMargin">0,5</Thickness>
 
-        </ResourceDictionary>
-    </ResourceDictionary.ThemeDictionaries>
+      <!-- Resources for TabControl.xaml -->
+      <Thickness x:Key="TabControlMargin">12,0,12,0</Thickness>
+      <x:Double x:Key="TabItemHeaderFontSize">24</x:Double>
+      <FontWeight x:Key="TabItemHeaderThemeFontWeight">SemiLight</FontWeight>
+      <x:Double x:Key="TabItemHeaderMinHeight">48</x:Double>
+      <x:Double x:Key="TabItemHeaderVerticalPipeHeight">24</x:Double>
+      <x:Double x:Key="TabItemHeaderPipeThickness">2</x:Double>
+      <Thickness x:Key="TabItemHeaderAdornedMargin">0,0,0,2</Thickness>
+
+      <!-- Resources for FlipView.xaml -->
+      <x:Double x:Key="FlipViewButtonFontSize">16</x:Double>
+      <x:Double x:Key="FlipViewButtonScalePressed">0.875</x:Double>
+
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>
