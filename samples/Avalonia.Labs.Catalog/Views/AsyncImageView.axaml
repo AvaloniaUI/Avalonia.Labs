@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             Padding="10"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.AsyncImageView">
+    <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Horizontal">
+        <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
+                         Margin="5" Width="80"
+                         Height="80"
+                         />
+        <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
+                         Margin="5"
+                         Source="https://pbs.twimg.com/profile_images/1414990564408262661/r6YemvF9_400x400.jpg"
+                         Width="80"
+                         Height="80"
+                         />
+        <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
+                         Margin="5"
+                         Source="https://pbs.twimg.com/profile_images/1585617858184323072/Vy138ToA_400x400.png"
+                         Width="80"
+                         Height="80"
+                         />
+        <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
+                         Margin="5"
+                         Source="https://pbs.twimg.com/profile_images/1572689860544335873/UooAQaXC_400x400.jpg"
+                         Width="80"
+                         Height="80"
+                         />
+    </WrapPanel>
+</UserControl>

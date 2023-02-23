@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Avalonia.Labs.Catalog.Views.MainView"
+             xmlns:local="using:Avalonia.Labs.Catalog"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:DataType="viewModels:MainViewModel">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <labs:NavigationControl
+            x:Name="Nav"
+            VerticalAlignment="Stretch"
+            IsBackButtonVisible="{Binding ShowBackButton}"
+            IsNavBarVisible="{Binding ShowNavBar}"
+            NavigationRouter="{Binding NavigationRouter}"
+            Header="{Binding NavigationRouter.CurrentPage}"
+            Margin="5"
+            Padding="10"
+            Grid.Row="1"
+            Grid.ColumnSpan="2">
+            <labs:NavigationControl.HeaderTemplate>
+                <DataTemplate x:DataType="viewModels:ViewModelBase">
+                    <Label Content="{Binding Title}"
+                           VerticalAlignment="Center"
+                           VerticalContentAlignment="Center"/>
+                </DataTemplate>
+            </labs:NavigationControl.HeaderTemplate>
+            <labs:NavigationControl.DataTemplates>
+                <local:ViewLocator/>
+            </labs:NavigationControl.DataTemplates>
+        </labs:NavigationControl>
+
+    </ScrollViewer>
+</UserControl>

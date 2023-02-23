@@ -1,0 +1,14 @@
+﻿<Styles x:Class="Avalonia.Labs.Controls.ControlThemes"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="/Themes/Assets/Resources.xaml" />
+        <MergeResourceInclude Source="/Themes/Assets/ResourcesFluent.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <StyleInclude Source="/Themes/Controls/Controls.xaml" />
+</Styles>

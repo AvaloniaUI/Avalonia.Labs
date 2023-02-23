@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Resources for NavigationControl.xaml-->
+  <StaticResource x:Key="NavigationControlNavBarBackground"
+                  ResourceKey="SystemControlBackgroundBaseLowBrush" />
+
+  <!-- Resources for FlipView.xaml -->
+  <Thickness x:Key="FlipViewButtonBorderThemeThickness">0</Thickness>
+  <StaticResource x:Key="FlipViewNextPreviousButtonBackground"
+                  ResourceKey="SystemControlBackgroundBaseLowBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousButtonBackgroundPointerOver"
+                  ResourceKey="SystemControlBackgroundBaseLowBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousButtonBackgroundPressed"
+                  ResourceKey="SystemControlBackgroundBaseLowBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousArrowForeground"
+                  ResourceKey="SystemControlBackgroundChromeWhiteBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousArrowForegroundPointerOver"
+                  ResourceKey="SystemControlBackgroundChromeWhiteBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousArrowForegroundPressed"
+                  ResourceKey="SystemControlBackgroundChromeWhiteBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousButtonBorderBrush"
+                  ResourceKey="SystemControlForegroundTransparentBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousButtonBorderBrushPointerOver"
+                  ResourceKey="SystemControlForegroundTransparentBrush" />
+  <StaticResource x:Key="FlipViewNextPreviousButtonBorderBrushPressed"
+                  ResourceKey="SystemControlHighlightTransparentBrush" />
+</ResourceDictionary>
