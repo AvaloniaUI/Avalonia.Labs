@@ -5,7 +5,7 @@ This repository serves as a staging ground for new controls for [Avalonia](https
 
 ## Available Controls
 
- - AsyncImage
- - TabControl
- - FlipView
- - NavigationControl
+ - [AsyncImage](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/AsyncImage)
+ - [TabControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/TabLayout)
+ - [FlipView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/FlipView)
+ - [NavigationControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/Navigation)
