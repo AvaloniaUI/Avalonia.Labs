@@ -115,7 +115,7 @@ namespace Avalonia.Labs.Controls
 
                     AttachSource(bitmap);
                 }
-                else if (uri.Scheme == "avares" || uri.Scheme == "resx")
+                else if (uri.Scheme == "avares" || uri.Scheme == "resm")
                 {
                     try
                     {
