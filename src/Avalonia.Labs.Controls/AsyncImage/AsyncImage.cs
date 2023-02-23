@@ -1,17 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Avalonia.Threading;
 
 namespace Avalonia.Labs.Controls
 {
+    /// <summary>
+    /// An image control that asynchronously retrieves an image using a <see cref="Uri"/>.
+    /// </summary>
+    [TemplatePart("PART_Image", typeof(Image))]
+    [TemplatePart("PART_PlaceholderImage", typeof(Image))]
     public partial class AsyncImage : TemplatedControl
     {
         protected Image? ImagePart { get; private set; }
@@ -19,13 +26,38 @@ namespace Avalonia.Labs.Controls
 
         private bool _isInitialized;
         private CancellationTokenSource? _tokenSource;
+        private AsyncImageState _state;
 
-        internal static readonly StyledProperty<AsyncImageState> StateProperty = AvaloniaProperty.Register<AsyncImage, AsyncImageState>(nameof(State));
+        /// <summary>
+        /// Defines the <see cref="State"/> property.
+        /// </summary>
+        public static readonly DirectProperty<AsyncImage,AsyncImageState> StateProperty = AvaloniaProperty.RegisterDirect<AsyncImage, AsyncImageState>(nameof(State),
+            o => o.State,
+            (o, v) => o.State = v);
 
-        internal AsyncImageState State
+        /// <summary>
+        /// Defines the <see cref="ImageTransition"/> property.
+        /// </summary>
+        public static readonly StyledProperty<IPageTransition?> ImageTransitionProperty =
+            AvaloniaProperty.Register<AsyncImage, IPageTransition?>(nameof(ImageTransition),
+            new CrossFade(TimeSpan.FromSeconds(0.25)));
+
+        /// <summary>
+        /// Gets the current loading state of the image.
+        /// </summary>
+        public AsyncImageState State
         {
-            get => GetValue(StateProperty);
-            set => SetValue(StateProperty, value);
+            get => _state;
+            private set => SetAndRaise(StateProperty, ref _state, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the transition to run when the image is loaded.
+        /// </summary>
+        public IPageTransition? ImageTransition
+        {
+            get => GetValue(ImageTransitionProperty);
+            set => SetValue(ImageTransitionProperty, value);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -34,6 +66,8 @@ namespace Avalonia.Labs.Controls
 
             ImagePart = e.NameScope.Get<Image>("PART_Image");
             PlaceholderPart = e.NameScope.Get<Image>("PART_PlaceholderImage");
+
+            _tokenSource = new CancellationTokenSource();
 
             _isInitialized = true;
 
@@ -115,7 +149,7 @@ namespace Avalonia.Labs.Controls
 
                     AttachSource(bitmap);
                 }
-                else if (uri.Scheme == "avares" || uri.Scheme == "resx")
+                else if (uri.Scheme == "avares")
                 {
                     try
                     {
@@ -152,13 +186,20 @@ namespace Avalonia.Labs.Controls
                 ImagePart.Source = image;
             }
 
+            _tokenSource?.Cancel();
+            _tokenSource = new CancellationTokenSource();
+
             if (image == null)
             {
                 State = AsyncImageState.Unloaded;
+
+                ImageTransition?.Start(ImagePart, PlaceholderPart, true, _tokenSource.Token);
             }
             else if (!image.Size.IsDefault)
             {
                 State = AsyncImageState.Loaded;
+
+                ImageTransition?.Start(PlaceholderPart, ImagePart, true, _tokenSource.Token);
 
                 RaiseEvent(new Interactivity.RoutedEventArgs(OpenedEvent));
             }
