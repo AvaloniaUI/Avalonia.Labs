@@ -52,7 +52,6 @@
                             HorizontalAlignment="Stretch"
                             HorizontalSnapPointsType="MandatorySingle"
                             HorizontalSnapPointsAlignment="Near"
-                            Offset="{TemplateBinding Offset}"
                             IsScrollInertiaEnabled="False"
                             VerticalAlignment="Stretch">
                 <ItemsPresenter Name="PART_ItemsPresenter"
