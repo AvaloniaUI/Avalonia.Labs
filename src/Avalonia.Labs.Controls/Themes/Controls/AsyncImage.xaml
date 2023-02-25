@@ -26,42 +26,20 @@
                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                            VerticalAlignment="{TemplateBinding VerticalAlignment}"
                            Source="{TemplateBinding PlaceholderSource}"
-                           Opacity="1.0"
-                           Stretch="{TemplateBinding PlaceholderStretch}" >
-                        <Image.Transitions>
-                            <Transitions>
-                                <DoubleTransition Property="Opacity" Duration="0:0:0.25"/>
-                            </Transitions>
-                        </Image.Transitions>
-                    </Image>
+                           Stretch="{TemplateBinding PlaceholderStretch}"/>
                     <Image Name="PART_Image"
                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                            VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                           Opacity="0.0"
-                           Stretch="{TemplateBinding Stretch}" >
-                        <Image.Transitions>
-                            <Transitions>
-                                <DoubleTransition Property="Opacity" Duration="0:0:0.25"/>
-                            </Transitions>
-                        </Image.Transitions>
-                    </Image>
+                           Stretch="{TemplateBinding Stretch}"/>
                 </Grid>                
             </Border>
         </ControlTemplate>
     </Setter>
-      <Style Selector="^[State=Loaded] /template/ Image#PART_Image">
-          <Setter Property="Opacity"
-                  Value="1.0" />
-      </Style>
-      <Style Selector="^[State=Loaded] /template/ Image#PART_PlaceholderImage">
+      <Style Selector="^[State=Failed] /template/ Image#PART_Image">
           <Setter Property="Opacity"
                   Value="0.0" />
       </Style>
-      <Style Selector="^[State=Loading] /template/ Image#PART_Image, ^[State=Failed] /template/ Image#PART_Image">
-          <Setter Property="Opacity"
-                  Value="0.0" />
-      </Style>
-      <Style Selector="^[State=Loading] /template/ Image#PART_PlaceholderImage, ^[State=Failed] /template/ Image#PART_PlaceholderImage">
+      <Style Selector="^[State=Failed] /template/ Image#PART_PlaceholderImage">
           <Setter Property="Opacity"
                   Value="1.0" />
       </Style>
