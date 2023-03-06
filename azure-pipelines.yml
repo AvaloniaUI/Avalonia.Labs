@@ -16,7 +16,7 @@ steps:
     - task: DotNetCoreCLI@2
       displayName: Pack
       inputs:
-          packagesToPack: Avalonia.Labs.sln
+          packagesToPack: src/**/*.csproj
           command: pack
           outputDir: $(Build.ArtifactStagingDirectory)/NuGet
           verbosityPack: normal
