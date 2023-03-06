@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Web;
+using Avalonia.Browser;
 using Avalonia.ReactiveUI;
 using Avalonia.Labs.Catalog;
 
@@ -8,9 +9,9 @@ using Avalonia.Labs.Catalog;
 
 internal partial class Program
 {
-    private static void Main(string[] args) => BuildAvaloniaApp()
+    private static Task Main(string[] args) => BuildAvaloniaApp()
         .UseReactiveUI()
-        .SetupBrowserApp("out");
+        .StartBrowserAppAsync("out");
 
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>();

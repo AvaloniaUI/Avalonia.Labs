@@ -14,7 +14,7 @@ steps:
       inputs:
           command: test
     - task: DotNetCoreCLI@2
-      displayName: Pack Templates
+      displayName: Pack
       inputs:
           packagesToPack: Avalonia.Labs.sln
           command: pack
