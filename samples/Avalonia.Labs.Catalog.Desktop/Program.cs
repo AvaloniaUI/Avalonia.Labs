@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using Avalonia;
+using Avalonia.Labs.Controls.Cache;
 
 namespace Avalonia.Labs.Catalog.Desktop;
 
@@ -16,5 +18,9 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+        .With(new CacheOptions()
+        {
+            BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
+        })
             .LogToTrace();
 }
