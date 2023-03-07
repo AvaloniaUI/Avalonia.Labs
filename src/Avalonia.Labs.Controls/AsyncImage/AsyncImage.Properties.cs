@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Animation;
 using Avalonia.Media;
 
 namespace Avalonia.Labs.Controls
@@ -28,6 +29,26 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly StyledProperty<Stretch> PlaceholderStretchProperty =
             AvaloniaProperty.Register<AsyncImage, Stretch>(nameof(PlaceholderStretch), Stretch.Uniform);
+
+        /// <summary>
+        /// Defines the <see cref="State"/> property.
+        /// </summary>
+        public static readonly DirectProperty<AsyncImage, AsyncImageState> StateProperty = AvaloniaProperty.RegisterDirect<AsyncImage, AsyncImageState>(nameof(State),
+            o => o.State,
+            (o, v) => o.State = v);
+
+        /// <summary>
+        /// Defines the <see cref="ImageTransition"/> property.
+        /// </summary>
+        public static readonly StyledProperty<IPageTransition?> ImageTransitionProperty =
+            AvaloniaProperty.Register<AsyncImage, IPageTransition?>(nameof(ImageTransition),
+            new CrossFade(TimeSpan.FromSeconds(0.25)));
+
+        /// <summary>
+        /// Defines the <see cref="IsCacheEnabled"/> property.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsCacheEnabledProperty =
+            AvaloniaProperty.Register<AsyncImage, bool>(nameof(IsCacheEnabled), true);
 
         /// <summary>
         /// Gets or sets the placeholder image.
@@ -63,6 +84,33 @@ namespace Avalonia.Labs.Controls
         {
             get { return GetValue(StretchProperty); }
             set { SetValue(StretchProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets the current loading state of the image.
+        /// </summary>
+        public AsyncImageState State
+        {
+            get => _state;
+            private set => SetAndRaise(StateProperty, ref _state, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the transition to run when the image is loaded.
+        /// </summary>
+        public IPageTransition? ImageTransition
+        {
+            get => GetValue(ImageTransitionProperty);
+            set => SetValue(ImageTransitionProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use cache for retrieved images
+        /// </summary>
+        public bool IsCacheEnabled
+        {
+            get => GetValue(IsCacheEnabledProperty);
+            set => SetValue(IsCacheEnabledProperty, value);
         }
     }
 }

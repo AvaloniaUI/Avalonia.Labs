@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Labs.Controls.Cache;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -27,38 +26,6 @@ namespace Avalonia.Labs.Controls
         private bool _isInitialized;
         private CancellationTokenSource? _tokenSource;
         private AsyncImageState _state;
-
-        /// <summary>
-        /// Defines the <see cref="State"/> property.
-        /// </summary>
-        public static readonly DirectProperty<AsyncImage,AsyncImageState> StateProperty = AvaloniaProperty.RegisterDirect<AsyncImage, AsyncImageState>(nameof(State),
-            o => o.State,
-            (o, v) => o.State = v);
-
-        /// <summary>
-        /// Defines the <see cref="ImageTransition"/> property.
-        /// </summary>
-        public static readonly StyledProperty<IPageTransition?> ImageTransitionProperty =
-            AvaloniaProperty.Register<AsyncImage, IPageTransition?>(nameof(ImageTransition),
-            new CrossFade(TimeSpan.FromSeconds(0.25)));
-
-        /// <summary>
-        /// Gets the current loading state of the image.
-        /// </summary>
-        public AsyncImageState State
-        {
-            get => _state;
-            private set => SetAndRaise(StateProperty, ref _state, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the transition to run when the image is loaded.
-        /// </summary>
-        public IPageTransition? ImageTransition
-        {
-            get => GetValue(ImageTransitionProperty);
-            set => SetValue(ImageTransitionProperty, value);
-        }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
@@ -207,6 +174,10 @@ namespace Avalonia.Labs.Controls
 
         private async Task<Bitmap> LoadImageAsync(Uri? url, CancellationToken token)
         {
+            if(await ProvideCachedResourceAsync(url, token) is { } bitmap)
+            {
+                return bitmap;
+            }
 #if NET6_0_OR_GREATER
             using var client = new HttpClient();
             var stream = await client.GetStreamAsync(url, token);
@@ -231,6 +202,15 @@ namespace Avalonia.Labs.Controls
             {
                 SetSource(Source);
             }
+        }
+
+        protected virtual async Task<Bitmap?> ProvideCachedResourceAsync(Uri? imageUri, CancellationToken token)
+        {
+            if(IsCacheEnabled && imageUri != null)
+            {
+                return await ImageCache.Instance.GetFromCacheAsync(imageUri);
+            }
+            return null;
         }
     }
 }
