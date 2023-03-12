@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:swipeView="clr-namespace:Avalonia.Labs.Controls.SwipeView;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.SwipeView">
+  <ScrollViewer>
+    <ItemsControl Items="{Binding Items}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <swipeView:Swipe Margin="5">
+            <swipeView:Swipe.Content>
+              <StackPanel Orientation="Horizontal" Spacing="5" Background="White">
+                <Border Background="Red" Width="64" Height="64" />
+                <Border Background="Red" Width="64" Height="64" />
+                <Border Background="Red" Width="64" Height="64" />
+                <Label Content="You can swipe on the item" Foreground="Black"/>
+              </StackPanel>
+            </swipeView:Swipe.Content>
+            <swipeView:Swipe.Right>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <Border Background="Blue" Width="64" Height="64" />
+                  <Border Background="Blue" Width="64" Height="64" />
+                  <Border Background="Blue" Width="64" Height="64" />
+                </StackPanel>
+              </DataTemplate>
+            </swipeView:Swipe.Right>
+            <swipeView:Swipe.Left>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <Border Background="Green" Width="64" Height="64" />
+                  <Border Background="Green" Width="64" Height="64" />
+                  <Border Background="Green" Width="64" Height="64" />
+                </StackPanel>
+              </DataTemplate>
+            </swipeView:Swipe.Left>
+          </swipeView:Swipe>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </ScrollViewer>
+
+</UserControl>
