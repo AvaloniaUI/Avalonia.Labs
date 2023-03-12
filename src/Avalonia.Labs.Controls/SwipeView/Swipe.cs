@@ -127,12 +127,7 @@ public class Swipe : Grid
 
     private SwipeState CalculateState(double translationX)
     {
-        if (!_rightContainer.IsVisible && !_leftContainer.IsVisible)
-        {
-            return SwipeState.Hidden;
-        }
-
-        var stepSize = _rightContainer.IsVisible
+        var stepSize = translationX < 0
             ? _rightContainer.Bounds.Width
             : _leftContainer.Bounds.Width;
 
@@ -209,8 +204,16 @@ public class Swipe : Grid
                 var x = _initialX + e.TotalX;
 
                 SetTranslate(x);
-                _rightContainer.IsVisible = x < 0;
-                _leftContainer.IsVisible = x > 0;
+
+                if (!_rightContainer.IsVisible)
+                {
+                    _rightContainer.IsVisible = x < 0;
+                }
+
+                if (!_leftContainer.IsVisible)
+                {
+                    _leftContainer.IsVisible = x > 0;
+                }
                 break;
             case PanGestureStatus.Completed:
                 _bodyContainer.Transitions!.Add(_transition);

@@ -4,6 +4,9 @@ using Avalonia.Input.GestureRecognizers;
 
 namespace Avalonia.Labs.Controls.Base;
 
+/// <summary>
+/// Indicates pan gesture status
+/// </summary>
 public enum PanGestureStatus
 {
     Started,
@@ -11,16 +14,37 @@ public enum PanGestureStatus
     Completed
 }
 
+/// <summary>
+/// Sets the pan directions
+/// </summary>
 [Flags]
 public enum PanDirection
 {
+    /// <summary>
+    /// Disables the pan
+    /// </summary>
     None = 0,
+    /// <summary>
+    /// Allows pan to left
+    /// </summary>
     Left = 1,
+    /// <summary>
+    /// Allows pan to right
+    /// </summary>
     Right = 2,
+    /// <summary>
+    /// Allows pan up
+    /// </summary>
     Up = 4,
+    /// <summary>
+    /// Allows pan down
+    /// </summary>
     Down = 8,
 }
 
+/// <summary>
+/// Contains the pan updates event data 
+/// </summary>
 public class PanUpdatedEventArgs : EventArgs
 {
     public PanUpdatedEventArgs(PanGestureStatus statusType, double totalX, double totalY)
@@ -35,6 +59,9 @@ public class PanUpdatedEventArgs : EventArgs
     public double TotalY { get; set; }
 }
 
+/// <summary>
+/// The gesture recognizer for pan gesture 
+/// </summary>
 public class PanGestureRecognizer : IGestureRecognizer
 {
     private IInputElement? _inputElement;
@@ -52,6 +79,7 @@ public class PanGestureRecognizer : IGestureRecognizer
 
     public float Threshold { get; set; } = 5;
 
+    /// <inheritdoc />
     public void Initialize(IInputElement target, IGestureRecognizerActionsDispatcher actions)
     {
         _inputElement = target;
@@ -60,6 +88,7 @@ public class PanGestureRecognizer : IGestureRecognizer
         _state = PanGestureStatus.Completed;
     }
 
+    /// <inheritdoc />
     public void PointerPressed(PointerPressedEventArgs e)
     {
         _startPosition = e.GetPosition(_parent);
@@ -67,6 +96,7 @@ public class PanGestureRecognizer : IGestureRecognizer
         OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(PanGestureStatus.Started, 0, 0));
     }
 
+    /// <inheritdoc />
     public void PointerMoved(PointerEventArgs e)
     {
         if (!_startPosition.HasValue)
@@ -117,6 +147,7 @@ public class PanGestureRecognizer : IGestureRecognizer
         OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(PanGestureStatus.Running, _delta.X, _delta.Y));
     }
 
+    /// <inheritdoc />
     public void PointerReleased(PointerReleasedEventArgs e)
     {
         if (!_startPosition.HasValue || _state == PanGestureStatus.Completed)
@@ -134,15 +165,19 @@ public class PanGestureRecognizer : IGestureRecognizer
         _lastPosition = null;
     }
 
+    /// <inheritdoc />
     public void PointerCaptureLost(IPointer pointer)
     {
         if (!_startPosition.HasValue || _state == PanGestureStatus.Completed)
         {
             return;
         }
-    
-        OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(
-            PanGestureStatus.Completed, _delta.X, _delta.Y));
+
+        OnPan?.Invoke(_inputElement,
+            new PanUpdatedEventArgs(
+                PanGestureStatus.Completed,
+                _delta.X,
+                _delta.Y));
 
         _startPosition = null;
         _lastPosition = null;
