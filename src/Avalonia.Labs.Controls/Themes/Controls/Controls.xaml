@@ -25,4 +25,5 @@
     <Setter Property="Height"
             Value="{Binding $parent.Bounds.Height}" />
   </Style>
+  <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentPage.xaml" />
 </Styles>

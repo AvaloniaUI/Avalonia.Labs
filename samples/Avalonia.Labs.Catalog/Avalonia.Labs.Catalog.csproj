@@ -9,6 +9,13 @@
     <AvaloniaResource Include="Assets\**" />
     <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
+  <Target Name="_InjectAdditionalFiles"
+          BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun">
+    <ItemGroup>
+      <AdditionalFiles Include="@(AvaloniaXaml)"
+                       SourceItemGroup="AvaloniaXaml" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
