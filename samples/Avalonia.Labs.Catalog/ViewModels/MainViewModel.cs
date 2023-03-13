@@ -1,5 +1,8 @@
-﻿using Avalonia.Labs.Catalog.Views;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Platform;
+using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
+using Avalonia.Styling;
 using ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.ViewModels
@@ -14,7 +17,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
         private bool? _showNavBar = true;
         private bool? _showBackButton = true;
         private INavigationRouter _navigationRouter;
-        private string? _title;
+        private bool _useSystemSafeArea = true;
 
         public MainViewModel()
         {
@@ -29,21 +32,22 @@ namespace Avalonia.Labs.Catalog.ViewModels
             set => this.RaiseAndSetIfChanged(ref _showNavBar, value);
         }
 
-        public string? Title
-        {
-            get => _title;
-            set => this.RaiseAndSetIfChanged(ref _title, value);
-        }
-
         public bool? ShowBackButton
         {
             get => _showBackButton;
             set => this.RaiseAndSetIfChanged(ref _showBackButton, value);
         }
+
         public INavigationRouter NavigationRouter
         {
             get => _navigationRouter;
             set => this.RaiseAndSetIfChanged(ref _navigationRouter, value);
+        }
+
+        public bool UseSystemSafeArea
+        {
+            get => _useSystemSafeArea;
+            set => this.RaiseAndSetIfChanged(ref _useSystemSafeArea, value);
         }
 
         public async void NavigateTo(object page)

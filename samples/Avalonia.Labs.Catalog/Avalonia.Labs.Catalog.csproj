@@ -13,6 +13,13 @@
     <None Remove="Assets\maple-leaf-888807_640.jpg" />
     <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
+  <Target Name="_InjectAdditionalFiles"
+          BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun">
+    <ItemGroup>
+      <AdditionalFiles Include="@(AvaloniaXaml)"
+                       SourceItemGroup="AvaloniaXaml" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
@@ -20,7 +27,6 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
   </ItemGroup>
 
   <ItemGroup>

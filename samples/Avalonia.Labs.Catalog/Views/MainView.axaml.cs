@@ -1,9 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Labs.Catalog.ViewModels;
+using Avalonia.Labs.Controls;
 
 namespace Avalonia.Labs.Catalog.Views;
 
-public partial class MainView : UserControl
+public partial class MainView : ContentPage
 {
     public MainView()
     {
