@@ -84,7 +84,7 @@ namespace Avalonia.Labs.Controls.Cache
             {
                 if (_httpClient == null)
                 {
-                    var messageHandler = new HttpClientHandler() { MaxConnectionsPerServer = 20 };
+                    var messageHandler = new HttpClientHandler();
 
                     _httpClient = new HttpClient(messageHandler);
                 }
@@ -417,7 +417,7 @@ namespace Avalonia.Labs.Controls.Cache
                         retries++;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     File.Delete(baseFile);
                     throw; // re-throwing the exception changes the stack trace. just throw
