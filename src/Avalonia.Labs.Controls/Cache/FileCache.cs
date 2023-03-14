@@ -6,7 +6,7 @@ namespace Avalonia.Labs.Controls.Cache
     /// <summary>
     /// Provides methods and tools to cache files in a folder
     /// </summary>
-    public class FileCache : CacheBase<string>
+    internal class FileCache : CacheBase<string>
     {
         /// <summary>
         /// Private singleton field.

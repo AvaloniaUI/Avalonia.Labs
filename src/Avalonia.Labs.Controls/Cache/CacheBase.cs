@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Avalonia.Labs.Controls.Cache
 {
-    public abstract class CacheBase<T>
+    internal abstract class CacheBase<T>
     {
         private class ConcurrentRequest
         {

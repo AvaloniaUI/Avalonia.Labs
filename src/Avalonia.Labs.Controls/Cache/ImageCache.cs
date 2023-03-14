@@ -8,7 +8,7 @@ namespace Avalonia.Labs.Controls.Cache
     /// <summary>
     /// Provides methods and tools to cache images in a folder
     /// </summary>
-    public class ImageCache : CacheBase<Bitmap>
+    internal class ImageCache : CacheBase<Bitmap>
     {
         /// <summary>
         /// Private singleton field.
