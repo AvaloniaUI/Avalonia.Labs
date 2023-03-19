@@ -14,19 +14,19 @@
                          />
         <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
                          Margin="5"
-                         Source="https://pbs.twimg.com/profile_images/1414990564408262661/r6YemvF9_400x400.jpg"
+                         Source="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
                          Width="80"
                          Height="80"
                          />
         <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
                          Margin="5"
-                         Source="https://pbs.twimg.com/profile_images/1585617858184323072/Vy138ToA_400x400.png"
+                         Source="https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RWCZER"
                          Width="80"
                          Height="80"
                          />
         <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
                          Margin="5"
-                         Source="https://pbs.twimg.com/profile_images/1572689860544335873/UooAQaXC_400x400.jpg"
+                         Source="https://cdn.cms-twdigitalassets.com/content/dam/about-twitter/en/brand-toolkit/brand-download-img-1.jpg.twimg.2560.jpg"
                          Width="80"
                          Height="80"
                          />
