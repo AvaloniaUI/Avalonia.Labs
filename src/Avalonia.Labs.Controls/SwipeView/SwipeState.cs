@@ -1,4 +1,4 @@
-namespace Avalonia.Labs.Controls.SwipeView;
+namespace Avalonia.Labs.Controls;
 
 /// <summary>
 /// Holds the possible states of the Swipe component

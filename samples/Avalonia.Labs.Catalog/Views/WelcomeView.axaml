@@ -74,6 +74,17 @@
               <Label FontSize="18"
                      VerticalAlignment="Center">Swipe</Label>
             </Button>
+          <Button HorizontalAlignment="Stretch"
+                  Height="60"
+                  Command="{Binding NavigateTo}"
+                  CornerRadius="10"
+                  Margin="0,5">
+            <Button.CommandParameter>
+              <viewModels:GestureViewModel/>
+            </Button.CommandParameter>
+            <Label FontSize="18"
+                   VerticalAlignment="Center">Gesture</Label>
+          </Button>
         </StackPanel>
     </Grid>
 </UserControl>

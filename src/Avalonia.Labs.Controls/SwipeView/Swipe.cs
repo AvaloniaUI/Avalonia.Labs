@@ -1,15 +1,16 @@
 using System;
 using System.Threading;
+using System.Windows.Input;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.Labs.Controls.Base;
+using Avalonia.Labs.Controls.Base.Pan;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media.Transformation;
 
-namespace Avalonia.Labs.Controls.SwipeView;
+namespace Avalonia.Labs.Controls;
 
 public class Swipe : Grid
 {
@@ -61,6 +62,17 @@ public class Swipe : Grid
         set => SetValue(SwipeStateProperty, value);
     }
 
+    private readonly ContentPresenter _rightContainer;
+    private readonly ContentPresenter _leftContainer;
+    private readonly ContentPresenter _bodyContainer;
+    private readonly TransformOperationsTransition _transition;
+
+    private double _initialX;
+    private double _currentX;
+    private CancellationTokenSource? _tokenSource;
+    private ICommand? _command;
+    private object? _commandParameter;
+
     public Swipe()
     {
         _rightContainer = new ContentPresenter
@@ -80,11 +92,11 @@ public class Swipe : Grid
 
         _transition = new TransformOperationsTransition
         {
-            Property = RenderTransformProperty, 
+            Property = RenderTransformProperty,
             Duration = TimeSpan.FromMilliseconds(200),
             Easing = new CubicEaseOut()
         };
-        
+
         var panGestureRecognizer = new PanGestureRecognizer
         {
             Direction = PanDirection.Left | PanDirection.Right, Threshold = 10,
@@ -98,15 +110,6 @@ public class Swipe : Grid
         Children.Add(_leftContainer);
         Children.Add(_bodyContainer);
     }
-
-    private readonly ContentPresenter _rightContainer;
-    private readonly ContentPresenter _leftContainer;
-    private readonly ContentPresenter _bodyContainer;
-    private readonly TransformOperationsTransition _transition;
-
-    private double _initialX;
-    private double _currentX;
-    private CancellationTokenSource? _tokenSource;
 
     /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
@@ -205,15 +208,8 @@ public class Swipe : Grid
 
                 SetTranslate(x);
 
-                if (!_rightContainer.IsVisible)
-                {
-                    _rightContainer.IsVisible = x < 0;
-                }
-
-                if (!_leftContainer.IsVisible)
-                {
-                    _leftContainer.IsVisible = x > 0;
-                }
+                _rightContainer.IsVisible = x < 0;
+                _leftContainer.IsVisible = x > 0;
                 break;
             case PanGestureStatus.Completed:
                 _bodyContainer.Transitions!.Add(_transition);

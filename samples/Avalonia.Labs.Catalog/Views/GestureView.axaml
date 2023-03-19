@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:base="clr-namespace:Avalonia.Labs.Controls.Base;assembly=Avalonia.Labs.Controls"
+             xmlns:pan="clr-namespace:Avalonia.Labs.Controls.Base.Pan;assembly=Avalonia.Labs.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Avalonia.Labs.Catalog.Views.GestureView">
+  <Grid>
+    <Border Background="Red" Height="128" Width="128" VerticalAlignment="Center" HorizontalAlignment="Left">
+      <Border.GestureRecognizers>
+        <base:TapGestureRecognizer OnTap="Pressed" DetectOn="PointerPressed" />
+      </Border.GestureRecognizers>
+      <Label x:Name="RedActionText" Content="Click" VerticalAlignment="Top" />
+    </Border>
+
+    <Border Background="Blue" Height="128" Width="128" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Border.GestureRecognizers>
+        <base:TapGestureRecognizer OnTap="Released" />
+      </Border.GestureRecognizers>
+      <Label x:Name="BlueActionText" Content="Click" VerticalAlignment="Top" />
+    </Border>
+
+    <Border x:Name="Green" Background="Green" Height="128" Width="128" VerticalAlignment="Center"
+            HorizontalAlignment="Right">
+      <Border.GestureRecognizers>
+        <pan:PanGestureRecognizer OnPan="Panned" />
+      </Border.GestureRecognizers>
+      <Label x:Name="GreenActionText" Content="Grab" />
+    </Border>
+
+    <Border x:Name="Orange" Background="Orange" Height="128" Width="128" VerticalAlignment="Bottom"
+            HorizontalAlignment="Center">
+      <Border.GestureRecognizers>
+        <base:TapGestureRecognizer OnTap="ReleasedOrange" />
+        <pan:PanGestureRecognizer OnPan="PannedOrange" />
+      </Border.GestureRecognizers>
+      <Label x:Name="OrangeActionText" Content="Tap or Grab" />
+    </Border>
+  </Grid>
+</UserControl>

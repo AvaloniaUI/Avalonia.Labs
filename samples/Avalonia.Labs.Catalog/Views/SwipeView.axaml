@@ -4,22 +4,26 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800"
              d:DesignHeight="450"
-             xmlns:swipeView="clr-namespace:Avalonia.Labs.Controls.SwipeView;assembly=Avalonia.Labs.Controls"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             xmlns:base="clr-namespace:Avalonia.Labs.Controls.Base;assembly=Avalonia.Labs.Controls"
              x:Class="Avalonia.Labs.Catalog.Views.SwipeView">
   <ScrollViewer>
     <ItemsControl Items="{Binding Items}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <swipeView:Swipe Margin="5">
-            <swipeView:Swipe.Content>
+          <labs:Swipe Margin="5">
+            <labs:Swipe.Content>
               <StackPanel Orientation="Horizontal" Spacing="5" Background="White">
+                <StackPanel.GestureRecognizers>
+                  <base:TapGestureRecognizer OnTap="TapGestureRecognizer_OnOnTap" />
+                </StackPanel.GestureRecognizers>
                 <Border Background="Red" Width="64" Height="64" />
                 <Border Background="Red" Width="64" Height="64" />
                 <Border Background="Red" Width="64" Height="64" />
-                <Label Content="You can swipe on the item" Foreground="Black"/>
+                <Label Content="You can swipe or click on the item" Foreground="Black"/>
               </StackPanel>
-            </swipeView:Swipe.Content>
-            <swipeView:Swipe.Right>
+            </labs:Swipe.Content>
+            <labs:Swipe.Right>
               <DataTemplate>
                 <StackPanel Orientation="Horizontal" Spacing="5">
                   <Border Background="Blue" Width="64" Height="64" />
@@ -27,8 +31,8 @@
                   <Border Background="Blue" Width="64" Height="64" />
                 </StackPanel>
               </DataTemplate>
-            </swipeView:Swipe.Right>
-            <swipeView:Swipe.Left>
+            </labs:Swipe.Right>
+            <labs:Swipe.Left>
               <DataTemplate>
                 <StackPanel Orientation="Horizontal" Spacing="5">
                   <Border Background="Green" Width="64" Height="64" />
@@ -36,8 +40,8 @@
                   <Border Background="Green" Width="64" Height="64" />
                 </StackPanel>
               </DataTemplate>
-            </swipeView:Swipe.Left>
-          </swipeView:Swipe>
+            </labs:Swipe.Left>
+          </labs:Swipe>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
