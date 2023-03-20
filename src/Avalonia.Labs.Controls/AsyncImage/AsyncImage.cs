@@ -162,7 +162,7 @@ namespace Avalonia.Labs.Controls
 
                 ImageTransition?.Start(ImagePart, PlaceholderPart, true, _tokenSource.Token);
             }
-            else if (!image.Size.IsDefault)
+            else if (image.Size != default)
             {
                 State = AsyncImageState.Loaded;
 

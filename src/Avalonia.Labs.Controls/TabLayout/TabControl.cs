@@ -348,11 +348,13 @@ namespace Avalonia.Labs.Controls
                 ScrollIntoView(SelectedIndex);
             }
         }
-
-        protected override void ItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        public TabControl()
         {
-            base.ItemsCollectionChanged(sender, e);
+            ItemsView.CollectionChanged += ItemsView_CollectionChanged;
+        }
 
+        private void ItemsView_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
             SetHeaderItems();
         }
 
