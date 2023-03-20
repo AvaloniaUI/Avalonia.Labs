@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using System.Windows.Input;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -69,9 +67,6 @@ public class Swipe : Grid
 
     private double _initialX;
     private double _currentX;
-    private CancellationTokenSource? _tokenSource;
-    private ICommand? _command;
-    private object? _commandParameter;
 
     public Swipe()
     {
@@ -149,8 +144,6 @@ public class Swipe : Grid
 
     private void ProcessSwipe(SwipeState state)
     {
-        _tokenSource?.Cancel();
-        _tokenSource = new CancellationTokenSource();
         switch (state)
         {
             case SwipeState.RightVisible:
