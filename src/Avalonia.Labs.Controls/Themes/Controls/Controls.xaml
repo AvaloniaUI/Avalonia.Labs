@@ -26,4 +26,8 @@
             Value="{Binding $parent.Bounds.Height}" />
   </Style>
   <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentPage.xaml" />
+  <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/NavigationPage.xaml" />
+  <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/CarouselPage.xaml" />
+  <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/MasterDetailPage.xaml" />
+  <StyleInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabbedPage.xaml" />
 </Styles>

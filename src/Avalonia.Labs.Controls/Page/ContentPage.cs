@@ -4,6 +4,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
+using Avalonia.LogicalTree;
 using Avalonia.Metadata;
 using System;
 
@@ -13,19 +14,19 @@ namespace Avalonia.Labs.Controls
     public class ContentPage : Page
     {
         public static readonly StyledProperty<object?> ContentProperty =
-            AvaloniaProperty.Register<ContentPage, object?>(nameof(Content));
+           ContentControl.ContentProperty.AddOwner<ContentPage>();
 
-        public static readonly StyledProperty<IDataTemplate?> ContentTemplateProperty =
-            AvaloniaProperty.Register<ContentPage, IDataTemplate?>(nameof(ContentTemplate));
+        public static readonly StyledProperty<IDataTemplate?> ContentTemplateProperty =            
+           ContentControl.ContentTemplateProperty.AddOwner<ContentPage>();
 
         public static readonly StyledProperty<bool> AutomaticallyApplySafeAreaPaddingProperty =
             AvaloniaProperty.Register<ContentPage, bool>(nameof(AutomaticallyApplySafeAreaPadding), true);
 
         public static readonly StyledProperty<HorizontalAlignment> HorizontalContentAlignmentProperty =
-            AvaloniaProperty.Register<ContentControl, HorizontalAlignment>(nameof(HorizontalContentAlignment));
+            ContentControl.HorizontalContentAlignmentProperty.AddOwner<ContentPage>();
 
         public static readonly StyledProperty<VerticalAlignment> VerticalContentAlignmentProperty =
-            AvaloniaProperty.Register<ContentControl, VerticalAlignment>(nameof(VerticalContentAlignment));
+            ContentControl.VerticalContentAlignmentProperty.AddOwner<ContentPage>();
 
         public HorizontalAlignment HorizontalContentAlignment
         {
@@ -79,24 +80,33 @@ namespace Avalonia.Labs.Controls
         {
             base.OnPropertyChanged(change);
 
-            if (change.Property == SafeAreaPaddingProperty
-                || change.Property == SafeAreaPaddingProperty
-                || change.Property == PaddingProperty
-                || change.Property == AutomaticallyApplySafeAreaPaddingProperty)
+            if (change.Property == AutomaticallyApplySafeAreaPaddingProperty)
             {
                 UpdatePresenterPadding();
             }
             else if (change.Property == ContentProperty)
             {
                 UpdatePresenterPadding();
+
+                if (change.OldValue is ILogical oldLogical)
+                {
+                    LogicalChildren.Remove(oldLogical);
+                }
+                if (change.NewValue is ILogical newLogical)
+                {
+                    LogicalChildren.Add(newLogical);
+                }
             }
         }
 
-        private void UpdatePresenterPadding()
+        protected override void UpdatePresenterPadding()
         {
             if (_contentPresenter != null)
             {
                 _contentPresenter.Padding = AutomaticallyApplySafeAreaPadding ? Padding.ApplySafeAreaPadding(SafeAreaPadding) : Padding;
+
+                if (ActiveChildPage != null)
+                    ActiveChildPage.SafeAreaPadding = Padding.GetRemainingSafeAreaPadding(SafeAreaPadding);
             }
         }
     }

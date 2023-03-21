@@ -1,18 +1,22 @@
 ﻿using System;
-using Avalonia.Controls.Platform;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace Avalonia.Labs.Controls
 {
-    public abstract class Page : TemplatedControl
+    public abstract class Page : TemplatedControl, IStyleable
     {
         public static readonly StyledProperty<Thickness> SafeAreaPaddingProperty =
             AvaloniaProperty.Register<Page, Thickness>(nameof(SafeAreaPadding));
 
         public static readonly StyledProperty<string?> TitleProperty =
             AvaloniaProperty.Register<Page, string?>(nameof(Title));
+
+        public static readonly StyledProperty<IImage?> IconProperty =
+            AvaloniaProperty.Register<Page, IImage?>(nameof(Icon));
 
         public static readonly StyledProperty<Page?> ActiveChildPageProperty =
             AvaloniaProperty.Register<Page, Page?>(nameof(ActiveChildPage));
@@ -34,6 +38,12 @@ namespace Avalonia.Labs.Controls
             set => SetValue(TitleProperty, value);
         }
 
+        public IImage? Icon
+        {
+            get => GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
+        }
+
         public Thickness SafeAreaPadding
         {
             get => GetValue(SafeAreaPaddingProperty);
@@ -43,7 +53,7 @@ namespace Avalonia.Labs.Controls
         public Page? ActiveChildPage
         {
             get => GetValue(ActiveChildPageProperty);
-            set { SetValue(ActiveChildPageProperty, value); }
+            set => SetValue(ActiveChildPageProperty, value);
         }
 
         public event EventHandler<RoutedEventArgs> PageNavigationSystemBackButtonPressed
@@ -56,28 +66,22 @@ namespace Avalonia.Labs.Controls
         {
             base.OnPropertyChanged(change);
 
-            if (ActiveChildPage != null)
+            if (change.Property == SafeAreaPaddingProperty
+                || change.Property == SafeAreaPaddingProperty
+                || change.Property == PaddingProperty)
             {
-                if (change.Property == SafeAreaPaddingProperty
-                    || change.Property == SafeAreaPaddingProperty
-                    || change.Property == PaddingProperty
-                    || change.Property == ActiveChildPageProperty)
-                {
-                    ActiveChildPage.SafeAreaPadding = Padding.GetRemainingSafeAreaPadding(SafeAreaPadding);
-                }
-            }
-
-            if(change.Property == ActiveChildPageProperty)
-            {
-                if(change.OldValue is ILogical oldLogical)
-                {
-                    LogicalChildren.Remove(oldLogical);
-                }
-                if(change.NewValue is ILogical newLogical)
-                {
-                    LogicalChildren.Add(newLogical);
-                }
+                UpdatePresenterPadding();
             }
         }
+
+        protected override void OnLoaded()
+        {
+            base.OnLoaded();
+
+            UpdatePresenterPadding();
+        }
+
+        protected virtual void UpdatePresenterPadding() { }
+        protected virtual void UpdateActivePage() { }
     }
 }

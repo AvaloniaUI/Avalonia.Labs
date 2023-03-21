@@ -1,23 +1,26 @@
 ﻿using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Reactive;
+using Avalonia.Styling;
 
 namespace Avalonia.Labs.Controls
 {
-    public partial class PageNavigationHost : Control
+    public partial class PageNavigationHost : ContentControl, IStyleable
     {
         public static readonly StyledProperty<object?> PageProperty =
             AvaloniaProperty.Register<PageNavigationHost, object?>(nameof(Page));
 
-        internal static readonly StyledProperty<Page?> ContentProperty =
-            AvaloniaProperty.Register<PageNavigationHost, Page?>(nameof(Content));
         private TopLevel? _topLevel;
         private IInsetsManager? _insetManager;
-        private IDisposable? _systemThemeSubscription;
+        private ContentPresenter? _contentPresenter;
+
+        Type IStyleable.StyleKey => typeof(ContentControl);
 
         public object? Page
         {
@@ -25,10 +28,9 @@ namespace Avalonia.Labs.Controls
             set { SetValue(PageProperty, value); }
         }
 
-        internal Page? Content
+        static PageNavigationHost()
         {
-            get { return GetValue(ContentProperty); }
-            set { SetValue(ContentProperty, value); }
+            ContentTemplateProperty.OverrideDefaultValue<PageNavigationHost>(new DefaultPageDataTemplate());
         }
 
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -60,14 +62,49 @@ namespace Avalonia.Labs.Controls
             {
                 _topLevel.BackRequested += TopLevel_BackRequested;
             }
+
+            if (_insetManager != null && _contentPresenter != null && _contentPresenter.Child is Page page)
+            {
+                page.SafeAreaPadding = _insetManager.SafeAreaPadding;
+            }
+        }
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+
+            if (_contentPresenter != null)
+            {
+                _contentPresenter.PropertyChanged -= ContentPresenter_PropertyChanged;
+            }
+
+            _contentPresenter = e.NameScope.Get<ContentPresenter>("PART_ContentPresenter");
+
+            if (_contentPresenter != null)
+            {
+                if (_insetManager != null && _contentPresenter.Child is Page page)
+                {
+                    page.SafeAreaPadding = _insetManager.SafeAreaPadding;
+                }
+
+                _contentPresenter.PropertyChanged += ContentPresenter_PropertyChanged;
+            }
+        }
+
+        private void ContentPresenter_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == ContentPresenter.ChildProperty && Presenter != null && Presenter.Child is Page page && _insetManager != null)
+            {
+                page.SafeAreaPadding = _insetManager.SafeAreaPadding;
+            }
         }
 
         private void TopLevel_BackRequested(object? sender, RoutedEventArgs e)
         {
-            if (Content != null)
+            if (Presenter != null && Presenter.Child is Page page)
             {
                 var forwaredEvent = new RoutedEventArgs(Controls.Page.PageNavigationSystemBackButtonPressedEvent);
-                Content.RaiseEvent(forwaredEvent);
+                page.RaiseEvent(forwaredEvent);
 
                 e.Handled = forwaredEvent.Handled;
             }
@@ -75,9 +112,9 @@ namespace Avalonia.Labs.Controls
 
         private void InsetManager_SafeAreaChanged(object? sender, SafeAreaChangedArgs e)
         {
-            if (Content != null)
+            if (Content != null && Presenter != null && Presenter.Child is Page page)
             {
-                Content.SafeAreaPadding = e.SafeAreaPadding;
+                page.SafeAreaPadding = e.SafeAreaPadding;
             }
         }
 
@@ -87,11 +124,11 @@ namespace Avalonia.Labs.Controls
 
             if(change.Property == PageProperty)
             {
-                CreatePageControl();
+                Content = change.NewValue;
 
-                if (Content != null && _insetManager != null)
+                if (Content != null && _insetManager != null && Presenter != null && Presenter.Child is Page page)
                 {
-                    Content.SafeAreaPadding = _insetManager.SafeAreaPadding;
+                    page.SafeAreaPadding = _insetManager.SafeAreaPadding;
                 }
 
                 if (change.OldValue is ILogical oldLogical)
@@ -101,80 +138,6 @@ namespace Avalonia.Labs.Controls
                 if (change.NewValue is ILogical newLogical)
                 {
                     LogicalChildren.Add(newLogical);
-                }
-            }
-
-            if (change.Property == ContentProperty)
-            {
-                VisualChildren?.Clear();
-
-                _systemThemeSubscription?.Dispose();
-
-                if (Content != null)
-                {
-                    VisualChildren?.Add(Content);
-                }
-            }
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            Content?.Measure(availableSize);
-
-            return Content?.DesiredSize ?? base.MeasureOverride(availableSize);
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            var size = base.ArrangeOverride(finalSize);
-
-            Content?.Arrange(Bounds);
-
-            return size;
-        }
-
-        private void CreatePageControl()
-        {
-            if(Page != null)
-            {
-                if(Page is Control control)
-                {
-                    if(Page is Page page)
-                    {
-                        Content = page;
-                    }
-                    else
-                    {
-                        Content = new ContentPage()
-                        {
-                            Content = Content
-                        };
-                    }
-                }
-                else
-                {
-                    var dataTemplate = this.FindDataTemplate(typeof(Page)) ?? FuncDataTemplate.Default;
-
-                    if (dataTemplate != null)
-                    {
-                        var content = dataTemplate.Build(Page);
-
-                        if (content is Page page)
-                        {
-                            Content = page;
-                        }
-                        else
-                        {
-                            Content = new ContentPage()
-                            {
-                                Content = content
-                            };
-                        }
-                    }
-                    else
-                    {
-                        Content = null;
-                    }
                 }
             }
         }

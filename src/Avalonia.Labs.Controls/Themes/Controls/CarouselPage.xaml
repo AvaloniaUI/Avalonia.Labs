@@ -1,0 +1,29 @@
+﻿<Style  xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:control="using:Avalonia.Labs.Controls"
+                    Selector=":is(control|CarouselPage)">
+  <Style.Resources>
+    <ControlTheme x:Key="CarouselPage"
+                  TargetType="control:CarouselPage">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ScrollViewer Name="PART_ScrollViewer"
+                        VerticalSnapPointsType="MandatorySingle"
+                        HorizontalSnapPointsType="MandatorySingle"
+                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                        IsScrollChainingEnabled="{TemplateBinding ScrollViewer.IsScrollChainingEnabled}"
+                        IsScrollInertiaEnabled="False"
+                        Offset="{TemplateBinding Offset}"
+                        VerticalAlignment="Stretch">
+            <ItemsPresenter Name="PART_ItemsPresenter"
+                            ItemsPanel="{TemplateBinding ItemsPanel}"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter>
+    </ControlTheme>
+  </Style.Resources>
+
+  <Setter Property="Theme"
+          Value="{StaticResource CarouselPage}" />
+</Style >
