@@ -12,6 +12,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.VisualTree;
@@ -31,7 +32,13 @@ namespace Avalonia.Labs.Controls
         /// Defines the <see cref="TabStripPlacement"/> property.
         /// </summary>
         public static readonly StyledProperty<Dock> TabStripPlacementProperty =
-            AvaloniaProperty.Register<TabControl, Dock>(nameof(TabStripPlacement), defaultValue: Dock.Top);
+            Avalonia.Controls.TabControl.TabStripPlacementProperty.AddOwner<TabControl>();
+
+        public static readonly StyledProperty<IBrush?> HeaderBackgroundProperty =
+            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderBackground));
+
+        public static readonly StyledProperty<IBrush?> HeaderForegroundProperty =
+            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderForeground));
 
         /// <summary>
         /// Defines the <see cref="HorizontalContentAlignment"/> property.
@@ -93,6 +100,16 @@ namespace Avalonia.Labs.Controls
             AutomationProperties.ControlTypeOverrideProperty.OverrideDefaultValue<TabControl>(AutomationControlType.Tab);
         }
 
+        public TabControl()
+        {
+            ItemsView.CollectionChanged += ItemsView_CollectionChanged;
+        }
+
+        private void ItemsView_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            SetHeaderItems();
+        }
+
         /// <summary>
         /// Gets or sets the horizontal alignment of the content within the control.
         /// </summary>
@@ -148,6 +165,17 @@ namespace Avalonia.Labs.Controls
             set { SetValue(HeaderPanelProperty, value); }
         }
 
+        public IBrush? HeaderBackground
+        {
+            get { return GetValue(HeaderBackgroundProperty); }
+            set { SetValue(HeaderBackgroundProperty, value); }
+        }
+        public IBrush? HeaderForeground
+        {
+            get { return GetValue(HeaderForegroundProperty); }
+            set { SetValue(HeaderForegroundProperty, value); }
+        }
+
         internal TabHeader? HeaderPart { get; private set; }
         internal ItemsPresenter? ItemsPresenterPart { get; private set; }
         internal Border? BorderPart { get; private set; }
@@ -169,7 +197,7 @@ namespace Avalonia.Labs.Controls
                 pivotItem.VerticalAlignment = VerticalAlignment.Stretch;
             }
 
-            if (index == SelectedIndex && element is ContentControl container)
+            if (index == SelectedIndex && element is ContentControl)
             {
                 UpdateHeaderSelection();
             }
@@ -178,6 +206,11 @@ namespace Avalonia.Labs.Controls
         protected override void ClearContainerForItemOverride(Control element)
         {
             base.ClearContainerForItemOverride(element);
+
+            if (element is TabItem pivotItem)
+            {
+                pivotItem.Content = null;
+            }
             UpdateHeaderSelection();
         }
 
@@ -215,7 +248,7 @@ namespace Avalonia.Labs.Controls
                             _implicitAnimations["Offset"] = offsetAnimation;
                         }
 
-                        composition.ImplicitAnimations = _implicitAnimations;
+                      //  composition.ImplicitAnimations = _implicitAnimations;
                     }
                 }
             };
@@ -348,28 +381,19 @@ namespace Avalonia.Labs.Controls
                 ScrollIntoView(SelectedIndex);
             }
         }
-        public TabControl()
-        {
-            ItemsView.CollectionChanged += ItemsView_CollectionChanged;
-        }
-
-        private void ItemsView_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            SetHeaderItems();
-        }
 
         private void SetHeaderItems()
         {
             if (HeaderPart != null)
             {
-                List<object> headers = new List<object>();
+                List<object?> headers = new List<object?>();
 
-                if (Items == null)
+                if (ItemsSource == null)
                 {
                     return;
                 }
 
-                foreach (var item in Items)
+                foreach (var item in ItemsSource)
                 {
                     if (item is IHeadered headered)
                     {
@@ -398,11 +422,18 @@ namespace Avalonia.Labs.Controls
                     }
                     else
                     {
-                        headers.Add(item);
+                        if(HeaderTemplate != null)
+                        {
+                            headers.Add(HeaderTemplate.Build(item));
+                        }
+                        else
+                        {
+                            headers.Add(item.ToString());
+                        }    
                     }
                 }
 
-                HeaderPart.Items = headers;
+                HeaderPart.ItemsSource = headers;
 
                 UpdateHeaderSelection();
             }
