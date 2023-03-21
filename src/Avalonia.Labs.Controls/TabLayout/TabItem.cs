@@ -6,6 +6,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
 using Avalonia.LogicalTree;
 using Avalonia.Reactive;
 using Avalonia.Styling;
@@ -16,15 +17,21 @@ namespace Avalonia.Labs.Controls
     /// An item in  a <see cref="TabControl"/>/>.
     /// </summary>
     [PseudoClasses(":pressed", ":selected")]
-    public class TabItem : HeaderedContentControl, ISelectable
+    public class TabItem : ListBoxItem, ISelectable
     {
         private IDisposable? _boundsObservable;
 
         /// <summary>
-        /// Defines the <see cref="IsSelected"/> property.
+        /// Defines the <see cref="Header"/> property.
         /// </summary>
-        public static readonly StyledProperty<bool> IsSelectedProperty =
-            ListBoxItem.IsSelectedProperty.AddOwner<TabItem>();
+        public static readonly StyledProperty<object?> HeaderProperty =
+            AvaloniaProperty.Register<HeaderedContentControl, object?>(nameof(Header));
+
+        /// <summary>
+        /// Defines the <see cref="HeaderTemplate"/> property.
+        /// </summary>
+        public static readonly StyledProperty<IDataTemplate?> HeaderTemplateProperty =
+            AvaloniaProperty.Register<HeaderedContentControl, IDataTemplate?>(nameof(HeaderTemplate));
 
         /// <summary>
         /// Defines the <see cref="HeaderTheme"/> property.
@@ -41,17 +48,32 @@ namespace Avalonia.Labs.Controls
             set => SetValue(HeaderThemeProperty, value);
         }
 
-
         /// <summary>
-        /// Gets or sets the selection state of the item.
+        /// Gets or sets the header content.
         /// </summary>
-        public bool IsSelected
+        public object? Header
         {
-            get { return GetValue(IsSelectedProperty); }
-            set { SetValue(IsSelectedProperty, value); }
+            get => GetValue(HeaderProperty);
+            set => SetValue(HeaderProperty, value);
         }
 
-        internal ContentPresenter? ContentPart { get; private set; }
+        /// <summary>
+        /// Gets the header presenter from the control's template.
+        /// </summary>
+        public IContentPresenter? HeaderPresenter
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets or sets the data template used to display the header content of the control.
+        /// </summary>
+        public IDataTemplate? HeaderTemplate
+        {
+            get => GetValue(HeaderTemplateProperty);
+            set => SetValue(HeaderTemplateProperty, value);
+        }
 
         /// <summary>
         /// Initializes static members of the <see cref="TabItem"/> class.
@@ -59,7 +81,7 @@ namespace Avalonia.Labs.Controls
         static TabItem()
         {
             PressedMixin.Attach<TabItem>();
-            FocusableProperty.OverrideDefaultValue(typeof(TabItem), true);
+            FocusableProperty.OverrideDefaultValue<TabItem>(true);
             DataContextProperty.Changed.AddClassHandler<TabItem>((x, e) => x.UpdateHeader(e));
             AutomationProperties.ControlTypeOverrideProperty.OverrideDefaultValue<TabItem>(AutomationControlType.TabItem);
         }
@@ -97,13 +119,14 @@ namespace Avalonia.Labs.Controls
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-
-            ContentPart = e.NameScope.Get<ContentPresenter>("PART_ContentPresenter");
         }
 
         protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             base.OnAttachedToLogicalTree(e);
+
+            _boundsObservable?.Dispose();
+            _boundsObservable = null;
 
             if (Parent is TabControl pivot)
             {

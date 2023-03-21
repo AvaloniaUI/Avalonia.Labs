@@ -10,6 +10,7 @@ using Avalonia.Labs.Controls.Cache;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace Avalonia.Labs.Controls
 {
@@ -94,9 +95,11 @@ namespace Avalonia.Labs.Controls
                             }
                             catch (Exception ex)
                             {
-                                State = AsyncImageState.Failed;
+                                await Dispatcher.UIThread.InvokeAsync(() => {
+                                    State = AsyncImageState.Failed;
 
-                                RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                                    RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                                });
                             }
                         });
                     }
@@ -108,9 +111,11 @@ namespace Avalonia.Labs.Controls
                         }
                         catch (Exception ex)
                         {
-                            State = AsyncImageState.Failed;
+                            await Dispatcher.UIThread.InvokeAsync(() => {
+                                State = AsyncImageState.Failed;
 
-                            RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                                RaiseEvent(new AsyncImageFailedEventArgs(ex));
+                            });
                         }
                     }
 

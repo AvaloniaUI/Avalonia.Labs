@@ -9,7 +9,7 @@ using Avalonia.Interactivity;
 namespace Avalonia.Labs.Controls
 {
     /// <summary>
-    /// A navigation controlt that supports simple stack-based navigation
+    /// A navigation control that supports simple stack-based navigation
     /// </summary>
     [TemplatePart("PART_NavigationBar", typeof(Border))]
     [TemplatePart("PART_BackButton", typeof(Button))]
@@ -68,7 +68,7 @@ namespace Avalonia.Labs.Controls
                 new CrossFade(TimeSpan.FromSeconds(0.125)));
 
         /// <summary>
-        /// Defines the <see cref="PageTransition"/> property.
+        /// Defines the <see cref="HeaderTemplate"/> property.
         /// </summary>
         public static readonly StyledProperty<IDataTemplate?> HeaderTemplateProperty =
             AvaloniaProperty.Register<NavigationControl, IDataTemplate?>(nameof(HeaderTemplate));

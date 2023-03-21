@@ -37,8 +37,7 @@
                 VerticalAlignment="{TemplateBinding VerticalAlignment}">
           <DockPanel>
             <control:TabHeader Name="PART_Header"
-                        ItemsPanel="{TemplateBinding HeaderPanel}"
-                        ItemTemplate="{TemplateBinding HeaderTemplate}"/>
+                        ItemsPanel="{TemplateBinding HeaderPanel}"/>
             <Border Name="PART_Border"
                     Margin="{TemplateBinding Padding}"
                     HorizontalAlignment="Stretch"
