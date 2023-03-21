@@ -12,7 +12,6 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
-using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.VisualTree;
@@ -33,12 +32,6 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly StyledProperty<Dock> TabStripPlacementProperty =
             Avalonia.Controls.TabControl.TabStripPlacementProperty.AddOwner<TabControl>();
-
-        public static readonly StyledProperty<IBrush?> HeaderBackgroundProperty =
-            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderBackground));
-
-        public static readonly StyledProperty<IBrush?> HeaderForegroundProperty =
-            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderForeground));
 
         /// <summary>
         /// Defines the <see cref="HorizontalContentAlignment"/> property.
@@ -163,17 +156,6 @@ namespace Avalonia.Labs.Controls
         {
             get { return GetValue(HeaderPanelProperty); }
             set { SetValue(HeaderPanelProperty, value); }
-        }
-
-        public IBrush? HeaderBackground
-        {
-            get { return GetValue(HeaderBackgroundProperty); }
-            set { SetValue(HeaderBackgroundProperty, value); }
-        }
-        public IBrush? HeaderForeground
-        {
-            get { return GetValue(HeaderForegroundProperty); }
-            set { SetValue(HeaderForegroundProperty, value); }
         }
 
         internal TabHeader? HeaderPart { get; private set; }
@@ -388,12 +370,12 @@ namespace Avalonia.Labs.Controls
             {
                 List<object?> headers = new List<object?>();
 
-                if (ItemsSource == null)
+                if (Items == null)
                 {
                     return;
                 }
 
-                foreach (var item in ItemsSource)
+                foreach (var item in Items)
                 {
                     if (item is IHeadered headered)
                     {
@@ -433,7 +415,7 @@ namespace Avalonia.Labs.Controls
                     }
                 }
 
-                HeaderPart.ItemsSource = headers;
+                HeaderPart.Items = headers;
 
                 UpdateHeaderSelection();
             }
