@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Media;
 
 namespace Avalonia.Labs.Controls
 {
@@ -30,9 +29,9 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        protected override void UpdatePresenterPadding()
+        protected override void UpdateContentSafeAreaPadding()
         {
-            base.UpdatePresenterPadding();
+            base.UpdateContentSafeAreaPadding();
             
             if(_tabControl != null)
             {

@@ -3,10 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Platform;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
-using Avalonia.Reactive;
 using Avalonia.Styling;
 
 namespace Avalonia.Labs.Controls

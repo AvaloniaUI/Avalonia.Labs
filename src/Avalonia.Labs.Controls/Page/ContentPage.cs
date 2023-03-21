@@ -73,7 +73,7 @@ namespace Avalonia.Labs.Controls
                 throw new NullReferenceException("PART_ContentPresenter isn't found the template");
             }
 
-            UpdatePresenterPadding();
+            UpdateContentSafeAreaPadding();
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -82,11 +82,11 @@ namespace Avalonia.Labs.Controls
 
             if (change.Property == AutomaticallyApplySafeAreaPaddingProperty)
             {
-                UpdatePresenterPadding();
+                UpdateContentSafeAreaPadding();
             }
             else if (change.Property == ContentProperty)
             {
-                UpdatePresenterPadding();
+                UpdateContentSafeAreaPadding();
 
                 if (change.OldValue is ILogical oldLogical)
                 {
@@ -99,7 +99,7 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        protected override void UpdatePresenterPadding()
+        protected override void UpdateContentSafeAreaPadding()
         {
             if (_contentPresenter != null)
             {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
@@ -117,7 +112,7 @@ namespace Avalonia.Labs.Controls
             _masterPresenter = e.NameScope.Get<ContentPresenter>("PART_MasterPresenter");
             _topBar = e.NameScope.Get<Border>("PART_TopBar");
 
-            UpdatePresenterPadding();
+            UpdateContentSafeAreaPadding();
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -142,7 +137,7 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        protected override void UpdatePresenterPadding()
+        protected override void UpdateContentSafeAreaPadding()
         {
             if (_detailPresenter != null && _masterPresenter != null)
             {

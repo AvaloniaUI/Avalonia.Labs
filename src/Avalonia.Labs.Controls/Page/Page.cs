@@ -1,7 +1,6 @@
 ﻿using System;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Styling;
 
@@ -70,7 +69,7 @@ namespace Avalonia.Labs.Controls
                 || change.Property == SafeAreaPaddingProperty
                 || change.Property == PaddingProperty)
             {
-                UpdatePresenterPadding();
+                UpdateContentSafeAreaPadding();
             }
         }
 
@@ -78,10 +77,10 @@ namespace Avalonia.Labs.Controls
         {
             base.OnLoaded();
 
-            UpdatePresenterPadding();
+            UpdateContentSafeAreaPadding();
         }
 
-        protected virtual void UpdatePresenterPadding() { }
+        protected virtual void UpdateContentSafeAreaPadding() { }
         protected virtual void UpdateActivePage() { }
     }
 }

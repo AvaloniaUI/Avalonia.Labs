@@ -1,12 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Metadata;
 
@@ -181,7 +179,7 @@ namespace Avalonia.Labs.Controls
             UpdateActivePage();
         }
 
-        protected override void UpdatePresenterPadding()
+        protected override void UpdateContentSafeAreaPadding()
         {
             if (_contentPresenter != null && _navBar != null)
             {
