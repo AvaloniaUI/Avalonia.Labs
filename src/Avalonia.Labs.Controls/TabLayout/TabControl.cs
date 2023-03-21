@@ -12,7 +12,6 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
-using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.VisualTree;
@@ -371,12 +370,12 @@ namespace Avalonia.Labs.Controls
             {
                 List<object?> headers = new List<object?>();
 
-                if (ItemsSource == null)
+                if (Items == null)
                 {
                     return;
                 }
 
-                foreach (var item in ItemsSource)
+                foreach (var item in Items)
                 {
                     if (item is IHeadered headered)
                     {
@@ -416,7 +415,7 @@ namespace Avalonia.Labs.Controls
                     }
                 }
 
-                HeaderPart.ItemsSource = headers;
+                HeaderPart.Items = headers;
 
                 UpdateHeaderSelection();
             }

@@ -17,7 +17,7 @@ namespace Avalonia.Labs.Controls
     /// An item in  a <see cref="TabControl"/>/>.
     /// </summary>
     [PseudoClasses(":pressed", ":selected")]
-    public class TabItem : ListBoxItem, ISelectable
+    public class TabItem : ListBoxItem, ISelectable, IHeadered
     {
         private IDisposable? _boundsObservable;
 
