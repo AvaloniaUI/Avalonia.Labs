@@ -47,8 +47,9 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Defines the <see cref="IsCacheEnabled"/> property.
         /// </summary>
-        public static readonly StyledProperty<bool> IsCacheEnabledProperty =
-            AvaloniaProperty.Register<AsyncImage, bool>(nameof(IsCacheEnabled), true);
+        public static readonly DirectProperty<AsyncImage,bool> IsCacheEnabledProperty =
+            AvaloniaProperty.RegisterDirect<AsyncImage, bool>(nameof(IsCacheEnabled), o => o.IsCacheEnabled, (o, v) => o.IsCacheEnabled = v);
+        private bool _isCacheEnabled;
 
         /// <summary>
         /// Gets or sets the placeholder image.
@@ -109,8 +110,8 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public bool IsCacheEnabled
         {
-            get => GetValue(IsCacheEnabledProperty);
-            set => SetValue(IsCacheEnabledProperty, value);
+            get => _isCacheEnabled;
+            set => SetAndRaise(IsCacheEnabledProperty, ref _isCacheEnabled, value);
         }
     }
 }
