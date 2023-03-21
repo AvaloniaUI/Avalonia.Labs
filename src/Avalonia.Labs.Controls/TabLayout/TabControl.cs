@@ -34,12 +34,6 @@ namespace Avalonia.Labs.Controls
         public static readonly StyledProperty<Dock> TabStripPlacementProperty =
             Avalonia.Controls.TabControl.TabStripPlacementProperty.AddOwner<TabControl>();
 
-        public static readonly StyledProperty<IBrush?> HeaderBackgroundProperty =
-            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderBackground));
-
-        public static readonly StyledProperty<IBrush?> HeaderForegroundProperty =
-            AvaloniaProperty.Register<TabControl, IBrush?>(nameof(HeaderForeground));
-
         /// <summary>
         /// Defines the <see cref="HorizontalContentAlignment"/> property.
         /// </summary>
@@ -163,17 +157,6 @@ namespace Avalonia.Labs.Controls
         {
             get { return GetValue(HeaderPanelProperty); }
             set { SetValue(HeaderPanelProperty, value); }
-        }
-
-        public IBrush? HeaderBackground
-        {
-            get { return GetValue(HeaderBackgroundProperty); }
-            set { SetValue(HeaderBackgroundProperty, value); }
-        }
-        public IBrush? HeaderForeground
-        {
-            get { return GetValue(HeaderForegroundProperty); }
-            set { SetValue(HeaderForegroundProperty, value); }
         }
 
         internal TabHeader? HeaderPart { get; private set; }
