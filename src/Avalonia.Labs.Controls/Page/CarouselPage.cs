@@ -6,13 +6,13 @@ namespace Avalonia.Labs.Controls
 {
     public class CarouselPage : SelectingMultiPage
     {
-        private static readonly FuncTemplate<Panel> DefaultPanel =
-            new FuncTemplate<Panel>(() => new StackPanel()
+        private static readonly FuncTemplate<Panel?> DefaultPanel =
+            new FuncTemplate<Panel?>(() => new StackPanel()
             {
                 Orientation = Orientation.Horizontal
             });
 
-        public static readonly StyledProperty<ITemplate<Panel>> ItemsPanelProperty =
+        public static readonly StyledProperty<ITemplate<Panel?>> ItemsPanelProperty =
             ItemsControl.ItemsPanelProperty.AddOwner<CarouselPage>();
 
         public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<CarouselPage, Vector>(nameof(Offset));
@@ -28,7 +28,7 @@ namespace Avalonia.Labs.Controls
             set => SetValue(OffsetProperty, value);
         }
 
-        public ITemplate<Panel> ItemsPanel
+        public ITemplate<Panel?> ItemsPanel
         {
             get => GetValue(ItemsPanelProperty);
             set => SetValue(ItemsPanelProperty, value);

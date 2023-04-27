@@ -56,14 +56,14 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// The default value for the <see cref="HeaderPanel"/> property.
         /// </summary>
-        private static readonly FuncTemplate<Panel> DefaultHeaderPanel =
-            new FuncTemplate<Panel>(() => new StackPanel());
+        private static readonly FuncTemplate<Panel?> DefaultHeaderPanel =
+            new FuncTemplate<Panel?>(() => new StackPanel());
 
         /// <summary>
         /// Defines the <see cref="HeaderPanel"/> property.
         /// </summary>
-        public static readonly StyledProperty<ITemplate<Panel>> HeaderPanelProperty =
-            AvaloniaProperty.Register<TabControl, ITemplate<Panel>>(nameof(HeaderPanel), DefaultHeaderPanel);
+        public static readonly StyledProperty<ITemplate<Panel?>> HeaderPanelProperty =
+            AvaloniaProperty.Register<TabControl, ITemplate<Panel?>>(nameof(HeaderPanel), DefaultHeaderPanel);
 
         /// <summary>
         /// The default value for the <see cref="ItemsControl.ItemsPanel"/> property.
@@ -151,7 +151,7 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Gets or sets the panel used to display the header items.
         /// </summary>
-        public ITemplate<Panel> HeaderPanel
+        public ITemplate<Panel?> HeaderPanel
         {
             get { return GetValue(HeaderPanelProperty); }
             set { SetValue(HeaderPanelProperty, value); }
@@ -236,7 +236,7 @@ namespace Avalonia.Labs.Controls
 
         private void ScrollEventHandler(object? sender, ScrollGestureEventArgs e)
         {
-           // PseudoClasses.Remove(":animate");
+            // PseudoClasses.Remove(":animate");
         }
 
         private void ScrollViewerPart_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)

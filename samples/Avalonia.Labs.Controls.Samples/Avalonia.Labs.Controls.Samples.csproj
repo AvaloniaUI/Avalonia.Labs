@@ -13,11 +13,9 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
   </ItemGroup>
-  <Target Name="_InjectAdditionalFiles"
-          BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun">
+  <Target Name="_InjectAdditionalFiles" BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun">
     <ItemGroup>
-      <AdditionalFiles Include="@(AvaloniaXaml)"
-                       SourceItemGroup="AvaloniaXaml" />
+      <AdditionalFiles Include="@(AvaloniaXaml)" SourceItemGroup="AvaloniaXaml" />
     </ItemGroup>
   </Target>
   <ItemGroup>
