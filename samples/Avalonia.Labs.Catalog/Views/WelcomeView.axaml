@@ -63,6 +63,17 @@
                 <Label FontSize="18"
                        VerticalAlignment="Center">Async Image</Label>
             </Button>
+            <Button HorizontalAlignment="Stretch"
+                    Height="60"
+                    Command="{Binding NavigateTo}"
+                    CornerRadius="10"
+                    Margin="0,5">
+                <Button.CommandParameter>
+                    <viewModels:VirtualizingWrapPanelViewModel/>
+                </Button.CommandParameter>
+                <Label FontSize="18"
+                       VerticalAlignment="Center">Virtualizing WrapPanel</Label>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

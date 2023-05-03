@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:sys="using:System"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:VirtualizingWrapPanelViewModel"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.VirtualizingWrapPanelView">
+  <ItemsControl HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Items="{Binding Items}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="sys:String">
+        <Border Width="200"
+                CornerRadius="10"
+                Margin="10"
+                Background="{DynamicResource ButtonBackground}"
+                Height="200">
+          <TextBlock FontSize="14" Text="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <labs:VirtualizingWrapPanel HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Orientation="Horizontal"/>
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+  </ItemsControl>
+</UserControl>
