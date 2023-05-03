@@ -25,4 +25,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
   </ItemGroup>
+
 </Project>
