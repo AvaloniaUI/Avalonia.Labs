@@ -66,8 +66,8 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// The default value for the <see cref="ItemsControl.ItemsPanel"/> property.
         /// </summary>
-        private static readonly FuncTemplate<Panel> DefaultPanel =
-            new FuncTemplate<Panel>(() => new VirtualizingStackPanel()
+        private static readonly FuncTemplate<Panel?> DefaultPanel =
+            new FuncTemplate<Panel?>(() => new VirtualizingStackPanel()
             {
                 Orientation = Orientation.Horizontal
             });
@@ -163,8 +163,12 @@ namespace Avalonia.Labs.Controls
         internal Border? BorderPart { get; private set; }
         internal ScrollViewer? ScrollViewerPart { get; private set; }
 
-        protected override Control CreateContainerForItemOverride() => new TabItem();
-        protected override bool IsItemItsOwnContainerOverride(Control item) => item is TabItem;
+        protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) => new TabItem();
+
+        protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey)
+        {
+            return NeedsContainer<TabItem>(item, out recycleKey);
+        }
 
         protected override void PrepareContainerForItemOverride(Control element, object? item, int index)
         {
@@ -370,12 +374,12 @@ namespace Avalonia.Labs.Controls
             {
                 List<object?> headers = new List<object?>();
 
-                if (Items == null)
+                if (ItemsView == null)
                 {
                     return;
                 }
 
-                foreach (var item in Items)
+                foreach (var item in ItemsView)
                 {
                     if (item is IHeadered headered)
                     {
@@ -410,12 +414,12 @@ namespace Avalonia.Labs.Controls
                         }
                         else
                         {
-                            headers.Add(item.ToString());
+                            headers.Add(item?.ToString());
                         }    
                     }
                 }
 
-                HeaderPart.Items = headers;
+                HeaderPart.ItemsSource = headers;
 
                 UpdateHeaderSelection();
             }

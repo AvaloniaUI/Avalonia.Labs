@@ -20,8 +20,13 @@ namespace Avalonia.Labs.Controls
             FocusableProperty.OverrideDefaultValue(typeof(TabHeader), false);
         }
 
-        protected override Control CreateContainerForItemOverride() => new TabHeaderItem();
-        protected override bool IsItemItsOwnContainerOverride(Control item) => item is TabHeaderItem;
+        protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) => new TabHeaderItem();
+
+        protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey)
+        {
+            return NeedsContainer<TabHeaderItem>(item, out recycleKey);
+        }
+
         protected override void PrepareContainerForItemOverride(Control element, object? item, int index)
         {
             if (element is TabHeaderItem pivotHeaderItem)
