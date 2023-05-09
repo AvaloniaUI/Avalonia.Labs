@@ -8,7 +8,7 @@
              xmlns:base="clr-namespace:Avalonia.Labs.Controls.Base;assembly=Avalonia.Labs.Controls"
              x:Class="Avalonia.Labs.Catalog.Views.SwipeView">
   <ScrollViewer>
-    <ItemsControl Items="{Binding Items}">
+    <ItemsControl ItemsSource="{Binding Items}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
           <labs:Swipe Margin="5">

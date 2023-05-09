@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Avalonia.Labs.Catalog.Views.GestureContainerView">
   <ScrollViewer>
-    <ItemsControl Items="{Binding Items}">
+    <ItemsControl ItemsSource="{Binding Items}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
          <views:GestureView Height="400" />
