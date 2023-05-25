@@ -25,21 +25,14 @@ namespace Avalonia.Labs.Controls
                 Orientation = Orientation.Horizontal
             });
 
-        public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<FlipView, Vector>(nameof(Offset));
-
         private Button? _previousButtonVertical;
         private Button? _nextButtonHorizontal;
         private Button? _previousButtonHorizontal;
         private Button? _nextButtonVertical;
-        private VectorTransition? _offsetTransistion;
         private bool _isApplied;
-        private ImplicitAnimationCollection? _implicitAnimations;
-        private bool _animationsDisabled;
-        private bool _isAnimating;
-        private Vector? _finalValue;
 
         internal ItemsPresenter? ItemsPresenterPart { get; private set; }
-        internal ScrollViewer? ScrollViewerPart { get; private set; }
+        internal AnimatedScrollViewer? ScrollViewerPart { get; private set; }
 
         static FlipView()
         {
@@ -63,43 +56,11 @@ namespace Avalonia.Labs.Controls
             base.PrepareContainerForItemOverride(element, item, index);
         }
 
-        public Vector Offset
-        {
-            get => GetValue(OffsetProperty);
-            set => SetValue(OffsetProperty, value);
-        }
-
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
 
             ItemsPresenterPart = e.NameScope.Get<ItemsPresenter>("PART_ItemsPresenter");
-
-            ItemsPresenterPart.Loaded += (s, e) =>
-            {
-                if (ItemsPresenterPart != null)
-                {
-                    var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                    if (composition != null)
-                    {
-                        if (_implicitAnimations == null)
-                        {
-                            var compositor = composition.Compositor;
-
-                            var offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
-                            offsetAnimation.Target = "Offset";
-                            offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
-                            offsetAnimation.Duration = TimeSpan.FromMilliseconds(250);
-
-                            _implicitAnimations = compositor.CreateImplicitAnimationCollection();
-                            _implicitAnimations["Offset"] = offsetAnimation;
-                        }
-
-                       composition.ImplicitAnimations = _implicitAnimations;
-                    }
-                }
-            };
 
             _nextButtonHorizontal = e.NameScope.Get<Button>("PART_NextButtonHorizontal");
             _previousButtonHorizontal = e.NameScope.Get<Button>("PART_PreviousButtonHorizontal");
@@ -127,23 +88,7 @@ namespace Avalonia.Labs.Controls
             }
 
             var grid = e.NameScope.Find<Grid>("PART_Grid");
-            ScrollViewerPart = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
-
-            if (ScrollViewerPart != null)
-            {
-                ScrollViewerPart.PropertyChanged += ScrollViewerPart_PropertyChanged;
-            }
-
-            _offsetTransistion = new VectorTransition()
-            {
-                Property = OffsetProperty,
-                Duration = TimeSpan.FromMilliseconds(250)
-            };
-
-            Transitions = new Transitions
-            {
-                _offsetTransistion
-            };
+            ScrollViewerPart = e.NameScope.Find<AnimatedScrollViewer>("PART_ScrollViewer");
 
             _isApplied = true;
 
@@ -151,69 +96,15 @@ namespace Avalonia.Labs.Controls
 
             if (grid != null)
             {
-                grid.AddHandler(Gestures.ScrollGestureEvent, ScrollEventHandler, handledEventsToo: true);
                 grid.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
-            }
-        }
-
-        private void ScrollViewerPart_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Property == ScrollViewer.OffsetProperty && e.NewValue != null)
-            {
-                if (_animationsDisabled)
-                {
-                    _isAnimating = false;
-                    Offset = (Vector)e.NewValue;
-                }
-                else
-                {
-                    if (ItemsPresenterPart != null)
-                    {
-                        var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                        if (composition != null)
-                        {
-                            composition.ImplicitAnimations = null;
-                        }
-                    }
-                    var newValue = (Vector?)e.NewValue;
-
-
-                    if (_isAnimating)
-                    {
-                        if (newValue == _finalValue)
-                        {
-                            _isAnimating = false;
-                        }
-                        return;
-                    }
-                    _isAnimating = true;
-                    _finalValue = newValue;
-
-                    Offset = (Vector)e.NewValue;
-
-                    if (ScrollViewerPart != null)
-                    {
-                        ScrollViewerPart.Offset = (Vector?)e.OldValue ?? default;
-                    }
-
-                }
             }
         }
 
         private void ScrollEndedEventHandler(object? sender, ScrollGestureEndedEventArgs e)
         {
-            UpdateAnimation(true);
 
             if (ItemsPresenterPart != null && ScrollViewerPart != null && ItemCount > 0)
             {
-                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                if (composition != null)
-                {
-                    composition.ImplicitAnimations = _implicitAnimations;
-                }
-
                 bool isHorizontal = _nextButtonHorizontal!.IsVisible;
 
                 var offset = isHorizontal ? ScrollViewerPart.Offset.X : ScrollViewerPart.Offset.Y;
@@ -222,25 +113,6 @@ namespace Avalonia.Labs.Controls
 
                 SelectedIndex = (int)Math.Max(0, index);
             }
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            if (ItemsPresenterPart != null)
-            {
-                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                if (composition != null)
-                {
-                    composition.ImplicitAnimations = _implicitAnimations;
-                }
-            }
-            return base.ArrangeOverride(finalSize);
-        }
-
-        private void ScrollEventHandler(object? sender, ScrollGestureEventArgs e)
-        {
-            UpdateAnimation(false);
         }
 
         private void PreviousButton_Click(object? sender, RoutedEventArgs e)
@@ -307,29 +179,6 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        private void UpdateAnimation(bool enable)
-        {
-            if (ItemsPresenterPart != null && (!_animationsDisabled || enable))
-            {
-                if (_offsetTransistion != null)
-                {
-                    if (enable)
-                    {
-                        if (this.Transitions?.Contains(_offsetTransistion) == false)
-                        {
-                            this.Transitions?.Add(_offsetTransistion);
-                        }
-                    }
-                    else
-                    {
-                        this?.Transitions?.Remove(_offsetTransistion);
-                    }
-                }
-
-                _animationsDisabled = !enable;
-            }
-        }
-
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
@@ -337,13 +186,6 @@ namespace Avalonia.Labs.Controls
             if(change.Property == ItemsPanelProperty)
             {
                 SetButtonsVisibility();
-            }
-            else if(change.Property == OffsetProperty)
-            {
-                if(Offset == ScrollViewerPart?.Offset)
-                {
-                    _isAnimating = false;
-                }
             }
         }
     }
