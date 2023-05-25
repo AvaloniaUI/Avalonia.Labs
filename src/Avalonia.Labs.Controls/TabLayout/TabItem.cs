@@ -16,21 +16,15 @@ namespace Avalonia.Labs.Controls
     /// <summary>
     /// An item in  a <see cref="TabControl"/>/>.
     /// </summary>
-    public class TabItem : ListBoxItem, ISelectable, IHeadered
+    public class TabItem : HeaderedContentControl, ISelectable
     {
         private IDisposable? _boundsObservable;
 
         /// <summary>
-        /// Defines the <see cref="Header"/> property.
+        /// Defines the <see cref="IsSelected"/> property.
         /// </summary>
-        public static readonly StyledProperty<object?> HeaderProperty =
-            AvaloniaProperty.Register<HeaderedContentControl, object?>(nameof(Header));
-
-        /// <summary>
-        /// Defines the <see cref="HeaderTemplate"/> property.
-        /// </summary>
-        public static readonly StyledProperty<IDataTemplate?> HeaderTemplateProperty =
-            AvaloniaProperty.Register<HeaderedContentControl, IDataTemplate?>(nameof(HeaderTemplate));
+        public static readonly StyledProperty<bool> IsSelectedProperty =
+            SelectingItemsControl.IsSelectedProperty.AddOwner<TabItem>();
 
         /// <summary>
         /// Defines the <see cref="HeaderTheme"/> property.
@@ -39,30 +33,21 @@ namespace Avalonia.Labs.Controls
             AvaloniaProperty.Register<TabItem, ControlTheme?>(nameof(HeaderTheme));
 
         /// <summary>
+        /// Gets or sets the selection state of the item.
+        /// </summary>
+        public bool IsSelected
+        {
+            get { return GetValue(IsSelectedProperty); }
+            set { SetValue(IsSelectedProperty, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the theme to be applied to this item's header.
         /// </summary>
         public ControlTheme? HeaderTheme
         {
             get => GetValue(HeaderThemeProperty);
             set => SetValue(HeaderThemeProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the header content.
-        /// </summary>
-        public object? Header
-        {
-            get => GetValue(HeaderProperty);
-            set => SetValue(HeaderProperty, value);
-        }
-
-        /// <summary>
-        /// Gets the header presenter from the control's template.
-        /// </summary>
-        public IContentPresenter? HeaderPresenter
-        {
-            get;
-            private set;
         }
 
         /// <summary>
@@ -79,6 +64,7 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         static TabItem()
         {
+            SelectableMixin.Attach<TabItem>(IsSelectedProperty);
             PressedMixin.Attach<TabItem>();
             FocusableProperty.OverrideDefaultValue<TabItem>(true);
             DataContextProperty.Changed.AddClassHandler<TabItem>((x, e) => x.UpdateHeader(e));
@@ -91,7 +77,7 @@ namespace Avalonia.Labs.Controls
         {
             if (Header == null)
             {
-                if (obj.NewValue is IHeadered headered)
+                if (obj.NewValue is HeaderedContentControl headered)
                 {
                     if (Header != headered.Header)
                     {

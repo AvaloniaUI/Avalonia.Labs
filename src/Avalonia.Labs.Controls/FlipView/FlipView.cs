@@ -96,7 +96,7 @@ namespace Avalonia.Labs.Controls
                             _implicitAnimations["Offset"] = offsetAnimation;
                         }
 
-                       // composition.ImplicitAnimations = _implicitAnimations;
+                       composition.ImplicitAnimations = _implicitAnimations;
                     }
                 }
             };
@@ -158,10 +158,8 @@ namespace Avalonia.Labs.Controls
 
         private void ScrollViewerPart_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if(e.Property == ScrollViewer.OffsetProperty && e.NewValue != null)
+            if (e.Property == ScrollViewer.OffsetProperty && e.NewValue != null)
             {
-                var newValue = (Vector?)e.NewValue;
-
                 if (_animationsDisabled)
                 {
                     _isAnimating = false;
@@ -178,6 +176,8 @@ namespace Avalonia.Labs.Controls
                             composition.ImplicitAnimations = null;
                         }
                     }
+                    var newValue = (Vector?)e.NewValue;
+
 
                     if (_isAnimating)
                     {
@@ -188,7 +188,7 @@ namespace Avalonia.Labs.Controls
                         return;
                     }
                     _isAnimating = true;
-                    _finalValue =  newValue;
+                    _finalValue = newValue;
 
                     Offset = (Vector)e.NewValue;
 
@@ -222,6 +222,20 @@ namespace Avalonia.Labs.Controls
 
                 SelectedIndex = (int)Math.Max(0, index);
             }
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            if (ItemsPresenterPart != null)
+            {
+                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
+
+                if (composition != null)
+                {
+                    composition.ImplicitAnimations = _implicitAnimations;
+                }
+            }
+            return base.ArrangeOverride(finalSize);
         }
 
         private void ScrollEventHandler(object? sender, ScrollGestureEventArgs e)

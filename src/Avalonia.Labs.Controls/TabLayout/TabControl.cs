@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
@@ -25,6 +26,7 @@ namespace Avalonia.Labs.Controls
     [TemplatePart("PART_Border", typeof(Border))]
     [TemplatePart("PART_ScrollViewer", typeof(ScrollViewer))]
     [TemplatePart("PART_ItemsPresenter", typeof(ItemsPresenter))]
+    [PseudoClasses(":animate")]
     public class TabControl : SelectingItemsControl
     {
         /// <summary>
@@ -77,9 +79,6 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly StyledProperty<IDataTemplate?> HeaderTemplateProperty =
             AvaloniaProperty.Register<HeaderedContentControl, IDataTemplate?>(nameof(HeaderTemplate));
-
-        private ImplicitAnimationCollection? _implicitAnimations;
-        private bool _animationsDisabled;
 
         /// <summary>
         /// Initializes static members of the <see cref="TabControl"/> class.
@@ -213,32 +212,6 @@ namespace Avalonia.Labs.Controls
             HeaderPart = e.NameScope.Get<TabHeader>("PART_Header");
             ItemsPresenterPart = e.NameScope.Get<ItemsPresenter>("PART_ItemsPresenter");
 
-            ItemsPresenterPart.Loaded += (s, e) =>
-            {
-                if (ItemsPresenterPart != null)
-                {
-                    var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                    if (composition != null)
-                    {
-                        if (_implicitAnimations == null)
-                        {
-                            var compositor = composition.Compositor;
-
-                            var offsetAnimation = compositor.CreateVector3KeyFrameAnimation();
-                            offsetAnimation.Target = "Offset";
-                            offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
-                            offsetAnimation.Duration = TimeSpan.FromMilliseconds(250);
-
-                            _implicitAnimations = compositor.CreateImplicitAnimationCollection();
-                            _implicitAnimations["Offset"] = offsetAnimation;
-                        }
-
-                      //  composition.ImplicitAnimations = _implicitAnimations;
-                    }
-                }
-            };
-
             if (HeaderPart != null)
             {
                 HeaderPart.AddHandler(SelectionChangedEvent, (o, e) => SelectedIndex = HeaderPart.SelectedIndex);
@@ -253,17 +226,30 @@ namespace Avalonia.Labs.Controls
             BorderPart = e.NameScope.Find<Border>("PART_Border");
             ScrollViewerPart = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
 
-            if (BorderPart != null)
+            if (ScrollViewerPart != null)
             {
-                BorderPart.AddHandler(Gestures.ScrollGestureEvent, ScrollEventHandler, handledEventsToo: true);
-                BorderPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.PropertyChanged += ScrollViewerPart_PropertyChanged;
+                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEvent, ScrollEventHandler, handledEventsToo: true);
+                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+            }
+        }
+
+        private void ScrollEventHandler(object? sender, ScrollGestureEventArgs e)
+        {
+           // PseudoClasses.Remove(":animate");
+        }
+
+        private void ScrollViewerPart_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == ScrollViewer.OffsetProperty && e.NewValue != null)
+            {
+                Debug.WriteLine(e.NewValue);
             }
         }
 
         private void ScrollEndedEventHandler(object? sender, ScrollGestureEndedEventArgs e)
         {
-            UpdateAnimation(true);
-
+            PseudoClasses.Add(":animate");
             if (ItemsPresenterPart != null)
             {
                 if (ScrollViewerPart != null && BorderPart != null)
@@ -273,29 +259,6 @@ namespace Avalonia.Labs.Controls
                     var index = xOffset / (long)BorderPart.Bounds.Width;
 
                     SelectedIndex = (int)Math.Max(0, index);
-                }
-            }
-        }
-
-        private void ScrollEventHandler(object? sender, ScrollGestureEventArgs e)
-        {
-            UpdateAnimation(false);
-        }
-
-        private void UpdateAnimation(bool enable)
-        {
-            if (ItemsPresenterPart != null && (!_animationsDisabled || enable))
-            {
-                var composition = ElementComposition.GetElementVisual(ItemsPresenterPart);
-
-                if (composition != null)
-                {
-                    if (_implicitAnimations != null)
-                    {
-                        composition.ImplicitAnimations = enable ? _implicitAnimations : null;
-
-                        _animationsDisabled = !enable;
-                    }
                 }
             }
         }
@@ -330,6 +293,11 @@ namespace Avalonia.Labs.Controls
             {
                 e.Handled = UpdateSelectionFromEventSource(e.Source);
             }
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            base.OnPointerReleased(e);
         }
 
         protected override Size ArrangeOverride(Size finalSize)
@@ -381,23 +349,17 @@ namespace Avalonia.Labs.Controls
 
                 foreach (var item in ItemsView)
                 {
-                    if (item is IHeadered headered)
+                    if (item is HeaderedContentControl headered)
                     {
-                        if (headered.Header is Visual visual)
-                        {
-                            (visual.Parent?.GetLogicalChildren() as IList<ILogical>)?.Remove(visual);
-                            (visual.GetVisualParent()?.GetLogicalChildren() as IList<ILogical>)?.Remove(visual);
-                        }
+                        (headered.Parent?.GetLogicalChildren() as IList<ILogical>)?.Remove(headered);
+                        (headered.GetVisualParent()?.GetLogicalChildren() as IList<ILogical>)?.Remove(headered);
 
                         var header = new TabHeaderItem()
                         {
                             Content = headered.Header,
                         };
 
-                        if (headered is HeaderedContentControl contentControl)
-                        {
-                            header.ContentTemplate = contentControl.HeaderTemplate;
-                        }
+                        header.ContentTemplate = headered.HeaderTemplate;
 
                         if (headered is TabItem tabItem && tabItem.HeaderTheme != null)
                         {
@@ -408,14 +370,14 @@ namespace Avalonia.Labs.Controls
                     }
                     else
                     {
-                        if(HeaderTemplate != null)
+                        if (HeaderTemplate != null)
                         {
                             headers.Add(HeaderTemplate.Build(item));
                         }
                         else
                         {
                             headers.Add(item?.ToString());
-                        }    
+                        }
                     }
                 }
 

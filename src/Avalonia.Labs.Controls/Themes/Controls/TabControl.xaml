@@ -42,9 +42,6 @@
                     Margin="{TemplateBinding Padding}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-              <Border.GestureRecognizers>
-                <ScrollGestureRecognizer CanHorizontallyScroll="True" />
-              </Border.GestureRecognizers>
               <ScrollViewer Name="PART_ScrollViewer"
                             HorizontalScrollBarVisibility="Hidden"
                             VerticalScrollBarVisibility="Disabled"
@@ -54,7 +51,7 @@
                             IsScrollInertiaEnabled="False"
                             VerticalAlignment="Stretch">
                 <ItemsPresenter Name="PART_ItemsPresenter"
-                                ItemsPanel="{TemplateBinding ItemsPanel}"/>                
+                                ItemsPanel="{TemplateBinding ItemsPanel}"/>
               </ScrollViewer>
             </Border>
           </DockPanel>
