@@ -260,18 +260,17 @@
               </Border>
             </ControlTemplate>
           </Grid.Resources>
-          <ScrollViewer Name="PART_ScrollViewer"
+          <control:AnimatedScrollViewer Name="PART_ScrollViewer"
                         VerticalSnapPointsType="MandatorySingle"
                         HorizontalSnapPointsType="MandatorySingle"
                         HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                         VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                         IsScrollChainingEnabled="{TemplateBinding ScrollViewer.IsScrollChainingEnabled}"
                         IsScrollInertiaEnabled="False"
-                        Offset="{TemplateBinding Offset}"
                         VerticalAlignment="Stretch">
             <ItemsPresenter Name="PART_ItemsPresenter"
                             ItemsPanel="{TemplateBinding ItemsPanel}"/>
-          </ScrollViewer>
+          </control:AnimatedScrollViewer>
           <Button x:Name="PART_PreviousButtonHorizontal"
                   Template="{StaticResource HorizontalPreviousTemplate}"
                   Width="38"

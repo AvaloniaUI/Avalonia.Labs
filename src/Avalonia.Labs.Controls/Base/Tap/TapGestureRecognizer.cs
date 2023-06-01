@@ -10,7 +10,7 @@ public enum DetectOn
     PointerReleased
 }
 
-public class TapGestureRecognizer : IGestureRecognizer
+public class TapGestureRecognizer : GestureRecognizer
 {
     private IInputElement? _inputElement;
     private Visual? _visual;
@@ -22,16 +22,12 @@ public class TapGestureRecognizer : IGestureRecognizer
     public DetectOn DetectOn { get; set; } = DetectOn.PointerReleased;
     
     public event EventHandler<TapEventArgs>? OnTap;
-    
-    public void Initialize(IInputElement target, IGestureRecognizerActionsDispatcher actions)
-    {
-        _inputElement = target;
-        _visual = target as Visual;
-        _parent = _visual?.Parent as Visual;
-    }
 
-    public void PointerPressed(PointerPressedEventArgs e)
+    protected override void PointerPressed(PointerPressedEventArgs e)
     {
+        _inputElement = Target;
+        _visual = Target as Visual;
+        _parent = _visual?.Parent as Visual;
         _startPosition = e.GetPosition(_parent);
         if (DetectOn == DetectOn.PointerPressed)
         {
@@ -41,7 +37,7 @@ public class TapGestureRecognizer : IGestureRecognizer
         }
     }
 
-    public void PointerReleased(PointerReleasedEventArgs e)
+    protected override void PointerReleased(PointerReleasedEventArgs e)
     {
         if (DetectOn != DetectOn.PointerReleased)
         {
@@ -62,11 +58,11 @@ public class TapGestureRecognizer : IGestureRecognizer
         }
     }
 
-    public void PointerMoved(PointerEventArgs e)
+    protected override void PointerMoved(PointerEventArgs e)
     {
     }
 
-    public void PointerCaptureLost(IPointer pointer)
+    protected override void PointerCaptureLost(IPointer pointer)
     {
         _startPosition = null;
     }

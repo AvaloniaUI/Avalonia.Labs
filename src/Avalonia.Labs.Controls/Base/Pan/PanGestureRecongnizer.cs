@@ -7,7 +7,7 @@ namespace Avalonia.Labs.Controls.Base.Pan;
 /// <summary>
 /// The gesture recognizer for pan gesture 
 /// </summary>
-public class PanGestureRecognizer : IGestureRecognizer
+public class PanGestureRecognizer : GestureRecognizer
 {
     private IInputElement? _inputElement;
     private Point? _startPosition;
@@ -25,23 +25,18 @@ public class PanGestureRecognizer : IGestureRecognizer
     public float Threshold { get; set; } = 5;
 
     /// <inheritdoc />
-    public void Initialize(IInputElement target, IGestureRecognizerActionsDispatcher actions)
+    protected override void PointerPressed(PointerPressedEventArgs e)
     {
-        _inputElement = target;
-        _visual = target as Visual;
+        _inputElement = Target;
+        _visual = Target as Visual;
         _parent = _visual?.Parent as Visual;
         _state = PanGestureStatus.Completed;
-    }
-
-    /// <inheritdoc />
-    public void PointerPressed(PointerPressedEventArgs e)
-    {
         _startPosition = e.GetPosition(_parent);
         _state = PanGestureStatus.Started;
     }
 
     /// <inheritdoc />
-    public void PointerMoved(PointerEventArgs e)
+    protected override void PointerMoved(PointerEventArgs e)
     {
         if (!_startPosition.HasValue)
         {
@@ -93,7 +88,7 @@ public class PanGestureRecognizer : IGestureRecognizer
     }
 
     /// <inheritdoc />
-    public void PointerReleased(PointerReleasedEventArgs e)
+    protected override void PointerReleased(PointerReleasedEventArgs e)
     {
         var startPosition = _startPosition;
         
@@ -115,7 +110,7 @@ public class PanGestureRecognizer : IGestureRecognizer
     }
 
     /// <inheritdoc />
-    public void PointerCaptureLost(IPointer pointer)
+    protected override void PointerCaptureLost(IPointer pointer)
     {
         var startPosition = _startPosition;
         var delta = _delta;
