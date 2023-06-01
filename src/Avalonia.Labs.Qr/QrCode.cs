@@ -651,7 +651,7 @@ namespace Avalonia.Labs.Qr
 
             if (_qrCodeGeometry is var (newGeometry, newOpacity))
             {
-                using var _ = context.PushOpacity(newOpacity, bounds);
+                using var _ = context.PushOpacity(newOpacity);
 
                 // The foreground will show through as the qr code will be "cut out" of the background
                 context.DrawRectangle(Foreground, null, bounds);
