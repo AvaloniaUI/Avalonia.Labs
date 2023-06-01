@@ -125,9 +125,7 @@ namespace Avalonia.Labs.Controls
                 {
                     try
                     {
-                        var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
-
-                        AttachSource(new Bitmap(assetLoader!.Open(uri)));
+                        AttachSource(new Bitmap(AssetLoader.Open(uri)));
                     }
                     catch (Exception ex)
                     {

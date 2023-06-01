@@ -18,12 +18,12 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
-        .With(new CacheOptions()
-        {
-            BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
-        })
         .AfterSetup(builder =>
         {
+            CacheOptions.SetDefault(new CacheOptions()
+            {
+                BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
+            });
 #if DEBUG
             builder.Instance!.AttachDevTools(new Avalonia.Diagnostics.DevToolsOptions()
             {

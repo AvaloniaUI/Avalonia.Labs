@@ -41,7 +41,7 @@ namespace Avalonia.Labs.Controls.Cache
         /// </summary>
         protected CacheBase()
         {
-            var options = AvaloniaLocator.Current.GetService<CacheOptions>();
+            var options = CacheOptions.Default;
             CacheDuration = options?.CacheDuration ?? TimeSpan.FromDays(1);
             _baseFolder = options?.BaseCachePath ?? null;
             _inMemoryFileStorage = new InMemoryStorage<T>();
