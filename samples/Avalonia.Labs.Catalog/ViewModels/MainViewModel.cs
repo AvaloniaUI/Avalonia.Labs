@@ -14,7 +14,6 @@ namespace Avalonia.Labs.Catalog.ViewModels
         private bool? _showNavBar = true;
         private bool? _showBackButton = true;
         private INavigationRouter _navigationRouter;
-        private string? _title;
 
         public MainViewModel()
         {
@@ -27,12 +26,6 @@ namespace Avalonia.Labs.Catalog.ViewModels
         {
             get => _showNavBar;
             set => this.RaiseAndSetIfChanged(ref _showNavBar, value);
-        }
-
-        public string? Title
-        {
-            get => _title;
-            set => this.RaiseAndSetIfChanged(ref _title, value);
         }
 
         public bool? ShowBackButton

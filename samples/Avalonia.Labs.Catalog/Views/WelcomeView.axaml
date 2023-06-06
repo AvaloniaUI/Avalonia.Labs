@@ -107,6 +107,17 @@
             <Label FontSize="18"
                    VerticalAlignment="Center">Lottie</Label>
           </Button>
+          <Button HorizontalAlignment="Stretch"
+                  Height="60"
+                  Command="{Binding NavigateTo}"
+                  CornerRadius="10"
+                  Margin="0,5">
+            <Button.CommandParameter>
+              <viewModels:StepBarViewModel/>
+            </Button.CommandParameter>
+            <Label FontSize="18"
+                   VerticalAlignment="Center">StepBar</Label>
+          </Button>            
         </StackPanel>
     </Grid>
 </UserControl>
