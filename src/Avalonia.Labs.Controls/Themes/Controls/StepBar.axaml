@@ -43,6 +43,44 @@
       <SolidColorBrush x:Key="StepeBarWaitingBackgroundBrush"
                    Color="White"/>
     </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="StepeBarUnderWayTextBrush"
+                 Color="#FF0078D7"/>
+
+      <SolidColorBrush x:Key="StepeBarUnderWayBorderBrush"
+                     Color="#FF0078D7"/>
+
+      <SolidColorBrush x:Key="StepeBarUnderWayBackgroundBrush"
+                   Color="White"/>
+
+      <SolidColorBrush x:Key="StepeBarCompleteTextBrush"
+                     Color="White"/>
+
+      <SolidColorBrush x:Key="StepeBarCompleteBorderBrush"
+                     Color="White"/>
+
+      <SolidColorBrush x:Key="StepeBarCompleteBackgroundBrush"
+                   Color="Black"/>
+
+
+      <SolidColorBrush x:Key="StepeBarErrorTextBrush"
+                   Color="Red"/>
+
+      <SolidColorBrush x:Key="StepeBarErrorBorderBrush"
+                     Color="Red"/>
+
+      <SolidColorBrush x:Key="StepeBarErrorBackgroundBrush"
+                   Color="Black"/>
+
+      <SolidColorBrush x:Key="StepeBarWaitingTextBrush"
+                 Color="Gray"/>
+
+      <SolidColorBrush x:Key="StepeBarWaitingBorderBrush"
+                     Color="Gray"/>
+
+      <SolidColorBrush x:Key="StepeBarWaitingBackgroundBrush"
+                   Color="Black"/>
+    </ResourceDictionary>
   </ResourceDictionary.ThemeDictionaries>
 
   <Design.PreviewWith>
