@@ -2,9 +2,11 @@
 using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 
 namespace Avalonia.Labs.Controls
 {
@@ -239,7 +241,27 @@ namespace Avalonia.Labs.Controls
 
             _contentPresenter = e.NameScope.Get<TransitioningContentControl>("PART_ContentPresenter");
 
+            _contentPresenter.TemplateApplied += ContentPresenter_TemplateApplied;
+
             _contentPresenter?.SetValue(ContentProperty, NavigationRouter?.CurrentPage);
+        }
+
+        private void ContentPresenter_TemplateApplied(object? sender, TemplateAppliedEventArgs e)
+        {
+            if(_contentPresenter?.Presenter is ContentPresenter presenter)
+            {
+                presenter.PropertyChanged += Presenter_PropertyChanged;
+            }
+        }
+
+        private void Presenter_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == ContentPresenter.ChildProperty)
+            {
+                LogicalChildren.Clear();
+                if (e.NewValue is ILogical newLogical)
+                    LogicalChildren.Add(newLogical);
+            }
         }
 
         private async void BackButton_Clicked(object? sender, RoutedEventArgs eventArgs)
