@@ -28,6 +28,7 @@
               <DockPanel Name="PART_DetailDock">
                 <Border
                   Name="PART_TopBar"
+                  Padding="5"
                   Height="{DynamicResource NavigationControlNavBarHeight}"
                   Background="{DynamicResource NavigationControlNavBarBackground}"
                   DockPanel.Dock="Top">

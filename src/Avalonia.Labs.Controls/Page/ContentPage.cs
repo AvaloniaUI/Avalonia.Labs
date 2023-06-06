@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
@@ -6,7 +7,6 @@ using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Metadata;
-using System;
 
 namespace Avalonia.Labs.Controls
 {
@@ -62,6 +62,24 @@ namespace Avalonia.Labs.Controls
             set { SetValue(AutomaticallyApplySafeAreaPaddingProperty, value); }
         }
 
+        static ContentPage()
+        {
+            ContentProperty.Changed.AddClassHandler<ContentPage>((x, e) => x.ContentChanged(e));
+        }
+
+        private void ContentChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.OldValue is ILogical oldChild)
+            {
+                LogicalChildren.Remove(oldChild);
+            }
+
+            if (e.NewValue is ILogical newChild)
+            {
+                LogicalChildren.Add(newChild);
+            }
+        }
+
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
@@ -87,15 +105,6 @@ namespace Avalonia.Labs.Controls
             else if (change.Property == ContentProperty)
             {
                 UpdateContentSafeAreaPadding();
-
-                if (change.OldValue is ILogical oldLogical)
-                {
-                    LogicalChildren.Remove(oldLogical);
-                }
-                if (change.NewValue is ILogical newLogical)
-                {
-                    LogicalChildren.Add(newLogical);
-                }
             }
         }
 
@@ -104,6 +113,7 @@ namespace Avalonia.Labs.Controls
             if (_contentPresenter != null)
             {
                 _contentPresenter.Padding = AutomaticallyApplySafeAreaPadding ? Padding.ApplySafeAreaPadding(SafeAreaPadding) : Padding;
+                _contentPresenter.InvalidateMeasure();
 
                 if (ActiveChildPage != null)
                     ActiveChildPage.SafeAreaPadding = Padding.GetRemainingSafeAreaPadding(SafeAreaPadding);

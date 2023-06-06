@@ -128,15 +128,6 @@ namespace Avalonia.Labs.Controls
                 {
                     page.SafeAreaPadding = _insetManager.SafeAreaPadding;
                 }
-
-                if (change.OldValue is ILogical oldLogical)
-                {
-                    LogicalChildren.Remove(oldLogical);
-                }
-                if (change.NewValue is ILogical newLogical)
-                {
-                    LogicalChildren.Add(newLogical);
-                }
             }
         }
     }

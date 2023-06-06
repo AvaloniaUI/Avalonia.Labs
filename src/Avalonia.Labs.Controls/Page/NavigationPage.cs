@@ -275,6 +275,8 @@ namespace Avalonia.Labs.Controls
             }
 
             ActiveChildPage = _contentPresenter?.Child as Page;
+
+            UpdateContentSafeAreaPadding();
         }
     }
 }

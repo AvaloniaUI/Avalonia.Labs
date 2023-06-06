@@ -29,6 +29,8 @@ namespace Avalonia.Labs.Controls
             {
                 page.ActiveChildPage?.RaiseEvent(args);
             });
+
+            AffectsMeasure<Page>(SafeAreaPaddingProperty);
         }
 
         public string? Title
@@ -66,7 +68,6 @@ namespace Avalonia.Labs.Controls
             base.OnPropertyChanged(change);
 
             if (change.Property == SafeAreaPaddingProperty
-                || change.Property == SafeAreaPaddingProperty
                 || change.Property == PaddingProperty)
             {
                 UpdateContentSafeAreaPadding();

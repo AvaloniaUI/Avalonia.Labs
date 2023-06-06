@@ -150,7 +150,7 @@ namespace Avalonia.Labs.Controls
                 if (_topBar != null)
                 {
                     var navPadding = SafeAreaPadding;
-                    _topBar.Padding = new Thickness(navPadding.Left, navPadding.Top, navPadding.Right, 0);
+                    _topBar.Margin = new Thickness(navPadding.Left, navPadding.Top, navPadding.Right, 0);
                 }
 
                 _detailPresenter.Padding = Padding;
@@ -160,6 +160,8 @@ namespace Avalonia.Labs.Controls
                     var remainingSafeArea = Padding.GetRemainingSafeAreaPadding(SafeAreaPadding);
                     detail.SafeAreaPadding = new Thickness(remainingSafeArea.Left, 0, remainingSafeArea.Right, remainingSafeArea.Bottom);
                 }
+
+                InvalidateMeasure();
             }
         }
 
