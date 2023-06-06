@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:qr="clr-namespace:Avalonia.Labs.Qr;assembly=Avalonia.Labs.Qr"
+             xmlns:lottie="clr-namespace:Avalonia.Labs.Lottie;assembly=Avalonia.Labs.Lottie"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:LottieViewModel"
+             HorizontalContentAlignment="Stretch"
+             VerticalContentAlignment="Stretch"
+             x:Class="Avalonia.Labs.Catalog.Views.LottieView">
+  <Design.DataContext>
+    <viewModels:LottieViewModel />
+  </Design.DataContext>
+  <UserControl.Resources>
+    <StreamGeometry x:Key="PreviousIcon">M2.75 20a1 1 0 1 0 2 0V4a1 1 0 1 0-2 0v16ZM20.75 19.053c0 1.424-1.612 2.252-2.77 1.422L7.51 12.968a1.75 1.75 0 0 1 .075-2.895l10.47-6.716c1.165-.748 2.695.089 2.695 1.473v14.223Z</StreamGeometry>
+    <StreamGeometry x:Key="NextIcon">M21 4a1 1 0 1 0-2 0v16a1 1 0 1 0 2 0V4ZM3 4.947c0-1.424 1.612-2.252 2.77-1.422l10.47 7.507a1.75 1.75 0 0 1-.075 2.895l-10.47 6.716C4.53 21.39 3 20.554 3 19.17V4.947Z</StreamGeometry>
+  </UserControl.Resources>
+  <UserControl.KeyBindings>
+    <KeyBinding Command="{Binding PreviousCommand}"
+                Gesture="Left" />
+    <KeyBinding Command="{Binding NextCommand}"
+                Gesture="Right" />
+  </UserControl.KeyBindings>
+  <Panel>
+    <Panel IsVisible="{Binding EnableCheckerboard}">
+      <Panel.Background>
+        <VisualBrush DestinationRect="0,0,20,20"
+                     TileMode="Tile">
+          <VisualBrush.Visual>
+            <Canvas Background="DarkGray"
+                    Width="20"
+                    Height="20">
+              <Rectangle Height="10"
+                         Width="10"
+                         Fill="LightGray" />
+              <Rectangle Height="10"
+                         Width="10"
+                         Canvas.Top="10"
+                         Canvas.Left="10"
+                         Fill="LightGray" />
+            </Canvas>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Panel.Background>
+    </Panel>
+    <Grid RowDefinitions="Auto,Auto" 
+          HorizontalAlignment="Center"
+          ColumnDefinitions="Auto,Auto,Auto"
+          Margin="10">
+      <Button Grid.Column="0"
+              Grid.Row="0"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              VerticalAlignment="Center"
+              VerticalContentAlignment="Center"
+              Background="Transparent"
+              Command="{Binding Previous}">
+        <Button.Content>
+          <PathIcon Data="{StaticResource PreviousIcon}"
+                    Foreground="LightGray"
+                    Width="32"
+                    Height="32" />
+        </Button.Content>
+      </Button>
+      <Button Grid.Column="2"
+              Grid.Row="0"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              VerticalAlignment="Center"
+              VerticalContentAlignment="Center"
+              Background="Transparent"
+              Command="{Binding Next}">
+        <Button.Content>
+          <PathIcon Data="{StaticResource NextIcon}"
+                    Foreground="LightGray"
+                    Width="32"
+                    Height="32" />
+        </Button.Content>
+      </Button>
+      <Viewbox Grid.Column="1"
+               Width="500"
+               Height="500"
+               Grid.Row="0">
+        <lottie:Lottie Name="Lottie"
+                       Width="500"
+                       Height="500"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                Path="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
+                RepeatCount="-1" />
+      </Viewbox>
+      <WrapPanel Grid.Column="1"
+                 Grid.Row="1"
+                 HorizontalAlignment="Center"
+                 Orientation="Horizontal">
+        <ComboBox Margin="0,10,0,0"
+                  HorizontalAlignment="Center"
+                  SelectedItem="{Binding SelectedAsset}"
+                  DisplayMemberBinding="{Binding (viewModels:AssetModel).Name}"
+                  ItemsSource="{Binding Assets}" />
+        <NumericUpDown Name="RepeatCount"
+                       VerticalAlignment="Center"
+                       Margin="10,10,0,0"
+                       MinWidth="120"
+                       Value="{Binding #Lottie.RepeatCount}"
+                       Minimum="-1" />
+        <CheckBox Margin="10,10,0,0"
+                  IsChecked="{Binding EnableCheckerboard}"
+                  Content="Checkerboard" />
+      </WrapPanel>
+    </Grid>
+  </Panel>
+</UserControl>

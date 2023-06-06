@@ -25,10 +25,7 @@ class Program
                 BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
             });
 #if DEBUG
-            builder.Instance!.AttachDevTools(new Avalonia.Diagnostics.DevToolsOptions()
-            {
-                StartupScreenIndex = 1,
-            });
+            builder.Instance!.AttachDevTools(new Avalonia.Diagnostics.DevToolsOptions());
 #endif
         })
             .LogToTrace();
