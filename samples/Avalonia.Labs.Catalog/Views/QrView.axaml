@@ -60,6 +60,7 @@
                VerticalAlignment="Center"/>
         <ComboBox Name="EccLevelComboBox"
                   Width="{Binding QrCodeSize}"
+                  ItemsSource="{Binding Levels}"
                   SelectedItem="{Binding QrCodeEccLevel, Mode=TwoWay}" />
       </StackPanel>
 
@@ -67,14 +68,14 @@
                   Orientation="Horizontal"
                   Spacing="10">
         <Button Content="Randomize Data"
-                Command="{Binding RandomizeDataCommand}" />
+                Command="{Binding RandomizeData}" />
         <Button Content="Randomize Colors"
-                Command="{Binding RandomizeColorsCommand}" />
+                Command="{Binding RandomizeColors}" />
       </StackPanel>
 
       <Button Content="Reset QRCode"
               HorizontalAlignment="Center"
-              Command="{Binding ResetQrCodeCommand}" />
+              Command="{Binding ResetQrCode}" />
     </StackPanel>
   </Panel>
 </UserControl>

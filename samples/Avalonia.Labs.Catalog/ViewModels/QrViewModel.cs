@@ -4,6 +4,8 @@ using Avalonia.Labs.Catalog.Views;
 using Avalonia.Media;
 using Avalonia.Labs.Qr;
 using ReactiveUI;
+using System.Collections.ObjectModel;
+using static Avalonia.Labs.Qr.QrCode;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
@@ -80,6 +82,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
             set => this.RaiseAndSetIfChanged(ref _qrCodeBackgroundColor2, value);
         }
 
+        public ObservableCollection<EccLevel> Levels { get; }
+
         static QrViewModel()
         {
             ViewLocator.Register(typeof(QrViewModel), () => new QrView());
@@ -89,6 +93,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
         {
             ResetQrCode();
             Title = "Qr Generator";
+
+            Levels = new ObservableCollection<EccLevel>(Enum.GetValues<EccLevel>());
         }
 
         public void UpdateQrCode(string text)
@@ -113,9 +119,14 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
             QrCodeBackgroundColor1 = Color.FromRgb(newColors[6], newColors[7], newColors[8]);
             QrCodeBackgroundColor2 = Color.FromRgb(newColors[9], newColors[10], newColors[11]);
+
+            var cuurentCode = QrCodeString;
+            QrCodeString = string.Empty;
+
+            UpdateQrCode(cuurentCode);
         }
 
-        private void ResetQrCode()
+        public void ResetQrCode()
         {
             QrCodeEccLevel = QrCode.EccLevel.Medium;
 
