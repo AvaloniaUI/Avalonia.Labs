@@ -16,6 +16,12 @@ steps:
     - task: DotNetCoreCLI@2
       displayName: Pack
       inputs:
+          projects: src/**/*.csproj
+          command: build
+          verbosityPack: normal
+    - task: DotNetCoreCLI@2
+      displayName: Pack
+      inputs:
           packagesToPack: src/**/*.csproj
           command: pack
           outputDir: $(Build.ArtifactStagingDirectory)/NuGet
