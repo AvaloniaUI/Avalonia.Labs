@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
     <Product>Avalonia.Labs</Product>
-    <Version>11.0.999</Version>
+    <Version>11.0.0-rc1.1</Version>
     <Authors>Avalonia Team</Authors>
-    <Copyright>Copyright 2022 &#169; The AvaloniaUI Project</Copyright>
+    <Copyright>Copyright 2023 &#169; The AvaloniaUI Project</Copyright>
     <PackageProjectUrl>https://avaloniaui.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Labs/</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
