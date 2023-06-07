@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:converters="clr-namespace:Avalonia.Labs.Catalog.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Avalonia.Labs.Catalog.Views.StepBarView"
+             xmlns:local="using:Avalonia.Labs.Catalog"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:DataType="viewModels:StepBarViewModel">
+  <UserControl.Resources>
+    <converters:CompositeCommandConverter x:Key="cc"/>
+  </UserControl.Resources>
+  <Grid ColumnDefinitions="*,*" 
+        RowDefinitions="Auto,Auto,Auto,Auto"
+        Margin="32">
+    <labs:StepBar Grid.ColumnSpan="2"
+                  x:Name="top">
+      <labs:StepBarItem>Register</labs:StepBarItem>
+      <labs:StepBarItem>Basinc Info</labs:StepBarItem>
+      <labs:StepBarItem>UploadFile</labs:StepBarItem>
+      <labs:StepBarItem>Complete</labs:StepBarItem>
+    </labs:StepBar>
+    <StackPanel Margin="0,32" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+      <Button Width="180"
+              Content="Previus">
+        <Button.Command>
+          <MultiBinding Converter="{StaticResource cc}">
+            <Binding ElementName="top" Path="BackCommand"/>
+            <Binding ElementName="left" Path="BackCommand"/>
+            <Binding ElementName="bottom" Path="BackCommand"/>
+            <Binding ElementName="right" Path="BackCommand"/>
+          </MultiBinding>
+        </Button.Command>
+      </Button>
+      <Button
+              Width="180"
+              Margin="0,16,0,0"
+              Content="Next">
+        <Button.Command>
+          <MultiBinding Converter="{StaticResource cc}">
+            <Binding ElementName="top" Path="NextCommand"/>
+            <Binding ElementName="left" Path="NextCommand"/>
+            <Binding ElementName="bottom" Path="NextCommand"/>
+            <Binding ElementName="right" Path="NextCommand"/>
+          </MultiBinding>
+        </Button.Command>
+      </Button>
+    </StackPanel>
+    <labs:StepBar IsMouseSelectable="True" 
+                  Margin="0,0,0,32" 
+                  Grid.Column="0" 
+                  Grid.Row="2" 
+                  Grid.ColumnSpan="2" 
+                  Dock="Bottom"
+                  x:Name="bottom">
+      <labs:StepBarItem>Register</labs:StepBarItem>
+      <labs:StepBarItem>Basinc Info</labs:StepBarItem>
+      <labs:StepBarItem>UploadFile</labs:StepBarItem>
+      <labs:StepBarItem>Complete</labs:StepBarItem>
+    </labs:StepBar>
+    <labs:StepBar Grid.Column="0" 
+                  Grid.Row="3" 
+                  ItemsSource="{Binding Steps}" 
+                  Dock="Left"
+                  x:Name="left">
+      <labs:StepBar.ItemTemplate>
+        <DataTemplate>
+          <StackPanel>
+            <TextBlock FontSize="16" FontWeight="Bold" HorizontalAlignment="Left">
+              <Run Text="{Binding Header}"/>
+              <Run Text=" "/>
+              <Run Text="{Binding Id}"/>
+            </TextBlock>
+            <TextBlock Margin="0,4,0,0" Text="{Binding Description}"/>
+          </StackPanel>
+        </DataTemplate>
+      </labs:StepBar.ItemTemplate>
+    </labs:StepBar>
+    <labs:StepBar Grid.Column="2"
+              Grid.Row="3"
+              ItemsSource="{Binding Steps}"
+              Dock="Right"
+              x:Name="right">
+      <labs:StepBar.ItemTemplate>
+        <DataTemplate>
+          <StackPanel>
+            <TextBlock FontSize="16" FontWeight="Bold" HorizontalAlignment="Right">
+              <Run Text="{Binding Header}"/>
+              <Run Text=" "/>
+              <Run Text="{Binding Id}"/>
+            </TextBlock>
+            <TextBlock Margin="0,4,0,0" Text="{Binding Description}"/>
+          </StackPanel>
+        </DataTemplate>
+      </labs:StepBar.ItemTemplate>
+    </labs:StepBar>
+  </Grid>
+</UserControl>

@@ -14,5 +14,6 @@
 
   <ItemGroup>
     <AvaloniaResource Include="**/*.xaml" />
+    <AvaloniaResource Include="**/*.axaml" />
   </ItemGroup>
 </Project>

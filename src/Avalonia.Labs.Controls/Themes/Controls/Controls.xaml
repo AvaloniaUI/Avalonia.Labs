@@ -14,7 +14,8 @@
                 <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipView.xaml" />
                 <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipViewItem.xaml" />
                 <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/AsyncImage.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
+      </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="control|FlipView > control|FlipViewItem">
