@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lab="clr-namespace:Avalonia.Labs.Catalog"
+             xmlns:rc="clr-namespace:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             x:Class="Avalonia.Labs.Catalog.Views.RouteCommandView"
+             x:DataType="viewModels:RouteCommandViewModel"
+             HorizontalContentAlignment="Stretch"
+             VerticalContentAlignment="Stretch"
+             >
+  <rc:RoutedCommandsManager.Commands>
+    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" Command="{Binding Open}" />
+    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" Command="{Binding Save}" />
+  </rc:RoutedCommandsManager.Commands>
+  <StackPanel>
+    <UniformGrid Columns="10">
+      <Button Content="Del"
+              Command="{x:Static lab:ApplicationCommands.Delete}"
+              Focusable="False"/>
+    </UniformGrid>
+    <ItemsControl Grid.IsSharedSizeScope="True"
+              ItemsSource="{Binding Dettails}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="viewModels:RouteCommandItemViewModel">
+          <Grid>
+            <rc:RoutedCommandsManager.Commands>
+              <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Delete}"
+                                       Command="{Binding Delete}"
+                                       CommandParameter="{Binding .}"
+                                       />
+            </rc:RoutedCommandsManager.Commands>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="Command"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Id}"/>
+            <TextBox Text="{Binding Text}"
+                     IsReadOnly="True"
+                     Grid.Column="1"/>
+            <UniformGrid Columns="2"
+                         Grid.Column="2">
+              <Button Content="Open"
+                      Command="{x:Static lab:ApplicationCommands.Open}"
+                      CommandParameter="{Binding .}"/>
+              <Button Content="Save"
+                      Command="{x:Static lab:ApplicationCommands.Save}"
+                      CommandParameter="{Binding .}"/>
+            </UniformGrid>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

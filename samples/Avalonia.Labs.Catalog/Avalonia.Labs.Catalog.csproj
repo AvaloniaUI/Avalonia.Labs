@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.RoutedCommand\Avalonia.Labs.RoutedCommand.csproj" />
   </ItemGroup>
 
 </Project>
