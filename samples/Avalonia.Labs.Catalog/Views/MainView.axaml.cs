@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Catalog.ViewModels;
 
 namespace Avalonia.Labs.Catalog.Views;
@@ -10,9 +11,9 @@ public partial class MainView : UserControl
         InitializeComponent();
     }
 
-    protected override void OnLoaded()
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        base.OnLoaded();
+        base.OnLoaded(e);
 
         var topLevel = TopLevel.GetTopLevel(this);
 
@@ -37,12 +38,10 @@ public partial class MainView : UserControl
         }
     }
 
-    protected override void OnUnloaded()
+    protected override void OnUnloaded(RoutedEventArgs e)
     {
-        base.OnUnloaded();
-
+        base.OnUnloaded(e);
         var topLevel = TopLevel.GetTopLevel(this);
-
         if (topLevel != null)
         {
             topLevel.BackRequested -= TopLevel_BackRequested;

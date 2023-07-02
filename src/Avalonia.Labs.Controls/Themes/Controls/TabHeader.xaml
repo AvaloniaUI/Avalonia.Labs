@@ -31,7 +31,6 @@
                         HorizontalSnapPointsAlignment="Near"
                         HorizontalSnapPointsType="MandatorySingle">
                         <ItemsPresenter Name="PART_ItemsPresenter"
-                                        AreHorizontalSnapPointsRegular="False"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"/>
                     </ScrollViewer>
                 </Border>

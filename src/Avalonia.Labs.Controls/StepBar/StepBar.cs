@@ -105,9 +105,9 @@ public class StepBar : SelectingItemsControl
         SelectedIndex++;
     }
 
-    protected override void OnLoaded()
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        base.OnLoaded();
+        base.OnLoaded(e);
         UpdateProgressBar();
         if (Items.Count > 0 && SelectedIndex == -1)
         {

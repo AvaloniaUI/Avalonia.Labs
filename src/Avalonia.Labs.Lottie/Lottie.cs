@@ -2,6 +2,7 @@
 using System.IO;
 using System.Numerics;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Media;
 using Avalonia.Metadata;
@@ -109,9 +110,9 @@ public class Lottie : Control
     }
 
     /// <inheritdoc/>
-    protected override void OnLoaded()
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        base.OnLoaded();
+        base.OnLoaded(e);
 
         var elemVisual = ElementComposition.GetElementVisual(this);
         var compositor = elemVisual?.Compositor;
@@ -145,9 +146,9 @@ public class Lottie : Control
         _preloadPath = null;
     }
 
-    protected override void OnUnloaded()
+    protected override void OnUnloaded(RoutedEventArgs e)
     {
-        base.OnUnloaded();
+        base.OnUnloaded(e);
 
         LayoutUpdated -= OnLayoutUpdated;
 
