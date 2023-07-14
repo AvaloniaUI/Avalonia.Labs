@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="{StaticResource CardStrokeColorDefault}" />
+  <SolidColorBrush x:Key="CardStrokeColorDefaultSolidBrush" Color="{StaticResource CardStrokeColorDefaultSolid}" />
+
+  <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="{StaticResource TextFillColorPrimary}" />
+  <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="{StaticResource TextFillColorSecondary}" />
+  <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="{StaticResource TextFillColorTertiary}" />
+  <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="{StaticResource TextFillColorDisabled}" />
+  <SolidColorBrush x:Key="TextFillColorInverseBrush" Color="{StaticResource TextFillColorInverse}" />
+
+  <SolidColorBrush x:Key="LayerFillColorAltBrush" Color="{StaticResource LayerFillColorAlt}" />
+
+  <SolidColorBrush x:Key="SmokeFillColorDefaultBrush" Color="{StaticResource SmokeFillColorDefault}" />
+
+  <SolidColorBrush x:Key="SolidBackgroundFillColorBaseBrush" Color="{StaticResource SolidBackgroundFillColorBase}" />
+  <SolidColorBrush x:Key="SolidBackgroundFillColorSecondaryBrush" Color="{StaticResource SolidBackgroundFillColorSecondary}" />
+  <SolidColorBrush x:Key="SolidBackgroundFillColorTertiaryBrush" Color="{StaticResource SolidBackgroundFillColorTertiary}" />
+  <SolidColorBrush x:Key="SolidBackgroundFillColorQuarternaryBrush" Color="{StaticResource SolidBackgroundFillColorQuarternary}" />
+
+  <SolidColorBrush x:Key="SurfaceStrokeColorDefaultBrush" Color="{StaticResource SurfaceStrokeColorDefault}" />
+  <SolidColorBrush x:Key="SurfaceStrokeColorFlyoutBrush" Color="{StaticResource SurfaceStrokeColorFlyout}" />
+  <SolidColorBrush x:Key="SurfaceStrokeColorInverseBrush" Color="{StaticResource SurfaceStrokeColorInverse}" />
+</ResourceDictionary>

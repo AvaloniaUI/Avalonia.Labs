@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="using:Avalonia.Labs.Catalog.ViewModels"
+             x:Class="Avalonia.Labs.Catalog.Views.ContentDialogView">
+  <DockPanel>
+    <StackPanel Orientation="Vertical" 
+                Spacing="4" 
+                MaxWidth="250"
+                DockPanel.Dock="Right">
+      <Expander Header="Enabled Buttons" IsExpanded="True">
+        <StackPanel Orientation="Vertical">
+          <CheckBox Content="IsPrimaryButtonEnabled" IsChecked="{Binding IsPrimaryButtonEnabled}"/>
+          <CheckBox Content="IsSecondaryButtonEnabled" IsChecked="{Binding IsSecondaryButtonEnabled}"/>
+        </StackPanel>
+      </Expander>
+      <Expander Header="Default Button">
+        <ComboBox Name="DefButtonSelector" MinWidth="90"
+                  ItemsSource="{Binding ContentDialogButtons}"
+                  SelectedItem="{Binding ContentDialogDefaultButton}" />
+      </Expander>
+      <Expander Header="Content">
+        <StackPanel Orientation="Vertical" Spacing="4">
+          <TextBlock Text="Title"/>
+          <TextBox Text="{Binding Title}" />
+          <TextBlock Text="Content"/>
+          <TextBox Text="{Binding Content}" />
+          <TextBlock Text="PrimaryButtonText"/>
+          <TextBox Text="{Binding PrimaryButtonText}" />
+          <TextBlock Text="SecondaryButtonText"/>
+          <TextBox Text="{Binding SecondaryButtonText}" />
+          <TextBlock Text="CloseButtonText"/>
+          <TextBox Text="{Binding CloseButtonText}" />
+        </StackPanel>
+      </Expander>
+
+      <StackPanel Orientation="Vertical" Margin="20 0">
+        <CheckBox Content="FullSizeDesired" IsChecked="{Binding FullSizeDesired}"
+                  ToolTip.ShowDelay="100"
+                  ToolTip.Tip="Full size stretches the dialog to &quot;full screen&quot;. &#x0a; Though, it just stretches it to the height size of a Content Dialog. &#x0a;"/>
+      </StackPanel>
+    </StackPanel>
+
+    <StackPanel Spacing="8">
+      <Button Content="Launch ContentDialog"
+                 Command="{Binding LaunchDialog}"
+                 CommandParameter="{x:Static vm:DialogMode.Default}" />
+      <Button Content="Launch ContentDialog with Primary Button deferral"
+                 Command="{Binding LaunchDialog}"
+                 CommandParameter="{x:Static vm:DialogMode.Deferal}" />
+      <Button Content="Show Input"
+                 Command="{Binding LaunchDialog}"
+                 CommandParameter="{x:Static vm:DialogMode.Input}"/>
+    </StackPanel>
+  </DockPanel>
+</UserControl>
