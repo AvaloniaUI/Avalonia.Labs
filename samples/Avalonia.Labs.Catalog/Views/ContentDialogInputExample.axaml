@@ -14,5 +14,7 @@
                      Text="{CompiledBinding UserInput}"
                      ItemsSource="{Binding AvailableKeyWords}"
                      AttachedToVisualTree="InputField_OnAttachedToVisualTree" />
+    <TextBox Text="" AcceptsReturn="True"
+             />
   </StackPanel>
 </UserControl>

@@ -63,11 +63,11 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         return base.RegisterContentPresenter(presenter);
     }
 
-    protected override void OnKeyUp(KeyEventArgs e)
+    protected override void OnKeyDown(KeyEventArgs e)
     {
         if (e.Handled)
         {
-            base.OnKeyUp(e);
+            base.OnKeyDown(e);
             return;
         }
 
@@ -84,29 +84,28 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                 // v2 - Only handle 'Enter' if the default button is set
                 //      Otherwise, we'll let the event go as normal - if focus is currently
                 //      on a button, 'Enter' should invoke that button
-                if (defButton != ContentDialogButton.None)
+
+                switch (defButton)
                 {
-                    switch (defButton)
-                    {
-                        case ContentDialogButton.Primary:
-                            OnButtonClick(_primaryButton, null);
-                            break;
+                    case ContentDialogButton.Primary:
+                        OnButtonClick(_primaryButton, null);
+                        break;
 
-                        case ContentDialogButton.Secondary:
-                            OnButtonClick(_secondaryButton, null);
-                            break;
+                    case ContentDialogButton.Secondary:
+                        OnButtonClick(_secondaryButton, null);
+                        break;
 
-                        case ContentDialogButton.Close:
-                            OnButtonClick(_closeButton, null);
-                            break;
-                    }
-                    e.Handled = true;
+                    case ContentDialogButton.Close:
+                        OnButtonClick(_closeButton, null);
+                        break;
                 }
+                e.Handled = true;
 
                 break;
         }
-        base.OnKeyUp(e);
+        base.OnKeyDown(e);
     }
+
 
     /// <summary>
     /// Begins an asynchronous operation to show the dialog.
@@ -126,6 +125,8 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     /// </remarks>
     private async Task<ContentDialogResult> ShowAsyncCore(Window? window, ContentDialogPlacement placement = ContentDialogPlacement.Popup)
     {
+        await Task.Yield();
+        await Task.Yield();
         if (placement == ContentDialogPlacement.InPlace)
             throw new NotImplementedException("InPlace not implemented yet");
         _tcs = new TaskCompletionSource<ContentDialogResult>();
@@ -158,24 +159,20 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _host.Content = this;
 
         OverlayLayer? ol = null;
-
-        var topLevel = window ??
-            Application.Current!.ApplicationLifetime switch
-            {
-                IClassicDesktopStyleApplicationLifetime cls when cls.MainWindow is not null =>
-                    cls.Windows.FirstOrDefault(x => x.IsActive)
-                        ?? cls.MainWindow,
-                ISingleViewApplicationLifetime sl when sl.MainView is not null =>
-                    TopLevel.GetTopLevel(sl.MainView)
-                        ?? throw new InvalidOperationException(),
-                _ => throw new InvalidOperationException()
-            };
-        ;
-
+        var topLevel = GetTopLevel(window);
 
         ol = OverlayLayer.GetOverlayLayer(topLevel!);
         _lastFocus = topLevel!.FocusManager?.GetFocusedElement();
 
+        _keyEventFilter = InputElement.KeyDownEvent.AddClassHandler<TopLevel>((dialog, arg) =>
+        {
+            if (GetTopLevel(default).FocusManager?.GetFocusedElement() is Visual focusedElement)
+            {
+                var isDesc = this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
+                arg.Handled = arg.Key == Key.Enter
+                    && !this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
+            }
+        }, RoutingStrategies.Tunnel);
 
         if (ol == null)
             throw new InvalidOperationException();
@@ -194,6 +191,21 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         ShowCore();
         SetupDialog();
         return await _tcs.Task;
+
+        static TopLevel GetTopLevel(Window? window)
+        {
+            return window ??
+                Application.Current!.ApplicationLifetime switch
+                {
+                    IClassicDesktopStyleApplicationLifetime cls when cls.MainWindow is not null =>
+                        cls.Windows.FirstOrDefault(x => x.IsActive)
+                            ?? cls.MainWindow,
+                    ISingleViewApplicationLifetime sl when sl.MainView is not null =>
+                        TopLevel.GetTopLevel(sl.MainView)
+                            ?? throw new InvalidOperationException(),
+                    _ => throw new InvalidOperationException()
+                };
+        }
     }
 
     /// <summary>
@@ -325,7 +337,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
             // since this is called after
             setFocus = true;
         }
-
+        IInputElement? inputElement = null;
         var p = Presenter;
         switch (DefaultButton)
         {
@@ -339,7 +351,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 if (setFocus)
                 {
-                    _primaryButton?.Focus();
+                    inputElement = _primaryButton;
 #if DEBUG
                     Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to PrimaryButton");
 #endif
@@ -357,7 +369,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 if (setFocus)
                 {
-                    _secondaryButton?.Focus();
+                    inputElement = _secondaryButton;
 #if DEBUG
                     Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to SecondaryButton");
 #endif
@@ -375,7 +387,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 if (setFocus)
                 {
-                    _closeButton?.Focus();
+                    inputElement = _closeButton;
 #if DEBUG
                     Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to CloseButton");
 #endif
@@ -388,24 +400,35 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                 _primaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
                 _secondaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
 
-                if (setFocus)
-                {
-                    var next = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next);
-                    if (next != null)
-                    {
-                        next.Focus();
-                    }
-                    else
-                    {
-                        this.Focus();
-                    }
+                break;
+        }
 
+        if (setFocus)
+        {
+
+            inputElement ??= KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next) ?? this;
+
+            if (!this.IsLoaded)
+            {
+                EventHandler<RoutedEventArgs>? lh = default;
+                lh = async (s, e) =>
+                {
+                    this.Loaded -= lh;
+                    inputElement?.Focus();
+                };
+                this.Loaded += lh;
+            }
+            else
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(state =>
+                {
+                    var next = state as IInputElement;
+                    next?.Focus();
 #if DEBUG
                     Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to {next}", next);
 #endif
-                }
-
-                break;
+                }, inputElement);
+            }
         }
     }
 
@@ -418,6 +441,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         // below to fail (as this would be removed from the tree). This is a simple workaround
         // to make sure we don't error out
         IsHitTestVisible = false;
+        _keyEventFilter?.Dispose();
 
         // For a better experience when animating closed, we need to make sure the
         // focus adorner is not showing (if using keyboard) otherwise that will hang
@@ -594,7 +618,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         return (false, null);
     }
 
-
     // Store the last element focused before showing the dialog, so we can
     // restore it when it closes
     private IInputElement? _lastFocus;
@@ -607,4 +630,5 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     private Button? _secondaryButton;
     private Button? _closeButton;
     private bool _hasDeferralActive;
+    private IDisposable? _keyEventFilter;
 }
