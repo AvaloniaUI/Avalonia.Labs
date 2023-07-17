@@ -18,18 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaXaml Remove="Themes\Assets\Brushes.axaml" />
-    <AvaloniaXaml Remove="Themes\Assets\Colors.axaml" />
     <AvaloniaXaml Remove="Themes\Controls\ContentDialog.axaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Update="Themes\Assets\Brushes.axaml">
-      <SubType>Designer</SubType>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Themes\Assets\Colors.axaml">
-      <SubType>Designer</SubType>
-    </AvaloniaResource>
     <AvaloniaResource Update="Themes\Controls\ContentDialog.axaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
