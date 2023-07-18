@@ -168,7 +168,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         {
             if (GetTopLevel(default).FocusManager?.GetFocusedElement() is Visual focusedElement)
             {
-                var isDesc = this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
                 arg.Handled = arg.Key == Key.Enter
                     && !this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
             }
