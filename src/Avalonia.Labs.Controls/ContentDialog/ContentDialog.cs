@@ -125,8 +125,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     /// </remarks>
     private async Task<ContentDialogResult> ShowAsyncCore(Window? window, ContentDialogPlacement placement = ContentDialogPlacement.Popup)
     {
-        await Task.Yield();
-        await Task.Yield();
         if (placement == ContentDialogPlacement.InPlace)
             throw new NotImplementedException("InPlace not implemented yet");
         _tcs = new TaskCompletionSource<ContentDialogResult>();
@@ -164,14 +162,12 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         ol = OverlayLayer.GetOverlayLayer(topLevel!);
         _lastFocus = topLevel!.FocusManager?.GetFocusedElement();
 
-        _keyEventFilter = InputElement.KeyDownEvent.AddClassHandler<TopLevel>((dialog, arg) =>
+        _keyEventFilter?.Dispose();
+        _keyEventFilter = new CompositeDisposable(2)
         {
-            if (GetTopLevel(default).FocusManager?.GetFocusedElement() is Visual focusedElement)
-            {
-                arg.Handled = arg.Key == Key.Enter
-                    && !this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
-            }
-        }, RoutingStrategies.Tunnel);
+            KeyDownEvent.AddClassHandler<TopLevel>(KeyFilter, RoutingStrategies.Tunnel),
+            KeyUpEvent.AddClassHandler<TopLevel>(KeyFilter, RoutingStrategies.Tunnel),
+        };
 
         if (ol == null)
             throw new InvalidOperationException();
@@ -204,6 +200,15 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                             ?? throw new InvalidOperationException(),
                     _ => throw new InvalidOperationException()
                 };
+        }
+
+        void KeyFilter(TopLevel topLevel, KeyEventArgs arg)
+        {
+            if (topLevel.FocusManager?.GetFocusedElement() is Visual focusedElement)
+            {
+                arg.Handled = arg.Key == Key.Enter
+                    && !this.GetVisualDescendants().Any(v => ReferenceEquals(v, focusedElement));
+            }
         }
     }
 
