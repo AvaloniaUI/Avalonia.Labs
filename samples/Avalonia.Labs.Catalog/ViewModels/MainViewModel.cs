@@ -59,7 +59,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
             }
             else
             {
-                App.Current!.RequestedThemeVariant = ThemeVariant.Default;
+                App.Current!.RequestedThemeVariant = ThemeVariant.Light;
             }
         }
     }
