@@ -5,23 +5,24 @@
 
   <Styles.Resources>
     <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/NavigationControl.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabControl.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabItem.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabHeader.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabHeaderItem.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipView.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipViewItem.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/AsyncImage.xaml" />
-                <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/NavigationControl.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabControl.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabItem.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabHeader.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/TabHeaderItem.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipView.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/FlipViewItem.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/AsyncImage.xaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentDialog.axaml" />
       </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+    </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="control|FlipView > control|FlipViewItem">
-      <Setter Property="Width"
-              Value="{Binding $parent.Bounds.Width}" />
-      <Setter Property="Height"
-              Value="{Binding $parent.Bounds.Height}" />
+    <Setter Property="Width"
+            Value="{Binding $parent.Bounds.Width}" />
+    <Setter Property="Height"
+            Value="{Binding $parent.Bounds.Height}" />
   </Style>
 </Styles>
