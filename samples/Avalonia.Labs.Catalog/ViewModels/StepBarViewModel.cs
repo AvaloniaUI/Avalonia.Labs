@@ -16,8 +16,8 @@ internal class StepBarViewModel : ViewModelBase
         new Step[]
         {
             new(1,"Step","Registration"),
-            new(2,"Step","Fill in basisic information"),
-            new(3,"Step","Uploda file"),
+            new(2,"Step","Fill in basic information"),
+            new(3,"Step","Upload file"),
             new(4,"Step","Complete"),
         };
 }
