@@ -1,11 +1,14 @@
 ﻿using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
+using Avalonia.Styling;
 using ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        bool darkTheme = false;
+
         static MainViewModel()
         {
             ViewLocator.Register(typeof(MainViewModel), () => new MainView());
@@ -44,6 +47,19 @@ namespace Avalonia.Labs.Catalog.ViewModels
             if (NavigationRouter != null)
             {
                 await NavigationRouter.NavigateToAsync(page);
+            }
+        }
+
+        public void SwapTheme(object parameter)
+        {
+            darkTheme = !darkTheme;
+            if (darkTheme)
+            {
+                App.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+            }
+            else
+            {
+                App.Current!.RequestedThemeVariant = ThemeVariant.Light;
             }
         }
     }
