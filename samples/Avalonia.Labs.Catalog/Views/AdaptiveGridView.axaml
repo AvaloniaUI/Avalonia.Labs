@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:local="using:Avalonia.Labs.Catalog"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             x:Class="Avalonia.Labs.Catalog.Views.AdaptiveGridView"
+             x:DataType="viewModels:AdaptiveGridViewModel">
+  <ItemsControl ItemsSource="{Binding Steps}"
+                Grid.IsSharedSizeScope="True">
+    <ItemsControl.ItemTemplate>
+      <DataTemplate DataType="viewModels:Step">
+        <labs:AdaptiveGrid RowDefinitions="Auto,Auto">
+          <!--  Grid row/column definition  -->
+          <labs:AdaptiveGrid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+            <ColumnDefinition Width="*"/>
+          </labs:AdaptiveGrid.ColumnDefinitions>
+
+          <!--  Responsive template area definition  -->
+
+          <labs:AdaptiveGrid.TemplateAreas>
+
+            <!--  This area is applied to the layout if the width is greater than 0  -->
+            <labs:AdaptiveGridTemplateArea FromWidth="0">
+              <labs:AdaptiveGridTemplateArea.Areas>
+                <labs:AdaptiveGridArea Area="LabelArea" ColumnSpan="2" />
+                <labs:AdaptiveGridArea Area="ContentArea" Row="1" ColumnSpan="2" />
+              </labs:AdaptiveGridTemplateArea.Areas>
+            </labs:AdaptiveGridTemplateArea>
+
+            <!--  This area is applied to the layout if the width is greater than 300  -->
+
+            <labs:AdaptiveGridTemplateArea FromWidth="300">
+              <labs:AdaptiveGridTemplateArea.Areas>
+
+                <labs:AdaptiveGridArea Area="LabelArea" Column="0" />
+                <labs:AdaptiveGridArea Area="ContentArea" Column="1" />
+              </labs:AdaptiveGridTemplateArea.Areas>
+            </labs:AdaptiveGridTemplateArea>
+
+          </labs:AdaptiveGrid.TemplateAreas>
+
+          <TextBlock Text="{Binding Header}" 
+                     VerticalAlignment="Center" 
+                     labs:AdaptiveGrid.Area="LabelArea"/>
+          <TextBox Text="{Binding Description,Mode=OneWay}" 
+                   labs:AdaptiveGrid.Area="ContentArea"
+                   IsReadOnly="True"
+                   Margin="2.5"/>
+        </labs:AdaptiveGrid>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>
