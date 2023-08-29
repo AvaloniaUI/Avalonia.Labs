@@ -13,14 +13,14 @@
         <DataTemplate>
           <labs:Swipe Margin="5">
             <labs:Swipe.Content>
-              <StackPanel Orientation="Horizontal" Spacing="5" Background="White">
+              <StackPanel Orientation="Horizontal" Spacing="5" Background="Transparent">
                 <StackPanel.GestureRecognizers>
                   <base:TapGestureRecognizer OnTap="TapGestureRecognizer_OnOnTap" />
                 </StackPanel.GestureRecognizers>
                 <Border Background="Red" Width="64" Height="64" />
                 <Border Background="Red" Width="64" Height="64" />
                 <Border Background="Red" Width="64" Height="64" />
-                <Label Content="You can swipe or click on the item" Foreground="Black"/>
+                <Label Content="You can swipe or click on the item"/>
               </StackPanel>
             </labs:Swipe.Content>
             <labs:Swipe.Right>
@@ -28,14 +28,14 @@
                 <StackPanel Orientation="Horizontal" Spacing="5">
                   <Border Background="Blue" Width="64" Height="64" />
                   <Border Background="Blue" Width="64" Height="64" />
-                  <Border Background="Blue" Width="64" Height="64" />
+                  <Button Classes="accent" Width="64" Height="64" Click="CloseSwipe" Content="Close" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
                 </StackPanel>
               </DataTemplate>
             </labs:Swipe.Right>
             <labs:Swipe.Left>
               <DataTemplate>
                 <StackPanel Orientation="Horizontal" Spacing="5">
-                  <Border Background="Green" Width="64" Height="64" />
+                  <Button Classes="accent" Width="64" Height="64" Click="CloseSwipe" Content="Close" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
                   <Border Background="Green" Width="64" Height="64" />
                   <Border Background="Green" Width="64" Height="64" />
                 </StackPanel>
