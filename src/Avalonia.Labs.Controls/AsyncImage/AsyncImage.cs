@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -29,7 +30,7 @@ namespace Avalonia.Labs.Controls
         private AsyncImageState _state;
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-        {
+        {            
             base.OnApplyTemplate(e);
 
             ImagePart = e.NameScope.Get<Image>("PART_Image");
@@ -44,7 +45,6 @@ namespace Avalonia.Labs.Controls
                 SetSource(Source);
             }
         }
-
         private async void SetSource(object source)
         {
             if (!_isInitialized)
@@ -149,6 +149,11 @@ namespace Avalonia.Labs.Controls
             }
         }
 
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var result = base.ArrangeOverride(finalSize);
+            return result;
+        }
         private void AttachSource(IImage? image)
         {
             if (ImagePart != null)
@@ -158,6 +163,11 @@ namespace Avalonia.Labs.Controls
 
             _tokenSource?.Cancel();
             _tokenSource = new CancellationTokenSource();
+
+            if(Tag == "Test")
+            {
+                Console.WriteLine("Attach: "+this.GetHashCode()+" "+image);
+            }
 
             if (image == null)
             {
