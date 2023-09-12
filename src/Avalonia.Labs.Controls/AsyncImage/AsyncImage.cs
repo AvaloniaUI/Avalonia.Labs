@@ -29,8 +29,11 @@ namespace Avalonia.Labs.Controls
         private CancellationTokenSource? _tokenSource;
         private AsyncImageState _state;
 
+
+
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-        {            
+        {
+
             base.OnApplyTemplate(e);
 
             ImagePart = e.NameScope.Get<Image>("PART_Image");
@@ -45,6 +48,10 @@ namespace Avalonia.Labs.Controls
                 SetSource(Source);
             }
         }
+
+        private bool _shouldAnimate;
+        private CancellationTokenSource? _currentTransition;
+
         private async void SetSource(object source)
         {
             if (!_isInitialized)
@@ -95,7 +102,8 @@ namespace Avalonia.Labs.Controls
                             }
                             catch (Exception ex)
                             {
-                                await Dispatcher.UIThread.InvokeAsync(() => {
+                                await Dispatcher.UIThread.InvokeAsync(() =>
+                                {
                                     State = AsyncImageState.Failed;
 
                                     RaiseEvent(new AsyncImageFailedEventArgs(ex));
@@ -111,7 +119,8 @@ namespace Avalonia.Labs.Controls
                         }
                         catch (Exception ex)
                         {
-                            await Dispatcher.UIThread.InvokeAsync(() => {
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
                                 State = AsyncImageState.Failed;
 
                                 RaiseEvent(new AsyncImageFailedEventArgs(ex));
@@ -152,42 +161,77 @@ namespace Avalonia.Labs.Controls
         protected override Size ArrangeOverride(Size finalSize)
         {
             var result = base.ArrangeOverride(finalSize);
+
+            if (_shouldAnimate)
+            {
+                _currentTransition?.Cancel();
+
+                if (ImageTransition is { } transition)
+                {
+
+                    _shouldAnimate = false;
+
+                    CancellationTokenSource cancel = new();
+                    _currentTransition = cancel;
+
+
+                    var from = _currentImage is not null ? PlaceholderPart : ImagePart;
+                    var to = _currentImage is not null ? ImagePart : PlaceholderPart;
+
+
+
+                    transition.Start(from, to, true, cancel.Token).ContinueWith((x) =>
+                    {
+                        if (!cancel.IsCancellationRequested)
+                        {
+
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                }
+                _shouldAnimate = false;
+            }
+
             return result;
         }
+
+        private IImage? _currentImage;
+
         private void AttachSource(IImage? image)
         {
-            if (ImagePart != null)
+            if (PlaceholderPart is null || ImagePart is null)
+                return;
+
+            _currentImage = image;
+
+            ImagePart.Source = image;
+
+            if (ImageTransition is not null)
             {
-                ImagePart.Source = image;
+                _shouldAnimate = true;
+                InvalidateArrange();
+            }
+            else
+            {
+                if (image is null)
+                {
+                    PlaceholderPart.Opacity = 1;
+                    ImagePart.Opacity = 0;
+                }
+                else
+                {
+                    PlaceholderPart.Opacity = 0;
+                    ImagePart.Opacity = 1;
+                }
             }
 
-            _tokenSource?.Cancel();
-            _tokenSource = new CancellationTokenSource();
 
-            if(Tag == "Test")
-            {
-                Console.WriteLine("Attach: "+this.GetHashCode()+" "+image);
-            }
-
-            if (image == null)
-            {
-                State = AsyncImageState.Unloaded;
-
-                ImageTransition?.Start(ImagePart, PlaceholderPart, true, _tokenSource.Token);
-            }
-            else if (image.Size != default)
-            {
-                State = AsyncImageState.Loaded;
-
-                ImageTransition?.Start(PlaceholderPart, ImagePart, true, _tokenSource.Token);
-
-                RaiseEvent(new Interactivity.RoutedEventArgs(OpenedEvent));
-            }
         }
+
+
 
         private async Task<Bitmap> LoadImageAsync(Uri? url, CancellationToken token)
         {
-            if(await ProvideCachedResourceAsync(url, token) is { } bitmap)
+            if (await ProvideCachedResourceAsync(url, token) is { } bitmap)
             {
                 return bitmap;
             }
@@ -219,7 +263,7 @@ namespace Avalonia.Labs.Controls
 
         protected virtual async Task<Bitmap?> ProvideCachedResourceAsync(Uri? imageUri, CancellationToken token)
         {
-            if(IsCacheEnabled && imageUri != null)
+            if (IsCacheEnabled && imageUri != null)
             {
                 return await ImageCache.Instance.GetFromCacheAsync(imageUri);
             }
