@@ -23,6 +23,10 @@ namespace Avalonia.Labs.Controls
         public static readonly RoutedEvent<RoutedEventArgs> PageNavigationSystemBackButtonPressedEvent =
             RoutedEvent.Register<Page, RoutedEventArgs>(nameof(PageNavigationSystemBackButtonPressed), RoutingStrategies.Bubble | RoutingStrategies.Tunnel);
 
+        public static readonly DirectProperty<Page, INavigation?> NavigationProperty = AvaloniaProperty.RegisterDirect<Page, INavigation?>(nameof(Navigation), o => o.Navigation, (o, v) => o.Navigation = v);
+        
+        private INavigation? _navigation;
+
         static Page()
         {
             PageNavigationSystemBackButtonPressedEvent.AddClassHandler<Page>((page, args) =>
@@ -57,6 +61,12 @@ namespace Avalonia.Labs.Controls
             set => SetValue(ActiveChildPageProperty, value);
         }
 
+        public INavigation? Navigation
+        {
+            get => _navigation;
+            set => SetAndRaise(NavigationProperty, ref _navigation, value);
+        }
+
         public event EventHandler<RoutedEventArgs> PageNavigationSystemBackButtonPressed
         {
             add => AddHandler(PageNavigationSystemBackButtonPressedEvent, value);
@@ -74,9 +84,9 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        protected override void OnLoaded()
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.OnLoaded();
+            base.OnLoaded(e);
 
             UpdateContentSafeAreaPadding();
         }

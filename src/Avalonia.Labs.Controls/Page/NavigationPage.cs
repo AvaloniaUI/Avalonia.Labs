@@ -17,7 +17,7 @@ namespace Avalonia.Labs.Controls
     [TemplatePart("PART_BackButton", typeof(Button))]
     [TemplatePart("PART_ForwardButton", typeof(Button))]
     [TemplatePart("PART_ContentPresenter", typeof(TransitioningContentControl))]
-    public class NavigationPage : MultiPage
+    public class NavigationPage : MultiPage, INavigation
     {
         private Button? _backButton;
 
@@ -213,6 +213,8 @@ namespace Avalonia.Labs.Controls
 
             if (page is Page p && !p.IsSet(TitleViewProperty))
             {
+                p.Navigation = this;
+
                 SetTitleView(p, new Label()
                 {
                     Content = p.Title,
@@ -241,6 +243,9 @@ namespace Avalonia.Labs.Controls
             }
 
             UpdateActivePage();
+
+            if (old is Page p)
+                p.Navigation = null;
 
             return old;
         }
