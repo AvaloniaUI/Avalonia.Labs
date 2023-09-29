@@ -1,0 +1,75 @@
+﻿<Style  xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:control="using:Avalonia.Labs.Controls"
+        Selector=":is(control|MasterDetailPage)">
+  <Style.Resources>
+    <StreamGeometry x:Key="PaneButtonIcon">M3 17h18a1 1 0 0 1 .117 1.993L21 19H3a1 1 0 0 1-.117-1.993L3 17h18H3Zm0-6 18-.002a1 1 0 0 1 .117 1.993l-.117.007L3 13a1 1 0 0 1-.117-1.993L3 11l18-.002L3 11Zm0-6h18a1 1 0 0 1 .117 1.993L21 7H3a1 1 0 0 1-.117-1.993L3 5h18H3Z</StreamGeometry>
+
+    <ControlTheme x:Key="MasterDetailPage"
+                  TargetType="control:MasterDetailPage">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <SplitView Name="PART_SplitView"
+                     PanePlacement="Left"
+                     DisplayMode="Overlay"
+                     IsPaneOpen="{Binding IsPresented, RelativeSource={RelativeSource TemplatedParent}}">
+            <SplitView.Pane>
+              <ContentPresenter Name="PART_MasterPresenter"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Content="{TemplateBinding Master}"
+                                ContentTemplate="{TemplateBinding MasterTemplate}" />
+            </SplitView.Pane>
+            <Grid HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch">
+              <DockPanel Name="PART_DetailDock">
+                <Border
+                  Name="PART_TopBar"
+                  Padding="5"
+                  Height="{DynamicResource NavigationControlNavBarHeight}"
+                  Background="{DynamicResource NavigationControlNavBarBackground}"
+                  DockPanel.Dock="Top">
+                  <DockPanel HorizontalAlignment="Stretch">
+                    <DockPanel.Styles>
+                      <Styles>
+                        <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                          <Setter Property="Background"
+                                  Value="Transparent" />
+                        </Style>
+                      </Styles>
+                    </DockPanel.Styles>
+                    <ToggleButton x:Name="PART_PaneButton"
+                                  IsChecked="{Binding #PART_SplitView.IsPaneOpen, Mode=TwoWay}"
+                                  Background="Transparent"
+                                  DockPanel.Dock="Left">
+                      <PathIcon
+                        Data="{DynamicResource PaneButtonIcon}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                    </ToggleButton>
+                  </DockPanel>
+
+                </Border>
+                <ContentPresenter Name="PART_DetailPresenter"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  Content="{TemplateBinding Detail}"
+                                  ContentTemplate="{TemplateBinding DetailTemplate}"
+                                  CornerRadius="{TemplateBinding CornerRadius}" />
+              </DockPanel>
+            </Grid>
+          </SplitView>
+        </ControlTemplate>
+      </Setter>
+    </ControlTheme>
+  </Style.Resources>
+
+  <Setter Property="Theme"
+          Value="{StaticResource MasterDetailPage}" />
+</Style >

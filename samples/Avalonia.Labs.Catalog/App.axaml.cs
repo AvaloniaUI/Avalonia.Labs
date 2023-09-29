@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Labs.Catalog.ViewModels;
 using Avalonia.Labs.Catalog.Views;
+using Avalonia.Labs.Controls;
 
 namespace Avalonia.Labs.Catalog;
 
@@ -19,14 +20,23 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel()
+                Content = new PageNavigationHost()
+                {
+                    Page = new MainView()
+                    {
+                        DataContext = new MainViewModel()
+                    }
+                }
             };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
-            singleViewPlatform.MainView = new MainView
+            singleViewPlatform.MainView = new PageNavigationHost()
             {
-                DataContext = new MainViewModel()
+                Page = new MainView()
+                {
+                    DataContext = new MainViewModel()
+                }
             };
         }
 

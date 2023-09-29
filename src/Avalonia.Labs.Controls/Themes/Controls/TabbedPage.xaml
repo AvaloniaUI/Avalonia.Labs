@@ -1,0 +1,25 @@
+﻿<Style  xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:control="using:Avalonia.Labs.Controls"
+                    Selector=":is(control|TabbedPage)">
+  <Style.Resources>
+    <ControlTheme x:Key="TabbedPage"
+                  TargetType="control:TabbedPage">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <control:TabControl
+            Name="PART_TabControl"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            ItemTemplate="{TemplateBinding PageTemplate}"
+            ItemsSource="{TemplateBinding Pages}"
+            >
+          </control:TabControl>
+        </ControlTemplate>
+      </Setter>
+    </ControlTheme>
+  </Style.Resources>
+
+  <Setter Property="Theme"
+          Value="{StaticResource TabbedPage}" />
+</Style >
