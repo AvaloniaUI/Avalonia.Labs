@@ -2,6 +2,7 @@
 using System.IO;
 using Avalonia;
 using Avalonia.Labs.Controls.Cache;
+using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.Desktop;
 
@@ -18,6 +19,7 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .UseReactiveUI()
         .AfterSetup(builder =>
         {
             CacheOptions.SetDefault(new CacheOptions()
