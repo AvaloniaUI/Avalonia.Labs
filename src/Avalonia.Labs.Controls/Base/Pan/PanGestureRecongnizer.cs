@@ -85,6 +85,7 @@ public class PanGestureRecognizer : GestureRecognizer
         OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(PanGestureStatus.Running, _delta.X, _delta.Y));
         _state = PanGestureStatus.Running;
         e.Handled = true;
+        e.PreventGestureRecognition();
     }
 
     /// <inheritdoc />
