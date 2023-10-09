@@ -143,7 +143,6 @@ public class Lottie : Control
                 StretchDirection));
         
         Start();
-        _preloadPath = null;
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
@@ -154,6 +153,8 @@ public class Lottie : Control
 
         Stop();
         DisposeImpl();
+        _animation = null;
+        _customVisual = null;
     }
 
     private void OnLayoutUpdated(object? sender, EventArgs e)
@@ -212,9 +213,9 @@ public class Lottie : Control
             {
                 var path = change.GetNewValue<string?>();
 
-                if (_preloadPath is null && _customVisual is null)
+                _preloadPath = path;
+                if (_customVisual is null)
                 {
-                    _preloadPath = path;
                     return;
                 }
 
