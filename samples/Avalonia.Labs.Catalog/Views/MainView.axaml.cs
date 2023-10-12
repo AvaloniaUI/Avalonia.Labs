@@ -23,6 +23,11 @@ public partial class MainView : UserControl
         }
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+    }
+
     private async void TopLevel_BackRequested(object? sender, Interactivity.RoutedEventArgs e)
     {
         var viewModel = DataContext as MainViewModel;
