@@ -329,5 +329,6 @@ public class Lottie : Control
     private void DisposeImpl()
     {
         _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Dispose));
+        _animation = null;
     }
 }
