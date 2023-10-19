@@ -1,6 +1,10 @@
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Labs.Controls;
 using Avalonia.Labs.Controls.Base;
+using Avalonia.Visuals;
+using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Catalog.Views
 {
@@ -17,6 +21,14 @@ namespace Avalonia.Labs.Catalog.Views
             {
                 var label = panel.Children.OfType<Label>().First();
                 label.Content = "Clicked";
+            }
+        }
+
+        private void CloseSwipe(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.GetVisualAncestors().OfType<Swipe>().FirstOrDefault() is Labs.Controls.Swipe swipe)
+            {
+                swipe.SwipeState = SwipeState.Hidden;
             }
         }
     }
