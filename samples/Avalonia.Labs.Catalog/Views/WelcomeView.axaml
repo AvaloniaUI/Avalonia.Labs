@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<ScrollViewer xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -40,6 +40,28 @@
         </Button.CommandParameter>
         <Label FontSize="18"
                VerticalAlignment="Center">Async Image</Label>
+      </Button>
+      <Button HorizontalAlignment="Stretch"
+              Height="60"
+              Command="{Binding NavigateTo}"
+              CornerRadius="10"
+              Margin="0,5">
+        <Button.CommandParameter>
+          <viewModels:ContentDialogViewModel/>
+        </Button.CommandParameter>
+        <Label FontSize="18"
+               VerticalAlignment="Center">ContentDialog</Label>
+      </Button>
+      <Button HorizontalAlignment="Stretch"
+              Height="60"
+              Command="{Binding NavigateTo}"
+              CornerRadius="10"
+              Margin="0,5">
+        <Button.CommandParameter>
+          <viewModels:FlexViewModel/>
+        </Button.CommandParameter>
+        <Label FontSize="18"
+               VerticalAlignment="Center">FlexView</Label>
       </Button>
       <Button HorizontalAlignment="Stretch"
               Height="60"
@@ -131,4 +153,4 @@
       </Button>
     </StackPanel>
   </Grid>
-</UserControl>
+</ScrollViewer>

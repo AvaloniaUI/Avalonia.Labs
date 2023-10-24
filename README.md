@@ -22,6 +22,7 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
 ## Available Controls
 
 - [AsyncImage](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/AsyncImage)
+- [FlexPanel](https://github.com/AvaloniaUI/Avalonia.Labs/blob/main/src/Avalonia.Labs.Panels/FlexPanel.cs)
 - [FlipView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/FlipView)
 - [Lottie Viewer](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Lottie)
 - [NavigationControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/Navigation)

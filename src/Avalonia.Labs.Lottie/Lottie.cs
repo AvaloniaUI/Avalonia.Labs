@@ -2,6 +2,7 @@
 using System.IO;
 using System.Numerics;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Media;
 using Avalonia.Metadata;
@@ -19,7 +20,6 @@ public class Lottie : Control
     private SkiaSharp.Skottie.Animation? _animation;
     private int _repeatCount;
     private readonly Uri _baseUri;
-    private string? _preloadPath;
     private CompositionCustomVisual? _customVisual;
 
     /// <summary>
@@ -109,9 +109,9 @@ public class Lottie : Control
     }
 
     /// <inheritdoc/>
-    protected override void OnLoaded()
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        base.OnLoaded();
+        base.OnLoaded(e);
 
         var elemVisual = ElementComposition.GetElementVisual(this);
         var compositor = elemVisual?.Compositor;
@@ -125,13 +125,14 @@ public class Lottie : Control
 
         LayoutUpdated += OnLayoutUpdated;
 
-        if (_preloadPath is null)
+        string? path = Path;
+        if (path is null)
         {
             return;
         }
 
         DisposeImpl();
-        Load(_preloadPath);
+        Load(path);
 
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
         _customVisual.SendHandlerMessage(
@@ -142,17 +143,18 @@ public class Lottie : Control
                 StretchDirection));
         
         Start();
-        _preloadPath = null;
     }
 
-    protected override void OnUnloaded()
+    protected override void OnUnloaded(RoutedEventArgs e)
     {
-        base.OnUnloaded();
+        base.OnUnloaded(e);
 
         LayoutUpdated -= OnLayoutUpdated;
 
         Stop();
         DisposeImpl();
+        _animation = null;
+        _customVisual = null;
     }
 
     private void OnLayoutUpdated(object? sender, EventArgs e)
@@ -209,14 +211,12 @@ public class Lottie : Control
         {
             case nameof(Path):
             {
-                var path = change.GetNewValue<string?>();
-
-                if (_preloadPath is null && _customVisual is null)
+                if (_customVisual is null)
                 {
-                    _preloadPath = path;
                     return;
                 }
 
+                var path = change.GetNewValue<string?>();
                 Load(path);
                 break;
             }

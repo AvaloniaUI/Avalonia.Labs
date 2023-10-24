@@ -172,6 +172,8 @@ public class Swipe : Grid
         transformOperation.AppendTranslate(x, 0);
 
         _bodyContainer.SetValue(RenderTransformProperty, transformOperation.Build());
+        _rightContainer.IsVisible = x < 0;
+        _leftContainer.IsVisible = x > 0;
     }
 
     private void MaterializeDataTemplate(ContentPresenter contentView, DataTemplate? dataTemplate)
@@ -201,8 +203,7 @@ public class Swipe : Grid
 
                 SetTranslate(x);
 
-                _rightContainer.IsVisible = x < 0;
-                _leftContainer.IsVisible = x > 0;
+
                 break;
             case PanGestureStatus.Completed:
                 _bodyContainer.Transitions!.Add(_transition);

@@ -16,4 +16,14 @@
     <AvaloniaResource Include="**/*.xaml" />
     <AvaloniaResource Include="**/*.axaml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="Themes\Controls\ContentDialog.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Update="Themes\Controls\ContentDialog.axaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+  </ItemGroup>
 </Project>
