@@ -48,12 +48,13 @@ internal class PhotoThresholdCanvas : BindableCanvas
         base.OnPropertyChanged(change);
     }
 
-    protected override void OnPaintSurface(SKImageInfo info, SKCanvas canvas, SKBitmap source)
+    protected override void OnPaintSurface(SKCanvas canvas, SKBitmap source)
     {
         canvas.Clear();
+        var info = CanvasSize;
         float scale = Math.Min((float)info.Width / source.Width, (float)info.Height / source.Height);
-        float x = (info.Width - scale * source.Width) / 2;
-        float y = (info.Height - scale * source.Height) / 2;
+        float x = (float)(info.Width - scale * source.Width) / 2;
+        float y = (float)(info.Height - scale * source.Height) / 2;
         var bitmapRect = new SKRect(x, y, x + scale * source.Width, y + scale * source.Height);
         var threshold = Threshold;
         OnPaintSurface(canvas, source, bitmapRect, threshold);

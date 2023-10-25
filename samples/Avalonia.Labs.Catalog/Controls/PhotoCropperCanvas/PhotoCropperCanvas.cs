@@ -219,7 +219,7 @@ internal class PhotoCropperCanvas : BindableCanvas
             SKRect bitmapRect = new(0, 0, bitmap.Width, bitmap.Height);
             croppingRect = new CroppingRectangle(bitmapRect, default);
         }
-        if(change.Property == CropperColorProperty && change.NewValue is SKColor color)
+        if (change.Property == CropperColorProperty && change.NewValue is SKColor color)
         {
             edgeStroke.Color = color;
             cornerStroke.Color = color;
@@ -255,14 +255,15 @@ internal class PhotoCropperCanvas : BindableCanvas
 
 
 
-    protected override void OnPaintSurface(SKImageInfo info, SKCanvas canvas, SKBitmap bitmap)
+    protected override void OnPaintSurface(SKCanvas canvas, SKBitmap bitmap)
     {
         canvas.Clear(SKColors.Gray);
 
+        var info = CanvasSize;
         // Calculate rectangle for displaying bitmap 
         float scale = Math.Min((float)info.Width / bitmap.Width, (float)info.Height / bitmap.Height);
-        float x = (info.Width - scale * bitmap.Width) / 2;
-        float y = (info.Height - scale * bitmap.Height) / 2;
+        float x = (float)(info.Width - scale * bitmap.Width) / 2;
+        float y = (float)(info.Height - scale * bitmap.Height) / 2;
         SKRect bitmapRect = new SKRect(x, y, x + scale * bitmap.Width, y + scale * bitmap.Height);
         canvas.DrawBitmap(bitmap, bitmapRect);
 
@@ -270,7 +271,7 @@ internal class PhotoCropperCanvas : BindableCanvas
         SKMatrix bitmapScaleMatrix = SKMatrix.CreateScaleTranslation(scale, scale, x, y);
 
         // Display rectangle
-        SKRect scaledCropRect = bitmapScaleMatrix.MapRect(croppingRect.Rect);
+        SKRect scaledCropRect = bitmapScaleMatrix.MapRect(croppingRect!.Rect);
         canvas.DrawRect(scaledCropRect, edgeStroke);
 
         // Display heavier corners

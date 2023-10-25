@@ -32,19 +32,19 @@ internal abstract class BindableCanvas : SKCanvasView
         {
             return;
         }
-        var info = e.Info;
         var surface = e.Surface;
         var canvas = surface.Canvas;
-        OnPaintSurface(info, canvas, bitmap);
+        OnPaintSurface(canvas, bitmap);
         base.OnPaintSurface(e);
     }
 
-    protected virtual void OnPaintSurface(SKImageInfo info, SKCanvas canvas, SKBitmap source)
+    protected virtual void OnPaintSurface(SKCanvas canvas, SKBitmap source)
     {
         canvas.Clear();
         if (source != null)
         {
-            canvas.DrawBitmap(source, info.Rect, BitmapStretch.Uniform);
+            var rect = SKRect.Create((float)CanvasSize.Width, (float)CanvasSize.Height);
+            canvas.DrawBitmap(source, rect, BitmapStretch.Uniform);
         }
     }
 }
