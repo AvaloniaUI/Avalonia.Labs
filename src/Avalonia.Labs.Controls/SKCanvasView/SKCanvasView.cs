@@ -18,15 +18,16 @@ namespace Avalonia.Labs.Controls;
 /// </summary>
 /// <remarks>
 /// See: https://github.com/mono/SkiaSharp/blob/main/source/SkiaSharp.Views/SkiaSharp.Views.UWP/SKXamlCanvas.cs.
-/// <see cref="Panel"/> was used instead of <see cref="Canvas"/>,
-/// because <see cref="Panel"/> facilitates the relative positioning of any additional controls.
+/// <see cref="Decorator"/> was used instead of <see cref="Canvas"/>,
+/// because <see cref="Decorator"/> facilitates the relative positioning of any additional controls.
 /// </remarks>
-public partial class SKCanvasView : Panel
+public partial class SKCanvasView : Decorator
 {
     /// <summary>
     /// Event to externally paint the Skia surface (using the <see cref="SKCanvas"/>).
     /// </summary>
     public event EventHandler<SKPaintSurfaceEventArgs>? PaintSurface;
+
 
     private static readonly Vector Dpi = new Vector(96, 96);
 
@@ -37,6 +38,14 @@ public partial class SKCanvasView : Panel
     private int _pixelWidth;
     private int _pixelHeight;
     private double _scale = 1;
+
+    private readonly static StyledProperty<IBrush?> BackgroundProperty =
+        Border.BackgroundProperty.AddOwner<SKCanvasView>();
+
+    static SKCanvasView()
+    {
+        AffectsRender<SKCanvasView>(BackgroundProperty);
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SKCanvasView"/> class.
@@ -103,10 +112,9 @@ public partial class SKCanvasView : Panel
 
         // WriteableBitmap does not support zero-size dimensions
         // Therefore, to avoid a crash, exit here if size is zero
-        var canvasSize = CanvasSize;
         if (_pixelWidth == 0 || _pixelHeight == 0)
         {
-            this.Background = null;
+            this.SetCurrentValue(BackgroundProperty, null);
             return;
         }
 
@@ -146,14 +154,25 @@ public partial class SKCanvasView : Panel
             properties.Dispose();
         }
 
-        this.Background = new ImageBrush(bitmap)
+        this.SetCurrentValue(BackgroundProperty, new ImageBrush(bitmap)
         {
             AlignmentX = AlignmentX.Left,
             AlignmentY = AlignmentY.Top,
             Stretch = Stretch.Fill
-        }.ToImmutable();
+        }.ToImmutable());
 
         return;
+    }
+
+    [System.ComponentModel.Browsable(false)]
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public sealed override void Render(DrawingContext context)
+    {
+        base.Render(context);
+        if (GetValue(BackgroundProperty) is IBrush background)
+        {
+            context.FillRectangle(background, Bounds);
+        }
     }
 
     /// <inheritdoc/>
