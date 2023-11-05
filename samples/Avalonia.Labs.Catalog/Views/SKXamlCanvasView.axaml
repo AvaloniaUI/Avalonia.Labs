@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             xmlns:vm="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:cl="clr-namespace:Avalonia.Labs.Catalog.Controls"
+             xmlns:lc="clr-namespace:Avalonia.Labs.Catalog.Converters"
+             xmlns:sk="using:SkiaSharp"
+             x:Class="Avalonia.Labs.Catalog.SKXamlCanvasView"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="250"
+             x:DataType="vm:SKXamlCanvasViewModel"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             >
+  <UserControl.Resources>
+    <lc:ByteConverter x:Key="bc"/>
+  </UserControl.Resources>
+  <DockPanel>
+    <UniformGrid Columns="2" DockPanel.Dock="Top"
+                 HorizontalAlignment="Left">
+      <Button Classes="accent"
+              Command="{Binding OpenAsync}"
+              Content="_Open"/>
+      <Button Command="{Binding ApplyAsync}"
+              CommandParameter="{Binding #editors.((labs:TabItem)SelectedItem)}"
+              Content="_Apply"
+              />
+    </UniformGrid>
+    <labs:TabControl HorizontalAlignment="Stretch"
+                   TabStripPlacement="Bottom"
+                   VerticalAlignment="Stretch"
+                   x:Name="editors">
+      <labs:TabItem Header="Crop">
+        <cl:PhotoCropperCanvas Source="{Binding Bitmap}"
+                               IgnorePixelScaling="true"
+                               CropperColor="{x:Static sk:SKColors.Red}"
+                               x:Name="Crop"
+                               />
+      </labs:TabItem>
+      <labs:TabItem Header="B/W">
+        <DockPanel>
+          <Slider DockPanel.Dock="Top"
+                  Value="128"
+                  Maximum="254"
+                  Minimum="0"
+                  x:Name="threshold"/>
+          <cl:PhotoThresholdCanvas Source="{Binding Bitmap}"
+                                   IgnorePixelScaling="true"
+                                   Threshold="{Binding #threshold.Value,Mode=TwoWay,Converter={StaticResource bc}}"
+                                   x:Name="BW"
+                                   />
+        </DockPanel>
+      </labs:TabItem>
+    </labs:TabControl>
+  </DockPanel>
+
+</UserControl>
