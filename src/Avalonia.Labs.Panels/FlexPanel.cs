@@ -147,7 +147,6 @@ namespace Avalonia.Labs.Panels
             var children = (IReadOnlyList<Layoutable>)Children;
 
             var isColumn = layout.Direction == FlexDirection.Column || layout.Direction == FlexDirection.ColumnReverse;
-            var even = layout.JustifyContent == JustifyContent.SpaceEvenly ? 2 : 0;
 
             var max = Uv.FromSize(availableSize, isColumn);
             var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
@@ -186,7 +185,7 @@ namespace Avalonia.Labs.Panels
 
                 var size = Uv.FromSize(element.DesiredSize, isColumn);
 
-                if (layout.Wrap != FlexWrap.NoWrap && u + size.U + (m + even) * spacing.U > max.U)
+                if (layout.Wrap != FlexWrap.NoWrap && u + size.U + m * spacing.U > max.U)
                 {
                     sections.Add(new Section(first, i - 1, u, maxV));
 
@@ -228,7 +227,7 @@ namespace Avalonia.Labs.Panels
                 return default;
             }
 
-            return Uv.ToSize(new Uv(sections.Max(s => s.U + (s.Last - s.First + even) * spacing.U), v + maxV + (sections.Count - 1) * spacing.V), isColumn);
+            return Uv.ToSize(new Uv(sections.Max(s => s.U + (s.Count - 1) * spacing.U), v + maxV + (sections.Count - 1) * spacing.V), isColumn);
         }
 
         /// <inheritdoc />
@@ -245,15 +244,8 @@ namespace Avalonia.Labs.Panels
             var size = Uv.FromSize(finalSize, isColumn);
             var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
 
-            var totalSectionV = 0.0;
-
-            foreach (var section in state.Sections)
-            {
-                totalSectionV += section.V;
-            }
-
+            var totalSectionV = state.Sections.Sum(s => s.V);
             var totalSpacingV = (n - 1) * spacing.V;
-
             var totalV = totalSectionV + totalSpacingV;
 
             var spacingV = layout.AlignContent switch
@@ -284,16 +276,20 @@ namespace Avalonia.Labs.Panels
 
             foreach (var section in state.Sections)
             {
+                var m = section.Count;
                 var sectionV = scaleV * section.V;
+                var totalSpacingU = (m - 1) * spacing.U;
+                var totalU = section.U + totalSpacingU;
+                var freeU = size.U - totalU;
 
                 var (spacingU, u) = layout.JustifyContent switch
                 {
                     JustifyContent.FlexStart => (spacing.U, 0.0),
-                    JustifyContent.FlexEnd => (spacing.U, size.U - section.U - (section.Last - section.First) * spacing.U),
-                    JustifyContent.Center => (spacing.U, (size.U - section.U - (section.Last - section.First) * spacing.U) / 2),
-                    JustifyContent.SpaceBetween => ((size.U - section.U) / (section.Last - section.First), 0.0),
-                    JustifyContent.SpaceAround => (spacing.U, (size.U - section.U - (section.Last - section.First) * spacing.U) / 2),
-                    JustifyContent.SpaceEvenly => ((size.U - section.U) / (section.Last - section.First + 2), (size.U - section.U) / (section.Last - section.First + 2)),
+                    JustifyContent.FlexEnd => (spacing.U, freeU),
+                    JustifyContent.Center => (spacing.U, freeU / 2),
+                    JustifyContent.SpaceBetween => (spacing.U + freeU / (m - 1), 0.0),
+                    JustifyContent.SpaceAround => (spacing.U + freeU / m, freeU / m / 2),
+                    JustifyContent.SpaceEvenly => (spacing.U + freeU / (m + 1), freeU / (m + 1)),
                     _ => throw new NotImplementedException()
                 };
 
@@ -366,6 +362,8 @@ namespace Avalonia.Labs.Panels
             public double U { get; }
 
             public double V { get; }
+
+            public int Count => Last - First + 1;
         }
     }
 }
