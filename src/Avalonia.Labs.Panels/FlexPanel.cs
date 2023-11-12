@@ -249,7 +249,15 @@ namespace Avalonia.Labs.Panels
             var totalV = totalSectionV + totalSpacingV;
             var freeV = size.V - totalV;
 
-            var (spacingV, v) = layout.AlignContent switch
+            var alignContent = freeV >= 0.0 ? layout.AlignContent : layout.AlignContent switch
+            {
+                AlignContent.FlexStart or AlignContent.Stretch or AlignContent.SpaceBetween => AlignContent.FlexStart,
+                AlignContent.Center or AlignContent.SpaceAround or AlignContent.SpaceEvenly => AlignContent.Center,
+                AlignContent.FlexEnd => AlignContent.FlexEnd,
+                _ => throw new NotImplementedException()
+            };
+
+            var (spacingV, v) = alignContent switch
             {
                 AlignContent.FlexStart => (spacing.V, 0.0),
                 AlignContent.FlexEnd => (spacing.V, freeV),
@@ -261,7 +269,7 @@ namespace Avalonia.Labs.Panels
                 _ => throw new NotImplementedException()
             };
 
-            var scaleV = layout.AlignContent == AlignContent.Stretch ? ((size.V - totalSpacingV) / totalSectionV) : 1.0;
+            var scaleV = alignContent == AlignContent.Stretch ? (size.V - totalSpacingV) / totalSectionV : 1.0;
 
             foreach (var section in state.Sections)
             {
