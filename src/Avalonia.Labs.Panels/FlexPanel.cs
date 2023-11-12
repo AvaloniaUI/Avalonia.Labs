@@ -239,40 +239,29 @@ namespace Avalonia.Labs.Panels
             var isReverse = layout.Direction == FlexDirection.RowReverse || layout.Direction == FlexDirection.ColumnReverse;
 
             var state = _state ?? throw new InvalidOperationException();
-            var n = state.Sections.Count;
 
             var size = Uv.FromSize(finalSize, isColumn);
             var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
 
+            var n = state.Sections.Count;
             var totalSectionV = state.Sections.Sum(s => s.V);
             var totalSpacingV = (n - 1) * spacing.V;
             var totalV = totalSectionV + totalSpacingV;
+            var freeV = size.V - totalV;
 
-            var spacingV = layout.AlignContent switch
+            var (spacingV, v) = layout.AlignContent switch
             {
-                AlignContent.FlexStart => spacing.V,
-                AlignContent.FlexEnd => spacing.V,
-                AlignContent.Center => spacing.V,
-                AlignContent.Stretch => spacing.V,
-                AlignContent.SpaceBetween => spacing.V + (size.V - totalV) / (n - 1),
-                AlignContent.SpaceAround => (size.V - totalSectionV) / n,
-                AlignContent.SpaceEvenly => (size.V - totalSectionV) / (n + 1),
+                AlignContent.FlexStart => (spacing.V, 0.0),
+                AlignContent.FlexEnd => (spacing.V, freeV),
+                AlignContent.Center => (spacing.V, freeV / 2),
+                AlignContent.Stretch => (spacing.V, 0.0),
+                AlignContent.SpaceBetween => (spacing.V + freeV / (n - 1), 0.0),
+                AlignContent.SpaceAround => (spacing.V + freeV / n, freeV / n / 2),
+                AlignContent.SpaceEvenly => (spacing.V + freeV / (n + 1), freeV / (n + 1)),
                 _ => throw new NotImplementedException()
             };
 
             var scaleV = layout.AlignContent == AlignContent.Stretch ? ((size.V - totalSpacingV) / totalSectionV) : 1.0;
-
-            var v = layout.AlignContent switch
-            {
-                AlignContent.FlexStart => 0.0,
-                AlignContent.FlexEnd => size.V - totalV,
-                AlignContent.Center => (size.V - totalV) / 2,
-                AlignContent.Stretch => 0,
-                AlignContent.SpaceBetween => 0.0,
-                AlignContent.SpaceAround => spacingV / 2,
-                AlignContent.SpaceEvenly => spacingV,
-                _ => throw new NotImplementedException()
-            };
 
             foreach (var section in state.Sections)
             {
