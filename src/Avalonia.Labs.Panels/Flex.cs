@@ -18,6 +18,12 @@ namespace Avalonia.Labs.Panels
         public static readonly AttachedProperty<int> OrderProperty =
             AvaloniaProperty.RegisterAttached<Layoutable, int>("Order", typeof(Flex));
 
+        public static readonly AttachedProperty<double> ShrinkProperty =
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("FlexShrink", typeof(Flex), 1.0, validate: v => v >= 0.0);
+
+        public static readonly AttachedProperty<double> GrowProperty =
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("FlexGrow", typeof(Flex), 0.0, validate: v => v >= 0.0);
+
         /// <summary>
         /// Gets the child alignment in a flex layout
         /// </summary>
@@ -68,6 +74,46 @@ namespace Avalonia.Labs.Panels
             }
 
             layoutable.SetValue(OrderProperty, value);
+        }
+
+        public static double GetShrink(Layoutable layoutable)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            return layoutable.GetValue(ShrinkProperty);
+        }
+
+        public static void SetShrink(Layoutable layoutable, double value)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            layoutable.SetValue(ShrinkProperty, value);
+        }
+
+        public static double GetGrow(Layoutable layoutable)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            return layoutable.GetValue(GrowProperty);
+        }
+
+        public static void SetGrow(Layoutable layoutable, double value)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            layoutable.SetValue(GrowProperty, value);
         }
     }
 }

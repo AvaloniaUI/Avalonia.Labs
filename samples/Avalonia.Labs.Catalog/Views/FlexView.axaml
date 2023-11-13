@@ -21,7 +21,7 @@
                    Gestures.Tapped="OnItemTapped">
         <ListBoxItem.Styles>
           <Style Selector="ListBoxItem">
-            <Setter Property="Background" Value="LightBlue" />
+            <Setter Property="Background" Value="#228" />
           </Style>
           <Style Selector="ListBoxItem:selected">
             <Setter Property="Background" Value="DodgerBlue" />
@@ -126,6 +126,20 @@
                          Value="{Binding SelectedItem.Order}" />
         </StackPanel>
 
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Shrink:" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.Shrink}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Grow:" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.Grow}" />
+        </StackPanel>
+
         <Grid ColumnDefinitions="*,8,*">
 
           <Button Grid.Column="0"
@@ -147,7 +161,7 @@
     </ScrollViewer>
 
     <ItemsControl IsVisible="{Binding IsItemsControl}"
-                  BorderBrush="Black"
+                  BorderBrush="#666"
                   BorderThickness="1"
                   ItemsSource="{Binding Numbers}"
                   ItemTemplate="{StaticResource ItemTemplate}">
@@ -156,6 +170,8 @@
                x:DataType="vm:FlexItemViewModel">
           <Setter Property="panels:Flex.AlignSelf" Value="{Binding AlignSelf}" />
           <Setter Property="panels:Flex.Order" Value="{Binding Order}" />
+          <Setter Property="panels:Flex.Shrink" Value="{Binding Shrink}" />
+          <Setter Property="panels:Flex.Grow" Value="{Binding Grow}" />
           <Setter Property="IsVisible" Value="{Binding IsVisible}" />
         </Style>
       </ItemsControl.Styles>

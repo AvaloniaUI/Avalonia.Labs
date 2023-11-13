@@ -72,7 +72,10 @@ namespace Avalonia.Labs.Panels
                 AlignItemsProperty,
                 AlignContentProperty);
 
-            AffectsParentMeasure<FlexPanel>(Flex.OrderProperty);
+            AffectsParentMeasure<FlexPanel>(
+                Flex.OrderProperty,
+                Flex.ShrinkProperty,
+                Flex.GrowProperty);
 
             AffectsParentArrange<FlexPanel>(Flex.AlignSelfProperty);
         }
@@ -151,14 +154,14 @@ namespace Avalonia.Labs.Panels
             var max = Uv.FromSize(availableSize, isColumn);
             var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
 
-            var u = 0.0;
+            var (u, shrink, grow) = (0.0, 0.0, 0.0);
             var m = 0;
 
             var v = 0.0;
             var maxV = 0.0;
             var n = 0;
 
-            var sections = new List<Section>();
+            var lines = new List<FlexLine>();
             var first = 0;
 
             var i = 0;
@@ -182,14 +185,13 @@ namespace Avalonia.Labs.Panels
                 }
 
                 element.Measure(availableSize);
-
                 var size = Uv.FromSize(element.DesiredSize, isColumn);
 
                 if (layout.Wrap != FlexWrap.NoWrap && u + size.U + m * spacing.U > max.U)
                 {
-                    sections.Add(new Section(first, i - 1, u, maxV));
+                    lines.Add(new FlexLine(first, i - 1, u, maxV, shrink, grow));
 
-                    u = 0.0;
+                    (u, shrink, grow) = (0.0, 0.0, 0.0);
                     m = 0;
 
                     v += maxV;
@@ -205,6 +207,8 @@ namespace Avalonia.Labs.Panels
                 }
 
                 u += size.U;
+                shrink += Flex.GetShrink(element);
+                grow += Flex.GetGrow(element);
                 m++;
 
                 i++;
@@ -212,22 +216,25 @@ namespace Avalonia.Labs.Panels
 
             if (m != 0)
             {
-                sections.Add(new Section(first, first + m - 1, u, maxV));
+                lines.Add(new FlexLine(first, first + m - 1, u, maxV, shrink, grow));
             }
 
             if (layout.Wrap == FlexWrap.WrapReverse)
             {
-                sections.Reverse();
+                lines.Reverse();
             }
 
-            _state = new FlexLayoutState(children, sections);
+            _state = new FlexLayoutState(children, lines);
 
-            if (sections.Count == 0)
+            if (lines.Count == 0)
             {
                 return default;
             }
 
-            return Uv.ToSize(new Uv(sections.Max(s => s.U + (s.Count - 1) * spacing.U), v + maxV + (sections.Count - 1) * spacing.V), isColumn);
+            var panelSize = new Uv(
+                lines.Max(line => line.U + (line.Count - 1) * spacing.U),
+                v + maxV + (lines.Count - 1) * spacing.V);
+            return Uv.ToSize(panelSize, isColumn);
         }
 
         /// <inheritdoc />
@@ -243,10 +250,10 @@ namespace Avalonia.Labs.Panels
             var size = Uv.FromSize(finalSize, isColumn);
             var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
 
-            var n = state.Sections.Count;
-            var totalSectionV = state.Sections.Sum(s => s.V);
+            var n = state.Lines.Count;
+            var totalLineV = state.Lines.Sum(s => s.V);
             var totalSpacingV = (n - 1) * spacing.V;
-            var totalV = totalSectionV + totalSpacingV;
+            var totalV = totalLineV + totalSpacingV;
             var freeV = size.V - totalV;
 
             var alignContent = freeV >= 0.0 ? layout.AlignContent : layout.AlignContent switch
@@ -269,17 +276,17 @@ namespace Avalonia.Labs.Panels
                 _ => throw new NotImplementedException()
             };
 
-            var scaleV = alignContent == AlignContent.Stretch ? (size.V - totalSpacingV) / totalSectionV : 1.0;
+            var scaleV = alignContent == AlignContent.Stretch ? (size.V - totalSpacingV) / totalLineV : 1.0;
 
-            foreach (var section in state.Sections)
+            foreach (var line in state.Lines)
             {
-                var m = section.Count;
-                var sectionV = scaleV * section.V;
+                var m = line.Count;
+                var lineV = scaleV * line.V;
                 var totalSpacingU = (m - 1) * spacing.U;
-                var totalU = section.U + totalSpacingU;
+                var totalU = line.U + totalSpacingU;
                 var freeU = size.U - totalU;
 
-                var (spacingU, u) = layout.JustifyContent switch
+                var (spacingU, u) = line.Grow > 0 ? (spacing.U, 0.0) : layout.JustifyContent switch
                 {
                     JustifyContent.FlexStart => (spacing.U, 0.0),
                     JustifyContent.FlexEnd => (spacing.U, freeU),
@@ -290,13 +297,14 @@ namespace Avalonia.Labs.Panels
                     _ => throw new NotImplementedException()
                 };
 
-                for (int i = section.First; i <= section.Last; i++)
+                for (int i = line.First; i <= line.Last; i++)
                 {
                     var element = state.Children[i];
                     var elementSize = Uv.FromSize(element.DesiredSize, isColumn);
+                    var elementShrink = Flex.GetShrink(element);
+                    var elementGrow = Flex.GetGrow(element);
 
                     var align = layout.AlignItems;
-
                     if (element is { } layoutable)
                     {
                         align = Flex.GetAlignSelf(layoutable) ?? align;
@@ -305,15 +313,23 @@ namespace Avalonia.Labs.Panels
                     double finalV = align switch
                     {
                         AlignItems.FlexStart => v,
-                        AlignItems.FlexEnd => v + sectionV - elementSize.V,
-                        AlignItems.Center => v + (sectionV - elementSize.V) / 2,
+                        AlignItems.FlexEnd => v + lineV - elementSize.V,
+                        AlignItems.Center => v + (lineV - elementSize.V) / 2,
                         AlignItems.Stretch => v,
                         _ => throw new NotImplementedException()
                     };
 
                     if (align == AlignItems.Stretch)
                     {
-                        elementSize = new Uv(elementSize.U, sectionV);
+                        elementSize = new Uv(elementSize.U, lineV);
+                    }
+                    if (freeU > 0 && line.Grow > 0 && elementGrow > 0)
+                    {
+                        elementSize = new Uv(elementSize.U + freeU * elementGrow / line.Grow, elementSize.V);
+                    }
+                    else if (freeU < 0 && line.Shrink > 0 && elementShrink > 0)
+                    {
+                        elementSize = new Uv(Math.Max(0.0, elementSize.U + freeU * elementShrink / line.Shrink), elementSize.V);
                     }
 
                     var position = new Uv(isReverse ? (size.U - elementSize.U - u) : u, finalV);
@@ -323,7 +339,7 @@ namespace Avalonia.Labs.Panels
                     u += elementSize.U + spacingU;
                 }
 
-                v += sectionV + spacingV;
+                v += lineV + spacingV;
             }
 
             return finalSize;
@@ -331,25 +347,27 @@ namespace Avalonia.Labs.Panels
 
         private struct FlexLayoutState
         {
-            public FlexLayoutState(IReadOnlyList<Layoutable> children, IReadOnlyList<Section> sections)
+            public FlexLayoutState(IReadOnlyList<Layoutable> children, IReadOnlyList<FlexLine> lines)
             {
                 Children = children;
-                Sections = sections;
+                Lines = lines;
             }
 
             public IReadOnlyList<Layoutable> Children { get; }
 
-            public IReadOnlyList<Section> Sections { get; }
+            public IReadOnlyList<FlexLine> Lines { get; }
         }
 
-        private struct Section
+        private readonly struct FlexLine
         {
-            public Section(int first, int last, double u, double v)
+            public FlexLine(int first, int last, double u, double v, double shrink, double grow)
             {
                 First = first;
                 Last = last;
                 U = u;
                 V = v;
+                Shrink = shrink;
+                Grow = grow;
             }
 
             public int First { get; }
@@ -359,6 +377,10 @@ namespace Avalonia.Labs.Panels
             public double U { get; }
 
             public double V { get; }
+
+            public double Shrink { get; }
+
+            public double Grow { get; }
 
             public int Count => Last - First + 1;
         }

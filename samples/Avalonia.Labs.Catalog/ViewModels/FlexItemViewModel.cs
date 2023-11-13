@@ -17,6 +17,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
         private AlignItems _alignSelfItem = AlignSelfAuto;
         private int _order;
+        private double _shrink = 1.0;
+        private double _grow;
 
         public FlexItemViewModel(int value)
         {
@@ -52,6 +54,18 @@ namespace Avalonia.Labs.Catalog.ViewModels
         {
             get => _order;
             set => this.RaiseAndSetIfChanged(ref _order, value);
+        }
+
+        public double Shrink
+        {
+            get => _shrink;
+            set => this.RaiseAndSetIfChanged(ref _shrink, value);
+        }
+
+        public double Grow
+        {
+            get => _grow;
+            set => this.RaiseAndSetIfChanged(ref _grow, value);
         }
     }
 }
