@@ -18,11 +18,20 @@ namespace Avalonia.Labs.Panels
         public static readonly AttachedProperty<int> OrderProperty =
             AvaloniaProperty.RegisterAttached<Layoutable, int>("Order", typeof(Flex));
 
+        public static readonly AttachedProperty<FlexBasis> BasisProperty =
+            AvaloniaProperty.RegisterAttached<Layoutable, FlexBasis>("Basis", typeof(Flex), FlexBasis.Auto);
+
         public static readonly AttachedProperty<double> ShrinkProperty =
-            AvaloniaProperty.RegisterAttached<Layoutable, double>("FlexShrink", typeof(Flex), 1.0, validate: v => v >= 0.0);
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("Shrink", typeof(Flex), 1.0, validate: v => v >= 0.0);
 
         public static readonly AttachedProperty<double> GrowProperty =
-            AvaloniaProperty.RegisterAttached<Layoutable, double>("FlexGrow", typeof(Flex), 0.0, validate: v => v >= 0.0);
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("Grow", typeof(Flex), 0.0, validate: v => v >= 0.0);
+
+        internal static readonly AttachedProperty<double> BaseLengthProperty =
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("BaseLength", typeof(Flex), 0.0);
+
+        internal static readonly AttachedProperty<double> CurrentLengthProperty =
+            AvaloniaProperty.RegisterAttached<Layoutable, double>("CurrentLength", typeof(Flex), 0.0);
 
         /// <summary>
         /// Gets the child alignment in a flex layout
@@ -76,6 +85,26 @@ namespace Avalonia.Labs.Panels
             layoutable.SetValue(OrderProperty, value);
         }
 
+        public static FlexBasis GetBasis(Layoutable layoutable)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            return layoutable.GetValue(BasisProperty);
+        }
+
+        public static void SetBasis(Layoutable layoutable, FlexBasis value)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            layoutable.SetValue(BasisProperty, value);
+        }
+
         public static double GetShrink(Layoutable layoutable)
         {
             if (layoutable is null)
@@ -114,6 +143,46 @@ namespace Avalonia.Labs.Panels
             }
 
             layoutable.SetValue(GrowProperty, value);
+        }
+
+        internal static double GetBaseLength(Layoutable layoutable)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            return layoutable.GetValue(BaseLengthProperty);
+        }
+
+        internal static void SetBaseLength(Layoutable layoutable, double value)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            layoutable.SetValue(BaseLengthProperty, value);
+        }
+
+        internal static double GetCurrentLength(Layoutable layoutable)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            return layoutable.GetValue(CurrentLengthProperty);
+        }
+
+        internal static void SetCurrentLength(Layoutable layoutable, double value)
+        {
+            if (layoutable is null)
+            {
+                throw new ArgumentNullException(nameof(layoutable));
+            }
+
+            layoutable.SetValue(CurrentLengthProperty, value);
         }
     }
 }

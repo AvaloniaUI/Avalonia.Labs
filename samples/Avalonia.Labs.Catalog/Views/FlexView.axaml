@@ -140,6 +140,30 @@
                          Value="{Binding SelectedItem.Grow}" />
         </StackPanel>
 
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Basis:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding FlexBasisKindValues}"
+                    SelectedItem="{Binding SelectedItem.BasisKind}" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.BasisValue}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem HorizontalAlignment:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding HorizontalAlignmentValues}"
+                    SelectedItem="{Binding SelectedItem.HorizontalAlignment}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem VerticalAlignment:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding VerticalAlignmentValues}"
+                    SelectedItem="{Binding SelectedItem.VerticalAlignment}" />
+        </StackPanel>
+
         <Grid ColumnDefinitions="*,8,*">
 
           <Button Grid.Column="0"
@@ -172,6 +196,9 @@
           <Setter Property="panels:Flex.Order" Value="{Binding Order}" />
           <Setter Property="panels:Flex.Shrink" Value="{Binding Shrink}" />
           <Setter Property="panels:Flex.Grow" Value="{Binding Grow}" />
+          <Setter Property="panels:Flex.Basis" Value="{Binding Basis}" />
+          <Setter Property="HorizontalAlignment" Value="{Binding HorizontalAlignment}" />
+          <Setter Property="VerticalAlignment" Value="{Binding VerticalAlignment}" />
           <Setter Property="IsVisible" Value="{Binding IsVisible}" />
         </Style>
       </ItemsControl.Styles>
