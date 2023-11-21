@@ -9,9 +9,6 @@ namespace Avalonia.Labs.Panels
 {
     public sealed class FlexPanel : Panel
     {
-        private static readonly AttachedProperty<FlexPanel?> OwnerFlexPanelProperty =
-            AvaloniaProperty.RegisterAttached<FlexPanel, Layoutable, FlexPanel?>("OwnerFlexPanel");
-
         private static readonly Func<Layoutable, int> s_getOrder = x => x is { } y ? Flex.GetOrder(y) : 0;
         private static readonly Func<Layoutable, bool> s_isVisible = x => x.IsVisible;
 
@@ -72,9 +69,16 @@ namespace Avalonia.Labs.Panels
                 AlignItemsProperty,
                 AlignContentProperty);
 
-            AffectsParentMeasure<FlexPanel>(Flex.OrderProperty);
+            AffectsParentMeasure<FlexPanel>(
+                HorizontalAlignmentProperty,
+                VerticalAlignmentProperty,
+                Flex.OrderProperty,
+                Flex.BasisProperty,
+                Flex.ShrinkProperty,
+                Flex.GrowProperty);
 
-            AffectsParentArrange<FlexPanel>(Flex.AlignSelfProperty);
+            AffectsParentArrange<FlexPanel>(
+                Flex.AlignSelfProperty);
         }
 
         /// <summary>
@@ -143,229 +147,330 @@ namespace Avalonia.Labs.Panels
         /// <inheritdoc />
         protected override Size MeasureOverride(Size availableSize)
         {
-            var layout = this;
             var children = (IReadOnlyList<Layoutable>)Children;
 
-            var isColumn = layout.Direction == FlexDirection.Column || layout.Direction == FlexDirection.ColumnReverse;
-            var even = layout.JustifyContent == JustifyContent.SpaceEvenly ? 2 : 0;
+            var isColumn = Direction is FlexDirection.Column or FlexDirection.ColumnReverse;
 
             var max = Uv.FromSize(availableSize, isColumn);
-            var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
+            var spacing = Uv.FromSize(ColumnSpacing, RowSpacing, isColumn);
 
-            var u = 0.0;
-            var m = 0;
+            var (lineU, lineV, lineShrink, lineGrow, lineAutoMargins) = (0.0, 0.0, 0.0, 0.0, 0);
+            var (childIndex, firstChildIndex, itemIndex, lineIndex) = (0, 0, 0, 0);
 
-            var v = 0.0;
-            var maxV = 0.0;
-            var n = 0;
-
-            var sections = new List<Section>();
-            var first = 0;
-
-            var i = 0;
-
+            var lines = new List<FlexLine>();
             children = children.Where(s_isVisible).OrderBy(s_getOrder).ToArray();
 
             foreach (var element in children)
             {
-                if (element is AvaloniaObject obj)
+                var basis = Flex.GetBasis(element);
+                var flexConstraint = basis.Kind switch
                 {
-                    var owner = obj.GetValue(OwnerFlexPanelProperty);
-
-                    if (owner is null)
-                    {
-                        obj.SetValue(OwnerFlexPanelProperty, layout);
-                    }
-                    else if (owner != layout)
-                    {
-                        throw new InvalidOperationException();
-                    }
-                }
-
-                element.Measure(availableSize);
+                    FlexBasisKind.Auto => max.U,
+                    FlexBasisKind.Absolute => basis.Value,
+                    FlexBasisKind.Relative => max.U * basis.Value / 100,
+                    _ => throw new InvalidOperationException()
+                };
+                element.Measure(Uv.ToSize(max.WithU(flexConstraint), isColumn));
 
                 var size = Uv.FromSize(element.DesiredSize, isColumn);
-
-                if (layout.Wrap != FlexWrap.NoWrap && u + size.U + (m + even) * spacing.U > max.U)
+                var flexLength = basis.Kind switch
                 {
-                    sections.Add(new Section(first, i - 1, u, maxV));
+                    FlexBasisKind.Auto => size.U,
+                    FlexBasisKind.Absolute or FlexBasisKind.Relative => Math.Max(size.U, flexConstraint),
+                    _ => throw new InvalidOperationException()
+                };
+                size = size.WithU(flexLength);
+                Flex.SetBaseLength(element, flexLength);
+                Flex.SetCurrentLength(element, flexLength);
 
-                    u = 0.0;
-                    m = 0;
-
-                    v += maxV;
-                    maxV = 0.0;
-                    n++;
-
-                    first = i;
+                if (Wrap != FlexWrap.NoWrap && lineU + size.U + itemIndex * spacing.U > max.U)
+                {
+                    lines.Add(new FlexLine(firstChildIndex, childIndex - 1,
+                        lineU, lineV, lineShrink, lineGrow, lineAutoMargins));
+                    (lineU, lineV, lineShrink, lineGrow, lineAutoMargins) = (0.0, 0.0, 0.0, 0.0, 0);
+                    firstChildIndex = childIndex;
+                    itemIndex = 0;
+                    lineIndex++;
                 }
 
-                if (size.V > maxV)
+                lineU += size.U;
+                lineV = Math.Max(lineV, size.V);
+                lineShrink += Flex.GetShrink(element);
+                lineGrow += Flex.GetGrow(element);
+                lineAutoMargins += GetItemAutoMargins(element, isColumn);
+                itemIndex++;
+                childIndex++;
+            }
+
+            if (itemIndex != 0)
+            {
+                lines.Add(new FlexLine(firstChildIndex, firstChildIndex + itemIndex - 1,
+                    lineU, lineV, lineShrink, lineGrow, lineAutoMargins));
+            }
+
+            var state = new FlexLayoutState(children, lines, Wrap);
+
+            var totalSpacingV = (lines.Count - 1) * spacing.V;
+            var panelSizeU = lines.Count > 0 ? lines.Max(line => line.U + (line.Count - 1) * spacing.U) : 0.0;
+
+            // Reizing along main axis using grow and shrink factors can affect cross axis, so remeasure affected items and lines.
+            foreach (var line in lines)
+            {
+                var (itemsCount, totalSpacingU, totalU, freeU) = GetLineMeasureU(line, max.U, spacing.U);
+                var (lineMult, autoMargins, remainingFreeU) = GetLineMultInfo(line, freeU);
+                if (lineMult != 0.0 && remainingFreeU != 0.0)
                 {
-                    maxV = size.V;
+                    foreach (var element in state.GetLineItems(line))
+                    {
+                        var baseLength = Flex.GetBaseLength(element);
+                        var mult = GetItemMult(element, freeU);
+                        if (mult != 0.0)
+                        {
+                            var length = Math.Max(0.0, baseLength + remainingFreeU * mult / lineMult);
+                            element.Measure(Uv.ToSize(max.WithU(length), isColumn));
+                        }
+                    }
+
+                    line.V = state.GetLineItems(line).Max(i => Uv.FromSize(i.DesiredSize, isColumn).V);
                 }
-
-                u += size.U;
-                m++;
-
-                i++;
             }
 
-            if (m != 0)
-            {
-                sections.Add(new Section(first, first + m - 1, u, maxV));
-            }
-
-            if (layout.Wrap == FlexWrap.WrapReverse)
-            {
-                sections.Reverse();
-            }
-
-            _state = new FlexLayoutState(children, sections);
-
-            if (sections.Count == 0)
-            {
-                return default;
-            }
-
-            return Uv.ToSize(new Uv(sections.Max(s => s.U + (s.Last - s.First + even) * spacing.U), v + maxV + (sections.Count - 1) * spacing.V), isColumn);
+            _state = state;
+            var totalLineV = lines.Sum(l => l.V);
+            var panelSize = lines.Count == 0 ? default : new Uv(panelSizeU, totalLineV + totalSpacingV);
+            return Uv.ToSize(panelSize, isColumn);
         }
 
         /// <inheritdoc />
         protected override Size ArrangeOverride(Size finalSize)
         {
-            var layout = this;
-
-            var isColumn = layout.Direction == FlexDirection.Column || layout.Direction == FlexDirection.ColumnReverse;
-            var isReverse = layout.Direction == FlexDirection.RowReverse || layout.Direction == FlexDirection.ColumnReverse;
-
             var state = _state ?? throw new InvalidOperationException();
-            var n = state.Sections.Count;
 
-            var size = Uv.FromSize(finalSize, isColumn);
-            var spacing = Uv.FromSize(layout.ColumnSpacing, layout.RowSpacing, isColumn);
+            var isColumn = Direction is FlexDirection.Column or FlexDirection.ColumnReverse;
+            var isReverse = Direction is FlexDirection.RowReverse or FlexDirection.ColumnReverse;
 
-            var totalSectionV = 0.0;
+            var panelSize = Uv.FromSize(finalSize, isColumn);
+            var spacing = Uv.FromSize(ColumnSpacing, RowSpacing, isColumn);
 
-            foreach (var section in state.Sections)
+            var linesCount = state.Lines.Count;
+            var totalLineV = state.Lines.Sum(s => s.V);
+            var totalSpacingV = (linesCount - 1) * spacing.V;
+            var totalV = totalLineV + totalSpacingV;
+            var freeV = panelSize.V - totalV;
+
+            var alignContent = freeV >= 0.0 ? AlignContent : AlignContent switch
             {
-                totalSectionV += section.V;
-            }
-
-            var totalSpacingV = (n - 1) * spacing.V;
-
-            var totalV = totalSectionV + totalSpacingV;
-
-            var spacingV = layout.AlignContent switch
-            {
-                AlignContent.FlexStart => spacing.V,
-                AlignContent.FlexEnd => spacing.V,
-                AlignContent.Center => spacing.V,
-                AlignContent.Stretch => spacing.V,
-                AlignContent.SpaceBetween => spacing.V + (size.V - totalV) / (n - 1),
-                AlignContent.SpaceAround => (size.V - totalSectionV) / n,
-                AlignContent.SpaceEvenly => (size.V - totalSectionV) / (n + 1),
-                _ => throw new NotImplementedException()
+                AlignContent.FlexStart or AlignContent.Stretch or AlignContent.SpaceBetween => AlignContent.FlexStart,
+                AlignContent.Center or AlignContent.SpaceAround or AlignContent.SpaceEvenly => AlignContent.Center,
+                AlignContent.FlexEnd => AlignContent.FlexEnd,
+                _ => throw new InvalidOperationException()
             };
 
-            var scaleV = layout.AlignContent == AlignContent.Stretch ? ((size.V - totalSpacingV) / totalSectionV) : 1.0;
-
-            var v = layout.AlignContent switch
+            var (spacingV, v) = alignContent switch
             {
-                AlignContent.FlexStart => 0.0,
-                AlignContent.FlexEnd => size.V - totalV,
-                AlignContent.Center => (size.V - totalV) / 2,
-                AlignContent.Stretch => 0,
-                AlignContent.SpaceBetween => 0.0,
-                AlignContent.SpaceAround => spacingV / 2,
-                AlignContent.SpaceEvenly => spacingV,
-                _ => throw new NotImplementedException()
+                AlignContent.FlexStart => (spacing.V, 0.0),
+                AlignContent.FlexEnd => (spacing.V, freeV),
+                AlignContent.Center => (spacing.V, freeV / 2),
+                AlignContent.Stretch => (spacing.V, 0.0),
+                AlignContent.SpaceBetween => (spacing.V + freeV / (linesCount - 1), 0.0),
+                AlignContent.SpaceAround => (spacing.V + freeV / linesCount, freeV / linesCount / 2),
+                AlignContent.SpaceEvenly => (spacing.V + freeV / (linesCount + 1), freeV / (linesCount + 1)),
+                _ => throw new InvalidOperationException()
             };
 
-            foreach (var section in state.Sections)
-            {
-                var sectionV = scaleV * section.V;
+            var scaleV = alignContent == AlignContent.Stretch ? (panelSize.V - totalSpacingV) / totalLineV : 1.0;
 
-                var (spacingU, u) = layout.JustifyContent switch
+            foreach (var line in state.Lines)
+            {
+                var lineV = scaleV * line.V;
+                var (itemsCount, totalSpacingU, totalU, freeU) = GetLineMeasureU(line, panelSize.U, spacing.U);
+                var (lineMult, lineAutoMargins, remainingFreeU) = GetLineMultInfo(line, freeU);
+
+                var currentFreeU = remainingFreeU;
+                if (lineMult != 0.0 && remainingFreeU != 0.0)
+                {
+                    foreach (var element in state.GetLineItems(line))
+                    {
+                        var baseLength = Flex.GetBaseLength(element);
+                        var mult = GetItemMult(element, freeU);
+                        if (mult != 0.0)
+                        {
+                            var length = Math.Max(0.0, baseLength + remainingFreeU * mult / lineMult);
+                            Flex.SetCurrentLength(element, length);
+                            currentFreeU -= length - baseLength;
+                        }
+                    }
+                }
+                remainingFreeU = currentFreeU;
+
+                if (lineAutoMargins != 0 && remainingFreeU != 0.0)
+                {
+                    foreach (var element in state.GetLineItems(line))
+                    {
+                        var baseLength = Flex.GetCurrentLength(element);
+                        var autoMargins = GetItemAutoMargins(element, isColumn);
+                        if (autoMargins != 0)
+                        {
+                            var length = Math.Max(0.0, baseLength + remainingFreeU * autoMargins / lineAutoMargins);
+                            Flex.SetCurrentLength(element, length);
+                            currentFreeU -= length - baseLength;
+                        }
+                    }
+                }
+                remainingFreeU = currentFreeU;
+
+                var (spacingU, u) = line.Grow > 0 ? (spacing.U, 0.0) : JustifyContent switch
                 {
                     JustifyContent.FlexStart => (spacing.U, 0.0),
-                    JustifyContent.FlexEnd => (spacing.U, size.U - section.U - (section.Last - section.First) * spacing.U),
-                    JustifyContent.Center => (spacing.U, (size.U - section.U - (section.Last - section.First) * spacing.U) / 2),
-                    JustifyContent.SpaceBetween => ((size.U - section.U) / (section.Last - section.First), 0.0),
-                    JustifyContent.SpaceAround => (spacing.U, (size.U - section.U - (section.Last - section.First) * spacing.U) / 2),
-                    JustifyContent.SpaceEvenly => ((size.U - section.U) / (section.Last - section.First + 2), (size.U - section.U) / (section.Last - section.First + 2)),
-                    _ => throw new NotImplementedException()
+                    JustifyContent.FlexEnd => (spacing.U, remainingFreeU),
+                    JustifyContent.Center => (spacing.U, remainingFreeU / 2),
+                    JustifyContent.SpaceBetween => (spacing.U + remainingFreeU / (itemsCount - 1), 0.0),
+                    JustifyContent.SpaceAround => (spacing.U + remainingFreeU / itemsCount, remainingFreeU / itemsCount / 2),
+                    JustifyContent.SpaceEvenly => (spacing.U + remainingFreeU / (itemsCount + 1), remainingFreeU / (itemsCount + 1)),
+                    _ => throw new InvalidOperationException()
                 };
 
-                for (int i = section.First; i <= section.Last; i++)
+                foreach (var element in state.GetLineItems(line))
                 {
-                    var element = state.Children[i];
-                    var elementSize = Uv.FromSize(element.DesiredSize, isColumn);
+                    var size = Uv.FromSize(element.DesiredSize, isColumn).WithU(Flex.GetCurrentLength(element));
+                    var align = Flex.GetAlignSelf(element) ?? AlignItems;
 
-                    var align = layout.AlignItems;
-
-                    if (element is { } layoutable)
-                    {
-                        align = Flex.GetAlignSelf(layoutable) ?? align;
-                    }
-
-                    double finalV = align switch
+                    var positionV = align switch
                     {
                         AlignItems.FlexStart => v,
-                        AlignItems.FlexEnd => v + sectionV - elementSize.V,
-                        AlignItems.Center => v + (sectionV - elementSize.V) / 2,
+                        AlignItems.FlexEnd => v + lineV - size.V,
+                        AlignItems.Center => v + (lineV - size.V) / 2,
                         AlignItems.Stretch => v,
-                        _ => throw new NotImplementedException()
+                        _ => throw new InvalidOperationException()
                     };
 
-                    if (align == AlignItems.Stretch)
-                    {
-                        elementSize = new Uv(elementSize.U, sectionV);
-                    }
+                    size = size.WithV(align == AlignItems.Stretch ? lineV : size.V);
+                    var position = new Uv(isReverse ? panelSize.U - size.U - u : u, positionV);
+                    element.Arrange(new Rect(Uv.ToPoint(position, isColumn), Uv.ToSize(size, isColumn)));
 
-                    var position = new Uv(isReverse ? (size.U - elementSize.U - u) : u, finalV);
-
-                    element.Arrange(new Rect(Uv.ToPoint(position, isColumn), Uv.ToSize(elementSize, isColumn)));
-
-                    u += elementSize.U + spacingU;
+                    u += size.U + spacingU;
                 }
 
-                v += sectionV + spacingV;
+                v += lineV + spacingV;
             }
 
             return finalSize;
         }
 
-        private struct FlexLayoutState
+        private static (int ItemsCount, double TotalSpacingU, double TotalU, double FreeU) GetLineMeasureU(
+            FlexLine line, double panelSizeU, double spacingU)
         {
-            public FlexLayoutState(IReadOnlyList<Layoutable> children, IReadOnlyList<Section> sections)
-            {
-                Children = children;
-                Sections = sections;
-            }
-
-            public IReadOnlyList<Layoutable> Children { get; }
-
-            public IReadOnlyList<Section> Sections { get; }
+            var itemsCount = line.Count;
+            var totalSpacingU = (itemsCount - 1) * spacingU;
+            var totalU = line.U + totalSpacingU;
+            var freeU = panelSizeU - totalU;
+            return (itemsCount, totalSpacingU, totalU, freeU);
         }
 
-        private struct Section
+        private static (double LineMult, double LineAutoMargins, double RemainingFreeU) GetLineMultInfo(FlexLine line, double freeU)
         {
-            public Section(int first, int last, double u, double v)
+            var lineMult = freeU switch
+            {
+                < 0 => line.Shrink,
+                > 0 => line.Grow,
+                _ => 0.0,
+            };
+            // https://www.w3.org/TR/css-flexbox-1/#remaining-free-space
+            // Sum of flex factors less than 1 reduces remaining free space to be distributed.
+            return lineMult is > 0 and < 1
+                ? (lineMult, line.AutoMargins, freeU * lineMult)
+                : (lineMult, line.AutoMargins, freeU);
+        }
+
+        private static double GetItemMult(Layoutable element, double freeU)
+        {
+            var mult = freeU switch
+            {
+                < 0 => Flex.GetShrink(element),
+                > 0 => Flex.GetGrow(element),
+                _ => 0.0,
+            };
+            return mult;
+        }
+
+        private static int GetItemAutoMargins(Layoutable element, bool isColumn)
+        {
+            return isColumn
+                ? element.VerticalAlignment switch
+                {
+                    VerticalAlignment.Stretch => 0,
+                    VerticalAlignment.Top or VerticalAlignment.Bottom => 1,
+                    VerticalAlignment.Center => 2,
+                    _ => throw new InvalidOperationException()
+                }
+                : element.HorizontalAlignment switch
+                {
+                    HorizontalAlignment.Stretch => 0,
+                    HorizontalAlignment.Left or HorizontalAlignment.Right => 1,
+                    HorizontalAlignment.Center => 2,
+                    _ => throw new InvalidOperationException()
+                };
+        }
+
+        private readonly struct FlexLayoutState
+        {
+            private readonly IReadOnlyList<Layoutable> _children;
+
+            public IReadOnlyList<FlexLine> Lines { get; }
+
+            public FlexLayoutState(IReadOnlyList<Layoutable> children, List<FlexLine> lines, FlexWrap wrap)
+            {
+                if (wrap == FlexWrap.WrapReverse)
+                {
+                    lines.Reverse();
+                }
+                _children = children;
+                Lines = lines;
+            }
+
+            public IEnumerable<Layoutable> GetLineItems(FlexLine line)
+            {
+                for (var i = line.First; i <= line.Last; i++)
+                    yield return _children[i];
+            }
+        }
+
+        private class FlexLine
+        {
+            public FlexLine(int first, int last, double u, double v, double shrink, double grow, int autoMargins)
             {
                 First = first;
                 Last = last;
                 U = u;
                 V = v;
+                Shrink = shrink;
+                Grow = grow;
+                AutoMargins = autoMargins;
             }
 
+            /// <summary>First item index.</summary>
             public int First { get; }
 
+            /// <summary>Last item index.</summary>
             public int Last { get; }
 
+            /// <summary>Sum of main sizes of items.</summary>
             public double U { get; }
 
-            public double V { get; }
+            /// <summary>Max of cross sizes of items.</summary>
+            public double V { get; set; }
+
+            /// <summary>Sum of shrink factors of flexible items.</summary>
+            public double Shrink { get; }
+
+            /// <summary>Sum of grow factors of flexible items.</summary>
+            public double Grow { get; }
+
+            /// <summary>Number of "auto margins" along main axis.</summary>
+            public int AutoMargins { get; }
+
+            /// <summary>Number of items.</summary>
+            public int Count => Last - First + 1;
         }
     }
 }

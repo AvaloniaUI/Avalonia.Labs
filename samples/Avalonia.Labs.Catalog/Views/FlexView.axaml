@@ -21,7 +21,7 @@
                    Gestures.Tapped="OnItemTapped">
         <ListBoxItem.Styles>
           <Style Selector="ListBoxItem">
-            <Setter Property="Background" Value="LightBlue" />
+            <Setter Property="Background" Value="#228" />
           </Style>
           <Style Selector="ListBoxItem:selected">
             <Setter Property="Background" Value="DodgerBlue" />
@@ -126,6 +126,44 @@
                          Value="{Binding SelectedItem.Order}" />
         </StackPanel>
 
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Shrink:" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.Shrink}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Grow:" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.Grow}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem Basis:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding FlexBasisKindValues}"
+                    SelectedItem="{Binding SelectedItem.BasisKind}" />
+          <NumericUpDown Minimum="0.0"
+                         IsEnabled="{Binding !!SelectedItem}"
+                         Value="{Binding SelectedItem.BasisValue}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem HorizontalAlignment:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding HorizontalAlignmentValues}"
+                    SelectedItem="{Binding SelectedItem.HorizontalAlignment}" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="SelectedItem VerticalAlignment:" />
+          <ComboBox IsEnabled="{Binding !!SelectedItem}"
+                    ItemsSource="{Binding VerticalAlignmentValues}"
+                    SelectedItem="{Binding SelectedItem.VerticalAlignment}" />
+        </StackPanel>
+
         <Grid ColumnDefinitions="*,8,*">
 
           <Button Grid.Column="0"
@@ -147,7 +185,7 @@
     </ScrollViewer>
 
     <ItemsControl IsVisible="{Binding IsItemsControl}"
-                  BorderBrush="Black"
+                  BorderBrush="#666"
                   BorderThickness="1"
                   ItemsSource="{Binding Numbers}"
                   ItemTemplate="{StaticResource ItemTemplate}">
@@ -156,6 +194,11 @@
                x:DataType="vm:FlexItemViewModel">
           <Setter Property="panels:Flex.AlignSelf" Value="{Binding AlignSelf}" />
           <Setter Property="panels:Flex.Order" Value="{Binding Order}" />
+          <Setter Property="panels:Flex.Shrink" Value="{Binding Shrink}" />
+          <Setter Property="panels:Flex.Grow" Value="{Binding Grow}" />
+          <Setter Property="panels:Flex.Basis" Value="{Binding Basis}" />
+          <Setter Property="HorizontalAlignment" Value="{Binding HorizontalAlignment}" />
+          <Setter Property="VerticalAlignment" Value="{Binding VerticalAlignment}" />
           <Setter Property="IsVisible" Value="{Binding IsVisible}" />
         </Style>
       </ItemsControl.Styles>
