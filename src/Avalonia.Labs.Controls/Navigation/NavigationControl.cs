@@ -1,12 +1,8 @@
-﻿using System;
-using Avalonia.Animation;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 
 namespace Avalonia.Labs.Controls
 {
@@ -16,13 +12,11 @@ namespace Avalonia.Labs.Controls
     [TemplatePart("PART_NavigationBar", typeof(Border))]
     [TemplatePart("PART_BackButton", typeof(Button))]
     [TemplatePart("PART_ForwardButton", typeof(Button))]
-    [TemplatePart("PART_ContentPresenter", typeof(TransitioningContentControl))]
-    public class NavigationControl : ContentControl
+    public class NavigationControl : TransitioningContentControl
     {
         private Button? _backButton;
         private Button? _forwardButton;
         private INavigationRouter? _navigationRouter;
-        private TransitioningContentControl? _contentPresenter;
 
         /// <summary>
         /// Defines the <see cref="CanGoBack"/> property.
@@ -61,13 +55,6 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly StyledProperty<bool?> IsNavBarVisibleProperty =
             AvaloniaProperty.Register<NavigationControl, bool?>(nameof(IsNavBarVisible), true);
-
-        /// <summary>
-        /// Defines the <see cref="PageTransition"/> property.
-        /// </summary>
-        public static readonly StyledProperty<IPageTransition?> PageTransitionProperty =
-            AvaloniaProperty.Register<NavigationControl, IPageTransition?>(nameof(PageTransition),
-                new CrossFade(TimeSpan.FromSeconds(0.125)));
 
         /// <summary>
         /// Defines the <see cref="HeaderTemplate"/> property.
@@ -126,15 +113,6 @@ namespace Avalonia.Labs.Controls
         }
 
         /// <summary>
-        /// Gets or sets the animation played when content appears and disappears.
-        /// </summary>
-        public IPageTransition? PageTransition
-        {
-            get => GetValue(PageTransitionProperty);
-            set => SetValue(PageTransitionProperty, value);
-        }
-
-        /// <summary>
         /// Gets or sets the header template
         /// </summary>
         public IDataTemplate? HeaderTemplate
@@ -164,14 +142,12 @@ namespace Avalonia.Labs.Controls
                 {
                     value.Navigated += NavigationRouter_Navigated;
                 }
-
-                _contentPresenter?.SetValue(ContentProperty, value?.CurrentPage);
             }
         }
 
         private void NavigationRouter_Navigated(object? sender, NavigatedEventArgs e)
         {
-            _contentPresenter?.SetValue(ContentProperty, e.To);
+            Presenter?.SetValue(ContentProperty, e.To);
 
             RaisePropertyChanged(CanGoBackProperty, null, CanGoBack);
             RaisePropertyChanged(CanGoForwardProperty, null, CanGoForward);
@@ -239,29 +215,12 @@ namespace Avalonia.Labs.Controls
 
             ForwardButton = e.NameScope.Get<Button>("PART_ForwardButton");
 
-            _contentPresenter = e.NameScope.Get<TransitioningContentControl>("PART_ContentPresenter");
-
-            _contentPresenter.TemplateApplied += ContentPresenter_TemplateApplied;
-
-            _contentPresenter?.SetValue(ContentProperty, NavigationRouter?.CurrentPage);
         }
 
-        private void ContentPresenter_TemplateApplied(object? sender, TemplateAppliedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            if(_contentPresenter?.Presenter is ContentPresenter presenter)
-            {
-                presenter.PropertyChanged += Presenter_PropertyChanged;
-            }
-        }
-
-        private void Presenter_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Property == ContentPresenter.ChildProperty)
-            {
-                LogicalChildren.Clear();
-                if (e.NewValue is ILogical newLogical)
-                    LogicalChildren.Add(newLogical);
-            }
+            base.OnLoaded(e);
+            Presenter?.SetValue(ContentProperty, this.NavigationRouter?.CurrentPage);
         }
 
         private async void BackButton_Clicked(object? sender, RoutedEventArgs eventArgs)
