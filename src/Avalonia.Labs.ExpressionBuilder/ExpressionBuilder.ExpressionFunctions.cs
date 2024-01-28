@@ -376,14 +376,14 @@ namespace ExpressionBuilder
         
         internal struct ExpressionNodeInfo
         {
-            public ExpressionNodeInfo(OperationType nodeOperationKind, string? operationString)
+            public ExpressionNodeInfo(OperationType nodeOperationKind, string operationString)
             {
                 NodeOperationKind = nodeOperationKind;
                 OperationString = operationString;
             }
 
             public OperationType NodeOperationKind;
-            public string? OperationString;
+            public string OperationString;
         }
         
         
