@@ -51,7 +51,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             get { return ReferenceProperty<ScalarNode>("RotationAngle"); }
         }
-
+#if AVALONIA_COMPOSITION_TODO
         /// <summary>
         /// Gets the rotation angle in degrees.
         /// </summary>
@@ -60,7 +60,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             get { return ReferenceProperty<ScalarNode>("RotationAngleInDegrees"); }
         }
-
+#endif
         /// <summary>
         /// Gets the anchor point.
         /// </summary>

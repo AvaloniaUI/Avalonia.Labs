@@ -33,7 +33,7 @@ namespace Avalonia.Labs.Catalog.Views
     /// </summary>
     public partial class ImplicitAnimationTransformer : UserControl
     {
-        // Windows.UI.Composition
+        // Composition
         private Compositor? _compositor;
         private CompositionContainerVisual? _root;
         private List<Bitmap>? _imageList;

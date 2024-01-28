@@ -1,23 +1,23 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
-#if AVALONIA_COMPOSITION_TODO
+
 using Avalonia.Rendering.Composition;
 
 namespace Avalonia.Labs.ExpressionBuilder
 {
     /// <summary>
-    /// Class SurfaceBrushReferenceNode. This class cannot be inherited.
+    /// Class SurfaceVisualReferenceNode. This class cannot be inherited.
     /// </summary>
     /// <seealso cref="Avalonia.Labs.ExpressionBuilder.ReferenceNode" />
-    public sealed class SurfaceBrushReferenceNode : ReferenceNode
+    public sealed class SurfaceVisualReferenceNode : ReferenceNode
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SurfaceBrushReferenceNode"/> class.
+        /// Initializes a new instance of the <see cref="SurfaceVisualReferenceNode"/> class.
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="brush">The brush.</param>
-        internal SurfaceBrushReferenceNode(string paramName, CompositionSurfaceBrush brush = null)
+        internal SurfaceVisualReferenceNode(string paramName, CompositionSurfaceVisual brush = null)
             : base(paramName, brush)
         {
         }
@@ -25,15 +25,15 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// <summary>
         /// Creates the target reference.
         /// </summary>
-        /// <returns>SurfaceBrushReferenceNode.</returns>
-        internal static SurfaceBrushReferenceNode CreateTargetReference()
+        /// <returns>SurfaceVisualReferenceNode.</returns>
+        internal static SurfaceVisualReferenceNode CreateTargetReference()
         {
-            var node = new SurfaceBrushReferenceNode(null);
+            var node = new SurfaceVisualReferenceNode(null);
             node.NodeType = ExpressionNodeType.TargetReference;
 
             return node;
         }
-
+#if AVALONIA_COMPOSITION_TODO
         /// <summary>
         /// Gets the horizontal alignment ratio.
         /// </summary>
@@ -87,7 +87,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             get { return ReferenceProperty<ScalarNode>("TopInset"); }
         }
-
+#endif
         /// <summary>
         /// Gets the rotation angle.
         /// </summary>
@@ -96,7 +96,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             get { return ReferenceProperty<ScalarNode>("RotationAngle"); }
         }
-
+#if AVALONIA_COMPOSITION_TODO
         /// <summary>
         /// Gets the rotation angle in degrees.
         /// </summary>
@@ -105,7 +105,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             get { return ReferenceProperty<ScalarNode>("RotationAngleInDegrees"); }
         }
-
+#endif
         /// <summary>
         /// Gets the anchor point.
         /// </summary>
@@ -152,4 +152,3 @@ namespace Avalonia.Labs.ExpressionBuilder
         }
     }
 }
-#endif

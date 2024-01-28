@@ -124,10 +124,10 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// Creates a named reference parameter to a SurfaceBrush.
             /// </summary>
             /// <param name="parameterName">The name that will be used to refer to the parameter at a later time.</param>
-            /// <returns>SurfaceBrushReferenceNode.</returns>
-            public static SurfaceBrushReferenceNode CreateSurfaceBrushReference(string parameterName)
+            /// <returns>SurfaceVisualReferenceNode.</returns>
+            public static SurfaceVisualReferenceNode CreateSurfaceBrushReference(string parameterName)
             {
-                return new SurfaceBrushReferenceNode(parameterName);
+                return new SurfaceVisualReferenceNode(parameterName);
             }
 
             /// <summary>

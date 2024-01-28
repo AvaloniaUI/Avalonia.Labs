@@ -112,10 +112,10 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// <summary>
             /// Create a reference to the SurfaceBrush target that this expression will be connected to.
             /// </summary>
-            /// <returns>SurfaceBrushReferenceNode.</returns>
-            public static SurfaceBrushReferenceNode CreateSurfaceBrushTarget()
+            /// <returns>SurfaceVisualReferenceNode.</returns>
+            public static SurfaceVisualReferenceNode CreateSurfaceBrushTarget()
             {
-                return SurfaceBrushReferenceNode.CreateTargetReference();
+                return SurfaceVisualReferenceNode.CreateTargetReference();
             }
 
             /// <summary>

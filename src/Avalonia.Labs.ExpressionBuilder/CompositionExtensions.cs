@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using Avalonia.Rendering.Composition;
-using Windows.UI.Composition.Interactions;
 using Avalonia.Animation.Easings;
 using Avalonia.Rendering.Composition.Animations;
 
@@ -120,10 +119,10 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Create an ExpressionNode reference to this CompositionObject.
         /// </summary>
         /// <param name="compObj">The comp object.</param>
-        /// <returns>SurfaceBrushReferenceNode.</returns>
-        public static SurfaceBrushReferenceNode GetReference(this CompositionSurfaceBrush compObj)
+        /// <returns>SurfaceVisualReferenceNode.</returns>
+        public static SurfaceVisualReferenceNode GetReference(this CompositionSurfaceVisual compObj)
         {
-            return new SurfaceBrushReferenceNode(null, compObj);
+            return new SurfaceVisualReferenceNode(null, compObj);
         }
 
         /// <summary>
