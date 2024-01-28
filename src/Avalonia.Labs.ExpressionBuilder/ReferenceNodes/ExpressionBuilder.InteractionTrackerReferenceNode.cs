@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class InteractionTrackerReferenceNode : ReferenceNode
     {
-        internal InteractionTrackerReferenceNode(string paramName, CompositionObject it = null) : base(paramName, it) { }
+        internal InteractionTrackerReferenceNode(string paramName, InteractionTracker it = null) : base(paramName, it) { }
         internal static InteractionTrackerReferenceNode CreateTargetReference()
         {
             var node = new InteractionTrackerReferenceNode(null);
@@ -37,3 +37,4 @@ namespace ExpressionBuilder
         public Vector3Node PositionVelocityInPixelsPerSecond { get { return ReferenceProperty<Vector3Node>("PositionVelocityInPixelsPerSecond"); } }
     }
 }
+#endif

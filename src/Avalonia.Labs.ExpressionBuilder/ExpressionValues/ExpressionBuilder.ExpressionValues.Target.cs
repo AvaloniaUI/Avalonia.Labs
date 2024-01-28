@@ -19,6 +19,7 @@ namespace ExpressionBuilder
         /// <summary> Create a reference to the CompositionObject this expression will be connected to. </summary>
         public static class Target
         {
+#if AVALONIA_COMPOSITION_TODO
             /// <summary> Create a reference to the AmbientLight target that this expression will be connected to. </summary>
             public static AmbientLightReferenceNode       CreateAmbientLightTarget()       { return AmbientLightReferenceNode.CreateTargetReference();        }
             
@@ -30,7 +31,7 @@ namespace ExpressionBuilder
             
             /// <summary> Create a reference to the DropShadow target that this expression will be connected to. </summary>
             public static DropShadowReferenceNode         CreateDropShadowTarget()         { return DropShadowReferenceNode.CreateTargetReference();          }
-            
+
             /// <summary> Create a reference to the InsetClip target that this expression will be connected to. </summary>
             public static InsetClipReferenceNode          CreateInsetClipTarget()          { return InsetClipReferenceNode.CreateTargetReference();           }
             
@@ -42,15 +43,16 @@ namespace ExpressionBuilder
             
             /// <summary> Create a reference to the PointLight target that this expression will be connected to. </summary>
             public static PointLightReferenceNode         CreatePointLightTarget()         { return PointLightReferenceNode.CreateTargetReference();          }
-            
+#endif
             /// <summary> Create a reference to the PropertySet target that this expression will be connected to. </summary>
             public static PropertySetReferenceNode        CreatePropertySetTarget()        { return PropertySetReferenceNode.CreateTargetReference();         }
-            
+#if AVALONIA_COMPOSITION_TODO
             /// <summary> Create a reference to the SpotLight target that this expression will be connected to. </summary>
             public static SpotLightReferenceNode          CreateSpotLightTarget()          { return SpotLightReferenceNode.CreateTargetReference();           }
             
             /// <summary> Create a reference to the SurfaceBrush target that this expression will be connected to. </summary>
             public static SurfaceBrushReferenceNode       CreateSurfaceBrushTarget()       { return SurfaceBrushReferenceNode.CreateTargetReference();        }
+#endif
             
             /// <summary> Create a reference to the Visual target that this expression will be connected to. </summary>
             public static VisualReferenceNode             CreateVisualTarget()             { return VisualReferenceNode.CreateTargetReference();              }

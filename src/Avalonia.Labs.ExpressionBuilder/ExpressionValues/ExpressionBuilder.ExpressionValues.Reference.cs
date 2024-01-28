@@ -21,6 +21,7 @@ namespace ExpressionBuilder
         /// <summary> Create a reference to a CompositionObject. </summary>
         public static class Reference
         {
+#if AVALONIA_COMPOSITION_TODO
             /// <summary> Creates a named reference parameter to an AmbientLight. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static AmbientLightReferenceNode       CreateAmbientLightReference(string parameterName)       { return new AmbientLightReferenceNode(parameterName);       }
@@ -52,11 +53,11 @@ namespace ExpressionBuilder
             /// <summary> Creates a named reference parameter to a PointLight. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static PointLightReferenceNode         CreatePointLightReference(string parameterName)         { return new PointLightReferenceNode(parameterName);         }
-
+#endif
             /// <summary> Creates a named reference parameter to a PropertySet. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static PropertySetReferenceNode        CreatePropertySetReference(string parameterName)        { return new PropertySetReferenceNode(parameterName);        }
-
+#if AVALONIA_COMPOSITION_TODO
             /// <summary> Creates a named reference parameter to a SpotLight. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static SpotLightReferenceNode          CreateSpotLightReference(string parameterName)          { return new SpotLightReferenceNode(parameterName);          }
@@ -68,6 +69,7 @@ namespace ExpressionBuilder
             /// <summary> Creates a named reference parameter to a Visual. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static VisualReferenceNode             CreateVisualReference(string parameterName)             { return new VisualReferenceNode(parameterName);             }
+#endif
         }
     }
 }

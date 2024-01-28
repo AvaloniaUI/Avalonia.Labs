@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class DropShadowReferenceNode : ReferenceNode
     {
-        internal DropShadowReferenceNode(string paramName, CompositionObject source = null) : base(paramName, source) { }
+        internal DropShadowReferenceNode(string paramName, DropShadow source = null) : base(paramName, source) { }
         
         internal static DropShadowReferenceNode CreateTargetReference()
         {
@@ -27,3 +27,4 @@ namespace ExpressionBuilder
         public ColorNode   Color      { get { return ReferenceProperty<ColorNode>("Color");       } }
     }
 }
+#endif

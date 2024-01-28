@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class SurfaceBrushReferenceNode : ReferenceNode
     {
-        internal SurfaceBrushReferenceNode(string paramName, CompositionObject brush = null) : base(paramName, brush) { }
+        internal SurfaceBrushReferenceNode(string paramName, CompositionSurfaceBrush brush = null) : base(paramName, brush) { }
         
         internal static SurfaceBrushReferenceNode CreateTargetReference()
         {
@@ -40,3 +40,4 @@ namespace ExpressionBuilder
         public Matrix3x2Node TransformMatrix          { get { return ReferenceProperty<Matrix3x2Node>("TransformMatrix");       } }
     }
 }
+#endif

@@ -3,14 +3,13 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class VisualReferenceNode : ReferenceNode
     {
-        internal VisualReferenceNode(string paramName, CompositionObject v = null) : base(paramName, v) { }
+        internal VisualReferenceNode(string paramName, CompositionVisual v = null) : base(paramName, v) { }
 
         internal static VisualReferenceNode CreateTargetReference()
         {
@@ -23,7 +22,7 @@ namespace ExpressionBuilder
         // Animatable properties
         public ScalarNode     Opacity                { get { return ReferenceProperty<ScalarNode>("Opacity");                } }
         public ScalarNode     RotationAngle          { get { return ReferenceProperty<ScalarNode>("RotationAngle");          } }
-        // public ScalarNode     RotationAngleInDegrees { get { return ReferenceProperty<ScalarNode>("RotationAngleInDegrees"); } }
+        public ScalarNode     RotationAngleInDegrees { get { return ReferenceProperty<ScalarNode>("RotationAngleInDegrees"); } }
 
         public Vector2Node    AnchorPoint            { get { return ReferenceProperty<Vector2Node>("AnchorPoint");           } }
         public Vector2Node    RelativeSize           { get { return ReferenceProperty<Vector2Node>("RelativeSize");          } }

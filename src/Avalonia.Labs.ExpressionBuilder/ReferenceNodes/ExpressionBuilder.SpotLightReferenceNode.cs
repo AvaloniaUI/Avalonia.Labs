@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class SpotLightReferenceNode : ReferenceNode
     {
-        internal SpotLightReferenceNode(string paramName, CompositionObject light = null) : base(paramName, light) { }
+        internal SpotLightReferenceNode(string paramName, SpotLight light = null) : base(paramName, light) { }
         
         internal static SpotLightReferenceNode CreateTargetReference()
         {
@@ -38,3 +38,4 @@ namespace ExpressionBuilder
         public Vector3Node Offset                  { get { return ReferenceProperty<Vector3Node>("Offset");                 } }        
     }
 }
+#endif

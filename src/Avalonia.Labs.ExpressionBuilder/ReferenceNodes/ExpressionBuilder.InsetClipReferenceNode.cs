@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class InsetClipReferenceNode : ReferenceNode
     {
-        internal InsetClipReferenceNode(string paramName, CompositionObject ic = null) : base(paramName, ic) { }
+        internal InsetClipReferenceNode(string paramName, InsetClip ic = null) : base(paramName, ic) { }
 
         internal static InsetClipReferenceNode CreateTargetReference()
         {
@@ -37,3 +37,4 @@ namespace ExpressionBuilder
         public Matrix3x2Node TransformMatrix      { get { return ReferenceProperty<Matrix3x2Node>("TransformMatrix");     } }
     }
 }
+#endif

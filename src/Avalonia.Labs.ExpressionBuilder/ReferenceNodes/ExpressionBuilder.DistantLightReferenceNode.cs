@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class DistantLightReferenceNode : ReferenceNode
     {
-        internal DistantLightReferenceNode(string paramName, CompositionObject light = null) : base(paramName, light) { }
+        internal DistantLightReferenceNode(string paramName, DistantLight light = null) : base(paramName, light) { }
         
         internal static DistantLightReferenceNode CreateTargetReference()
         {
@@ -25,3 +25,4 @@ namespace ExpressionBuilder
         public Vector3Node Direction { get { return ReferenceProperty<Vector3Node>("Direction"); } }
     }
 }
+#endif

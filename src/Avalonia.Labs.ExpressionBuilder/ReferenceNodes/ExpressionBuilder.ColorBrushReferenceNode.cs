@@ -3,6 +3,7 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
+#if AVALONIA_COMPOSITION_TODO
 
 namespace ExpressionBuilder
 {
@@ -10,7 +11,7 @@ namespace ExpressionBuilder
 
     public sealed class ColorBrushReferenceNode : ReferenceNode
     {
-        internal ColorBrushReferenceNode(string paramName, CompositionObject brush = null) : base(paramName, brush) { }
+        internal ColorBrushReferenceNode(string paramName, CompositionColorBrush brush = null) : base(paramName, brush) { }
         
         internal static ColorBrushReferenceNode CreateTargetReference()
         {
@@ -24,3 +25,4 @@ namespace ExpressionBuilder
         public ColorNode Color { get { return ReferenceProperty<ColorNode>("Color"); } }
     }
 }
+#endif

@@ -3,14 +3,14 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-
+#if AVALONIA_COMPOSITION_TODO
 namespace ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 
     public sealed class NineGridBrushReferenceNode : ReferenceNode
     {
-        internal NineGridBrushReferenceNode(string paramName, CompositionObject brush = null) : base(paramName, brush) { }
+        internal NineGridBrushReferenceNode(string paramName, CompositionNineGridBrush brush = null) : base(paramName, brush) { }
         
         internal static NineGridBrushReferenceNode CreateTargetReference()
         {
@@ -31,3 +31,4 @@ namespace ExpressionBuilder
         public ScalarNode TopInsetScale    { get { return ReferenceProperty<ScalarNode>("TopInsetScale");    } }
     }
 }
+#endif
