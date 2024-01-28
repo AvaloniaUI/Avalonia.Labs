@@ -375,11 +375,13 @@ namespace Avalonia.Labs.ExpressionBuilder
 
             foreach (var constParam in _constParamMap)
             {
+#if AVALONIA_COMPOSITION_TODO
                 if (constParam.Value.GetType() == typeof(bool))
                 {
                     animation.SetBooleanParameter(constParam.Key, (bool)constParam.Value);
-                }
-                else if (constParam.Value.GetType() == typeof(float))
+                } else
+#endif
+                if (constParam.Value.GetType() == typeof(float))
                 {
                     animation.SetScalarParameter(constParam.Key, (float)constParam.Value);
                 }

@@ -161,7 +161,7 @@ namespace Avalonia.Labs.Catalog.Views
                 //_gearMotionScalarAnimation.InsertExpressionKeyFrame(1.0f, "this.StartingValue + 6.28318530717959", linear);
                 var startingValue = ExpressionValues.StartingValue.CreateScalarStartingValue();
                 _gearMotionScalarAnimation.InsertExpressionKeyFrame(0.0f, startingValue);
-                _gearMotionScalarAnimation.InsertExpressionKeyFrame(1.0f, startingValue + Math.PI * 2, linear);
+                _gearMotionScalarAnimation.InsertExpressionKeyFrame(1.0f, startingValue + MathF.PI * 2, linear);
 
                 _gearMotionScalarAnimation.IterationBehavior = AnimationIterationBehavior.Forever;
             }
