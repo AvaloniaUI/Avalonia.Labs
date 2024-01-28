@@ -332,7 +332,9 @@ namespace Avalonia.Labs.ExpressionBuilder
             // precompute the exact number of characters in the resulting string. This is not
             // important in this context as the only critical property to maintain is to have
             // a unique mapping to each input value to the resulting sequence of letters.
+#if NET6_0_OR_GREATER
             [SkipLocalsInit]
+#endif
             static unsafe string CreateUniqueNodeNameFromIndex(uint i)
             {
                 const int alphabetLength = 'Z' - 'A' + 1;
