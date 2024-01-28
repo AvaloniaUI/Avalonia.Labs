@@ -35,8 +35,8 @@ namespace Avalonia.Labs.ExpressionBuilder
         public static PropertySetReferenceNode        GetReference(this CompositionPropertySet compObj)    { return new PropertySetReferenceNode(null, compObj);         }
 #if AVALONIA_COMPOSITION_TODO
         public static SpotLightReferenceNode          GetReference(this SpotLight compObj)                 { return new SpotLightReferenceNode(null, compObj);           }
-        public static SurfaceBrushReferenceNode       GetReference(this CompositionSurfaceBrush compObj)   { return new SurfaceBrushReferenceNode(null, compObj);        }
 #endif
+        public static SurfaceVisualReferenceNode       GetReference(this CompositionSurface compObj)   { return new SurfaceVisualReferenceNode(null, compObj);        }
         public static VisualReferenceNode             GetReference(this CompositionVisual compObj)                    { return new VisualReferenceNode(null, compObj);              }
 
         /// <summary> Create an ExpressionNode reference to this specialized PropertySet. </summary>

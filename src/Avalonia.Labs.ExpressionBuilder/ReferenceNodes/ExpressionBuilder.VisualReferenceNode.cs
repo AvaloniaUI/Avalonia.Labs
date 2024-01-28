@@ -22,8 +22,9 @@ namespace Avalonia.Labs.ExpressionBuilder
         // Animatable properties
         public ScalarNode     Opacity                { get { return ReferenceProperty<ScalarNode>("Opacity");                } }
         public ScalarNode     RotationAngle          { get { return ReferenceProperty<ScalarNode>("RotationAngle");          } }
+#if AVALONIA_COMPOSITION_TODO
         public ScalarNode     RotationAngleInDegrees { get { return ReferenceProperty<ScalarNode>("RotationAngleInDegrees"); } }
-
+#endif
         public Vector2Node    AnchorPoint            { get { return ReferenceProperty<Vector2Node>("AnchorPoint");           } }
         public Vector2Node    RelativeSize           { get { return ReferenceProperty<Vector2Node>("RelativeSize");          } }
         public Vector2Node    Size                   { get { return ReferenceProperty<Vector2Node>("Size");                  } }

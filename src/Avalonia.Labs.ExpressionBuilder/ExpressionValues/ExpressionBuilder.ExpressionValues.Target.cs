@@ -49,11 +49,11 @@ namespace Avalonia.Labs.ExpressionBuilder
 #if AVALONIA_COMPOSITION_TODO
             /// <summary> Create a reference to the SpotLight target that this expression will be connected to. </summary>
             public static SpotLightReferenceNode          CreateSpotLightTarget()          { return SpotLightReferenceNode.CreateTargetReference();           }
-            
-            /// <summary> Create a reference to the SurfaceBrush target that this expression will be connected to. </summary>
-            public static SurfaceBrushReferenceNode       CreateSurfaceBrushTarget()       { return SurfaceBrushReferenceNode.CreateTargetReference();        }
 #endif
-            
+
+            /// <summary> Create a reference to the SurfaceVisual target that this expression will be connected to. </summary>
+            public static SurfaceVisualReferenceNode       CreateSurfaceVisualTarget()       { return SurfaceVisualReferenceNode.CreateTargetReference();        }
+
             /// <summary> Create a reference to the Visual target that this expression will be connected to. </summary>
             public static VisualReferenceNode             CreateVisualTarget()             { return VisualReferenceNode.CreateTargetReference();              }
         }

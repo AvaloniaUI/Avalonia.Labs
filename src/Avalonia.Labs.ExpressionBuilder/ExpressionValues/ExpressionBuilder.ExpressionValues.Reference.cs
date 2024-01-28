@@ -61,15 +61,15 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// <summary> Creates a named reference parameter to a SpotLight. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static SpotLightReferenceNode          CreateSpotLightReference(string parameterName)          { return new SpotLightReferenceNode(parameterName);          }
+#endif
 
-            /// <summary> Creates a named reference parameter to a SurfaceBrush. </summary>
+            /// <summary> Creates a named reference parameter to a SurfaceVisual. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
-            public static SurfaceBrushReferenceNode       CreateSurfaceBrushReference(string parameterName)       { return new SurfaceBrushReferenceNode(parameterName);       }
+            public static SurfaceVisualReferenceNode       CreateSurfaceVisualReference(string parameterName)       { return new SurfaceVisualReferenceNode(parameterName);       }
 
             /// <summary> Creates a named reference parameter to a Visual. </summary>
             /// <param name="paramName">The name that will be used to refer to the parameter at a later time.</param>
             public static VisualReferenceNode             CreateVisualReference(string parameterName)             { return new VisualReferenceNode(parameterName);             }
-#endif
         }
     }
 }
