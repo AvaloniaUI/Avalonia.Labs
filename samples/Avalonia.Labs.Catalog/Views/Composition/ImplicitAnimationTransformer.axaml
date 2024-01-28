@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Avalonia.Labs.Catalog.Views.ImplicitAnimationTransformer"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Unloaded="ImplicitAnimationTransformer_Unloaded">
+
+  <Grid ColumnDefinitions="2*,*">
+
+    <Grid x:Name="TopGrid" Grid.Column="0">
+      <Panel x:Name="Placeholder"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center" />
+    </Grid>
+
+    <Grid x:Name="BottomGrid" Grid.Column="1">
+      <StackPanel Width="180"
+                  VerticalAlignment="Center"
+                  Orientation="Vertical">
+        <TextBlock Text="Animate?" />
+        <CheckBox Name="EnableAnimations"
+                  IsCheckedChanged="EnableAnimations_OnIsCheckedChanged"
+                  IsChecked="False" />
+        <Button Width="150"
+                Height="50"
+                Margin="5,5,5,5"
+                Click="GridLayout"
+                Content="Grid Layout" />
+        <Button Width="150"
+                Height="50"
+                Margin="5,5,5,5"
+                Click="CircleLayout"
+                Content="Circle Layout" />
+        <Button Width="150"
+                Height="50"
+                Margin="5,5,5,5"
+                Click="SpiralLayout"
+                Content="Spiral Layout" />
+        <Button Width="150"
+                Height="70"
+                Margin="5,5,5,5"
+                Click="EllipseLayout"
+                Content="Ellipse Layout" />
+        <Button Width="150"
+                Height="50"
+                Margin="5,5,5,5"
+                Click="Scale"
+                Content="Toggle Scale" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

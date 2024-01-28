@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="Avalonia.Labs.Catalog.Views.Gears"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Grid x:Name="Root" Background="#36454F">
+    <StackPanel Orientation="Horizontal">
+      <Button x:Name="AnimateSlow"
+              Width="100"
+              Height="50"
+              Margin="10,10,0,0"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="AnimateSlow_Click">
+        Slow
+      </Button>
+      <Button x:Name="AnimateFast"
+              Width="100"
+              Height="50"
+              Margin="10,10,0,0"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="AnimateFast_Click">
+        Fast
+      </Button>
+      <Button x:Name="Stop"
+              Width="100"
+              Height="50"
+              Margin="10,10,0,0"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="Stop_Click">
+        Stop
+      </Button>
+      <Button x:Name="Reverse"
+              Width="100"
+              Height="50"
+              Margin="10,10,0,0"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="Reverse_Click">
+        Reverse
+      </Button>
+      <Button x:Name="AddGearButton"
+              Width="100"
+              Height="50"
+              Margin="10,10,0,0"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="AddGear_Click">
+        Add Gear
+      </Button>
+      <TextBox x:Name="NumberOfGears"
+               Width="200"
+               Height="50"
+               Margin="10"
+               VerticalAlignment="Top" />
+      <Button x:Name="AddXGearsButton"
+              Width="110"
+              Height="50"
+              Margin="10"
+              VerticalAlignment="Top"
+              Background="White"
+              Click="AddXGearsButton_Click"
+              Content="Add X Gears" />
+      <TextBlock x:Name="GearCount"
+                 FontSize="32"
+                 Foreground="White"
+                 Text="{Binding Count}" />
+    </StackPanel>
+    <Canvas x:Name="Container" Margin="50,130,0,0">
+      <Image x:Name="FirstGear"
+             Width="100"
+             Height="100"
+             Source="avares://Avalonia.Labs.Catalog/Assets/Composition/FirstGear.png" />
+    </Canvas>
+  </Grid>
+</UserControl>
