@@ -4,7 +4,7 @@
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
 
-namespace ExpressionBuilder
+namespace Avalonia.Labs.ExpressionBuilder
 {
     using Avalonia.Animation.Easings;
     using Avalonia.Rendering.Composition;

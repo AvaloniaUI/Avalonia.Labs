@@ -5,7 +5,7 @@
 ///---------------------------------------------------------------------------------------------------------------------
 #if AVALONIA_COMPOSITION_TODO
 
-namespace ExpressionBuilder
+namespace Avalonia.Labs.ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 

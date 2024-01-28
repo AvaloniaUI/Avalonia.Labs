@@ -3,7 +3,7 @@
 ///     Copyright (c) Microsoft Corporation.  All rights reserved.
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
-namespace ExpressionBuilder
+namespace Avalonia.Labs.ExpressionBuilder
 {
     using Avalonia.Rendering.Composition;
 

@@ -26,7 +26,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
-using ExpressionBuilder;
+using Avalonia.Labs.ExpressionBuilder;
 
 namespace Avalonia.Labs.Catalog.Views
 {

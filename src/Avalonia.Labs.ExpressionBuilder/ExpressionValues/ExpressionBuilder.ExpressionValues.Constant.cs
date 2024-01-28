@@ -4,7 +4,7 @@
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
 
-namespace ExpressionBuilder
+namespace Avalonia.Labs.ExpressionBuilder
 {
     using System.Numerics;
     using Avalonia.Media;

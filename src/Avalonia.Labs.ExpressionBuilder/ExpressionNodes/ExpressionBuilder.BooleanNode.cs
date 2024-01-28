@@ -4,7 +4,7 @@
 /// </copyright>
 ///---------------------------------------------------------------------------------------------------------------------
 
-namespace ExpressionBuilder
+namespace Avalonia.Labs.ExpressionBuilder
 {
 // Ignore warning: 'BooleanNode' defines operator == or operator != but does not override Object.Equals(object o) && Object.GetHashCode()
 #pragma warning disable CS0660, CS0661
