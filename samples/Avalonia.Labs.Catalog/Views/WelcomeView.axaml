@@ -135,6 +135,17 @@
               CornerRadius="10"
               Margin="0,5">
         <Button.CommandParameter>
+          <viewModels:SKXamlCanvasViewModel/>
+        </Button.CommandParameter>
+        <Label FontSize="18"
+               VerticalAlignment="Center">SKCanvasView</Label>
+      </Button>
+      <Button HorizontalAlignment="Stretch"
+              Height="60"
+              Command="{Binding NavigateTo}"
+              CornerRadius="10"
+              Margin="0,5">
+        <Button.CommandParameter>
           <viewModels:SwipeViewModel/>
         </Button.CommandParameter>
         <Label FontSize="18"

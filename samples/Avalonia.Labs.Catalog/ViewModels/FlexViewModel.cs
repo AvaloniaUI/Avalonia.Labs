@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Panels;
-
+using Avalonia.Layout;
 using ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.ViewModels
@@ -22,7 +22,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
         private AlignContent _alignContent = AlignContent.FlexStart;
         private FlexWrap _wrap = FlexWrap.Wrap;
 
-        private int _columnSpacing = 8;
+        private int _columnSpacing = 64;
         private int _rowSpacing = 32;
 
         private int _currentNumber = 41;
@@ -55,6 +55,12 @@ namespace Avalonia.Labs.Catalog.ViewModels
         public IEnumerable AlignContentValues { get; } = Enum.GetValues(typeof(AlignContent));
 
         public IEnumerable WrapValues { get; } = Enum.GetValues(typeof(FlexWrap));
+
+        public IEnumerable FlexBasisKindValues { get; } = Enum.GetValues(typeof(FlexBasisKind));
+
+        public IEnumerable HorizontalAlignmentValues { get; } = Enum.GetValues(typeof(HorizontalAlignment));
+
+        public IEnumerable VerticalAlignmentValues { get; } = Enum.GetValues(typeof(VerticalAlignment));
 
         public IEnumerable AlignSelfValues { get; } = Enum.GetValues(typeof(AlignItems)).Cast<AlignItems>().Prepend(FlexItemViewModel.AlignSelfAuto);
         

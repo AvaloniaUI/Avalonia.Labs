@@ -23,5 +23,14 @@
 
         public static Size ToSize(Uv uv, bool swap) =>
             new Size(swap ? uv.V : uv.U, swap ? uv.U : uv.V);
+
+        public Uv WithU(double u) =>
+            new Uv(u, V);
+
+        public Uv WithV(double v) =>
+            new Uv(U, v);
+
+        public override string ToString() =>
+            $"U: {U}, V: {V}";
     }
 }
