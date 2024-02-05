@@ -202,8 +202,8 @@ namespace Avalonia.Labs.Qr
             // Bounds of the entire control
             var bounds = new Rect(0, 0, Width, Height);
             var matrix = qrCodeData.Matrix;
-            var columnCount = matrix.Width - QuietMargin;
-            var rowCount = matrix.Height - QuietMargin;
+            var columnCount = matrix.Width + QuietMargin;
+            var rowCount = matrix.Height + QuietMargin;
 
             // The size of each symbol taking into account the size of the QRCode and our custom quiet zone aka padding
             var symbolSize = new Size(
@@ -231,10 +231,6 @@ namespace Avalonia.Labs.Qr
 
             for (var row = 0; row < matrix.Height; row++)
             {
-                // Quiet Space - helper not used to speed up processing
-                if (row < QuietZoneCount || row > matrix.Height - QuietZoneCount - 1)
-                    continue;
-
                 ProcessRow(geometry, matrix, row, symbolSize);
             }
 
@@ -254,10 +250,6 @@ namespace Avalonia.Labs.Qr
             // Loop through each item within the row
             for (var column = 0; column < bitMatrix.Width; column++)
             {
-                // Quiet Space - helper not used to speed up processing
-                if (column < QuietZoneCount || column > bitMatrix.Width - QuietZoneCount - 1)
-                    continue;
-
                 ProcessSymbol(geometry, bitMatrix, row, column, symbolSize);
             }
         }
@@ -274,8 +266,8 @@ namespace Avalonia.Labs.Qr
         {
             // The full bounds of the symbol
             var symbolBounds = new Rect(
-                (column - QuietZoneCount) * symbolSize.Width + Padding.Left,
-                (row - QuietZoneCount) * symbolSize.Height + Padding.Top,
+                (column + QuietZoneCount) * symbolSize.Width + Padding.Left,
+                (row + QuietZoneCount) * symbolSize.Height + Padding.Top,
                 symbolSize.Width,
                 symbolSize.Height
             );
@@ -545,6 +537,10 @@ namespace Avalonia.Labs.Qr
         /// <returns></returns>
         private bool IsValid(BitMatrix bitMatrix, int x, int y)
         {
+            // Validate bounds of the bit matrix
+            if (x < 0 || y < 0 || x >= bitMatrix.Width || y >= bitMatrix.Height)
+                return false;
+            
             var key = (x, y).GetHashCode();
 
             lock (_setBitsTable)
@@ -553,13 +549,13 @@ namespace Avalonia.Labs.Qr
                     return (bool)_setBitsTable[key]!;
 
                 // Top Left Marker
-                if (x < QuietZoneCount + 8 && y < QuietZoneCount + 8)
+                if (x < 8 && y < 8)
                     return (bool)(_setBitsTable[key] = false);
                 // Top Right Marker
-                if (x > bitMatrix.Width - QuietZoneCount - 9 && y < QuietZoneCount + 8)
+                if (x > bitMatrix.Width - 9 && y < 8)
                     return (bool)(_setBitsTable[key] = false);
                 // Bottom Left Marker
-                if (x < QuietZoneCount + 8 && y > bitMatrix.Height - QuietZoneCount - 9)
+                if (x < 8 && y > bitMatrix.Height - 9)
                     return (bool)(_setBitsTable[key] = false);
 
                 /*
@@ -583,7 +579,9 @@ namespace Avalonia.Labs.Qr
         private void AddPositionDetectionPattern(PathGeometry geometry, Rect bounds, Size symbolSize)
         {
             // Pre-calculations to reduce the amount of repeat math
-            var dataBounds = bounds.Deflate(Padding);
+            var dataBounds = bounds
+                .Deflate(Padding)
+                .Deflate(new Thickness(symbolSize.Width * QuietZoneCount, symbolSize.Height * QuietZoneCount));
             var markerSize = symbolSize * 7;
             var markerRadiusSize = markerSize / 2;
             var twiceSymbolSize = symbolSize * 2;
