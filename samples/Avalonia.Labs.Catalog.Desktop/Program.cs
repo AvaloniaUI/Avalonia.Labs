@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Avalonia;
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.ReactiveUI;
 
@@ -20,15 +19,12 @@ class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .UseReactiveUI()
-        .AfterSetup(builder =>
-        {
-            CacheOptions.SetDefault(new CacheOptions()
+            .AfterSetup(builder =>
             {
-                BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
-            });
-#if DEBUG
-            builder.Instance!.AttachDevTools(new Avalonia.Diagnostics.DevToolsOptions());
-#endif
-        })
+                CacheOptions.SetDefault(new CacheOptions()
+                {
+                    BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
+                });
+            })
             .LogToTrace();
 }
