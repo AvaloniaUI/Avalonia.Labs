@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\BadgesView.axaml.cs">
+      <DependentUpon>BadgesView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

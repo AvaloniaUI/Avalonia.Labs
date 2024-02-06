@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             Padding="10"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.BadgesView">
+  <StackPanel>
+    <Button Content="Cirular Badge" ClipToBounds="False">
+      <labs:InfoBadge.Badge>
+        <labs:InfoBadge Background="Red"
+                        Foreground="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Content="1">
+          <labs:InfoBadge.Shape>
+            <EllipseGeometry Rect="0,0,20,20"/>
+          </labs:InfoBadge.Shape>
+        </labs:InfoBadge>
+      </labs:InfoBadge.Badge>
+    </Button>
+    <Button Content="Square Badge" ClipToBounds="False">
+      <labs:InfoBadge.Badge>
+        <labs:InfoBadge Background="Red"
+                        Foreground="White"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        Content="A">
+          <labs:InfoBadge.Shape>
+            <RectangleGeometry Rect="0,0,20,20"/>
+          </labs:InfoBadge.Shape>
+        </labs:InfoBadge>
+      </labs:InfoBadge.Badge>
+    </Button>
+
+    <Button Content="Trinagle Badge" ClipToBounds="False" Padding="5,5,20,5">
+      <labs:InfoBadge.Badge>
+        <labs:InfoBadge Background="Green"
+                        ClipToBounds="False"
+                        Foreground="White"
+                        BorderThickness="2"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Width="20"
+                        Height="20"
+                        Content="1">
+          <labs:InfoBadge.Shape>
+            <StreamGeometry>M0,20 L 10,0 L 20,20z</StreamGeometry>
+          </labs:InfoBadge.Shape>
+        </labs:InfoBadge>
+      </labs:InfoBadge.Badge>
+    </Button>
+
+    <TextBlock Text="Any Visual Control can have badge      "
+               HorizontalAlignment="Left"
+               >
+      <labs:InfoBadge.Badge>
+        <labs:InfoBadge Background="Blue"
+                        ClipToBounds="False"
+                        Foreground="White"
+                        BorderThickness="2"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Width="20"
+                        Height="20"
+                        Content="a">
+          <labs:InfoBadge.Shape>
+            <StreamGeometry>M0,20 L 10,0 L 20,20z</StreamGeometry>
+          </labs:InfoBadge.Shape>
+        </labs:InfoBadge>
+      </labs:InfoBadge.Badge>
+    </TextBlock>
+  </StackPanel>
+</UserControl>
