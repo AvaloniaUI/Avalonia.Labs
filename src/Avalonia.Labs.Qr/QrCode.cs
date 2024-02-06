@@ -97,7 +97,11 @@ namespace Avalonia.Labs.Qr
         /// A cache of currently set bits in the bit matrix.  This is used to potentially speed up processing.
         /// </summary>
         private readonly Hashtable _setBitsTable = new();
-
+        /// <summary>
+        /// A cache of the last encoded QRCode.  This is used to reuse the last generated data whenever a style property like Width, Height or Padding was changed.
+        /// </summary>
+        private Gma.QrCodeNet.Encoding.QrCode? _encodedQrCode;
+        
         // QRCode specs mandate a standard 4-symbol-sized space on each side of the data.  We support custom Padding and will ignore this zone when processing
         private const int QuietZoneCount = 4;
         private const int QuietMargin = QuietZoneCount * 2;
@@ -146,18 +150,36 @@ namespace Avalonia.Labs.Qr
             if (Data == null)
                 return;
 
+            // Invalidates the cached QRCode if needed.  We do not need recreate the bit matrix for layout changes.
             switch (change.Property.Name)
             {
-                // Padding requires the geometry paths to be adjusted to match the new locations. ToDo: Can this be simulated with a scale to enhance performance?
-                case nameof(Padding):
                 // Error Correction change requires the data to be reprocessed to recalculate the new bit matrix.  This is unavoidable.
                 case nameof(ErrorCorrection):
                 // A change in data obviously indicates the need to update the bit matrix    
                 case nameof(Data):
-                    lock (_setBitsTable)
-                        _setBitsTable.Clear();
-                    QrCodeGenerator.ErrorCorrectionLevel = ToQrCoderEccLevel(ErrorCorrection);
-                    OnDataChanged(QrCodeGenerator.Encode(Data));
+                    _encodedQrCode = null;
+                    break;
+            }
+
+            // Generating the QRCode bit matrix if needed.
+            if (_encodedQrCode is null)
+            {
+                lock (_setBitsTable)
+                    _setBitsTable.Clear();
+                
+                QrCodeGenerator.ErrorCorrectionLevel = ToQrCoderEccLevel(ErrorCorrection);
+                _encodedQrCode = QrCodeGenerator.Encode(Data);
+            }
+            
+            switch (change.Property.Name)
+            {
+                // Padding and size requires the geometry paths to be adjusted to match the new locations. ToDo: Can this be simulated with a scale to enhance performance?
+                case nameof(Padding):
+                case nameof(Width):
+                case nameof(Height):
+                case nameof(ErrorCorrection):
+                case nameof(Data):
+                    OnLayoutChanged(_encodedQrCode);
 
                     // This is hard coded for now as I'm sure there is a better and more "Avalonia" way to transition between renders.
                     // Eventually, it may be a property of some sort.
@@ -187,7 +209,7 @@ namespace Avalonia.Labs.Qr
         /// Raised whenever a property of the control changes that impacts the layout of the QRCode geometry
         /// </summary>
         /// <param name="qrCodeData">The QRCode Data with the underlying bit matrix</param>
-        private void OnDataChanged(Gma.QrCodeNet.Encoding.QrCode qrCodeData)
+        private void OnLayoutChanged(Gma.QrCodeNet.Encoding.QrCode qrCodeData)
         {
             /*
              * The following code turns the QRCode bit matrix into a geometry path.  The path represents the SHAPE of the QRCode and
