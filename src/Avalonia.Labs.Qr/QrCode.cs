@@ -41,6 +41,14 @@ namespace Avalonia.Labs.Qr
         /// </summary>
         public static readonly StyledProperty<Thickness> PaddingProperty = Decorator.PaddingProperty.AddOwner<QrCode>();
         /// <summary>
+        /// Property indicating whether the Quiet Zone of 4 modules should be added to the QR Code as additional padding.  Default: True
+        ///
+        /// Note: Disabling the Quiet Zone makes the generated QRCodes "non-standard" according to the ISO 18004 standard.
+        /// The padding created by the Quiet Zone depends on the module size and therefore on the amount of data. This can be
+        /// disabled and a fixed <see cref="Padding"/> can be set instead to have more control over the layout. 
+        /// </summary>
+        public static readonly StyledProperty<bool> IsQuietZoneEnabledProperty = AvaloniaProperty.Register<QrCode, bool>(nameof(IsQuietZoneEnabled), true);
+        /// <summary>
         /// Property indicating the Error Correction Code of the generated data.  Default: Medium
         ///
         /// Note: See <see cref="EccLevel" /> for the specific definitions of each value.
@@ -75,6 +83,12 @@ namespace Avalonia.Labs.Qr
             get => GetValue(PaddingProperty);
             set => SetValue(PaddingProperty, value);
         }
+        /// <inheritdoc cref="IsQuietZoneEnabledProperty" />
+        public bool IsQuietZoneEnabled
+        {
+            get => GetValue(IsQuietZoneEnabledProperty);
+            set => SetValue(IsQuietZoneEnabledProperty, value);
+        }
         /// <inheritdoc cref="ErrorCorrectionProperty" />
         public EccLevel ErrorCorrection
         {
@@ -103,8 +117,8 @@ namespace Avalonia.Labs.Qr
         private Gma.QrCodeNet.Encoding.QrCode? _encodedQrCode;
         
         // QRCode specs mandate a standard 4-symbol-sized space on each side of the data.  We support custom Padding and will ignore this zone when processing
-        private const int QuietZoneCount = 4;
-        private const int QuietMargin = QuietZoneCount * 2;
+        private int QuietZoneCount => IsQuietZoneEnabled ? 4 : 0;
+        private int QuietMargin => QuietZoneCount * 2;
 
         /// <summary>
         /// Defines the geometry of the previously displayed QRCode
@@ -177,6 +191,7 @@ namespace Avalonia.Labs.Qr
                 case nameof(Padding):
                 case nameof(Width):
                 case nameof(Height):
+                case nameof(IsQuietZoneEnabled):
                 case nameof(ErrorCorrection):
                 case nameof(Data):
                     OnLayoutChanged(_encodedQrCode);
