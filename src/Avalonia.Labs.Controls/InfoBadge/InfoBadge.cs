@@ -6,7 +6,6 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 
@@ -17,6 +16,7 @@ namespace Avalonia.Labs.Controls;
 public class InfoBadge : ContentControl
 {
     private readonly static EventHandler<VisualTreeAttachmentEventArgs> Parent_DetachedFromVisualTreeHandler = OnParent_DetachedFromVisualTree;
+    private IDisposable? _disposablePadding;
 
     static InfoBadge()
     {
@@ -67,13 +67,21 @@ public class InfoBadge : ContentControl
     public static readonly StyledProperty<Geometry> ShapeProperty =
         AvaloniaProperty.Register<InfoBadge, Geometry>(nameof(Shape));
 
-
     /// <summary>
     /// Get/Set the shape of <see cref="InfoBadge"/>
     /// </summary>
     public Geometry Shape
     {
         get => GetValue(ShapeProperty);
+        set => SetValue(ShapeProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> AutoPaddingProperty =
+        AvaloniaProperty.Register<InfoBadge, bool>(nameof(AutoPadding), true);
+
+    public bool AutoPadding
+    {
+        get => GetValue(AutoPaddingProperty);
         set => SetValue(ShapeProperty, value);
     }
 
@@ -97,12 +105,14 @@ public class InfoBadge : ContentControl
                     AdornerLayer.SetAdornedElement(oldBadge, default!);
                     oldBadge.SetCurrentValue(DataContextProperty, null);
                     layer.Children.Remove(oldBadge);
+                    oldBadge._disposablePadding?.Dispose();
+                    oldBadge._disposablePadding = null;
                 }
                 if (change.NewValue is InfoBadge newBadge)
                 {
                     newBadge.SetCurrentValue(DataContextProperty, visual.DataContext);
-                    layer.Children.Add(newBadge);
                     AdornerLayer.SetAdornedElement(newBadge, visual);
+                    layer.Children.Add(newBadge);
                     visual.DetachedFromVisualTree += Parent_DetachedFromVisualTreeHandler;
                 }
             }
@@ -149,13 +159,64 @@ public class InfoBadge : ContentControl
             // Hide Adorner if Content is Null
             SetCurrentValue(IsVisibleProperty, change.NewValue is not null);
         }
+        else if (change.Property == IsVisibleProperty)
+        {
+            if (change.NewValue is false)
+            {
+                _disposablePadding?.Dispose();
+                _disposablePadding = null;
+            }
+            else if (change.NewValue is true)
+            {
+                ApplyPadding();
+            }
+        }
     }
 
-    protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        base.OnAttachedToLogicalTree(e);
+        base.OnAttachedToVisualTree(e);
         // Ensure Visibilty
         SetCurrentValue(IsVisibleProperty, Content is not null);
+        _disposablePadding = ApplyPadding();
+    }
+
+    private IDisposable? ApplyPadding()
+    {
+        if (AutoPadding && AdornerLayer.GetAdornedElement(this) is Visual adorner
+            && AvaloniaPropertyRegistry.Instance.IsRegistered(adorner, PaddingProperty))
+        {
+            var padding = adorner.GetValue(PaddingProperty);
+            return adorner.SetValue(PaddingProperty, padding + GetPadding(adorner.Bounds.Size)
+                , BindingPriority.Animation);
+        }
+        return default;
+    }
+
+    private Thickness GetPadding(Size availableSize)
+    {
+        double left = 0, top = 0, right = 0, bottom = 0;
+        if (!IsMeasureValid)
+        {
+            Measure(availableSize);
+        }
+        if (HorizontalAlignment == Layout.HorizontalAlignment.Left)
+        {
+            left = DesiredSize.Width;
+        }
+        else if (HorizontalAlignment == Layout.HorizontalAlignment.Right)
+        {
+            right = DesiredSize.Width;
+        }
+        else if (HorizontalAlignment == Layout.HorizontalAlignment.Center && VerticalAlignment == Layout.VerticalAlignment.Top)
+        {
+            top = DesiredSize.Height;
+        }
+        else if (HorizontalAlignment == Layout.HorizontalAlignment.Center && VerticalAlignment == Layout.VerticalAlignment.Bottom)
+        {
+            bottom = DesiredSize.Height;
+        }
+        return new(left, top, right, bottom);
     }
 }
 

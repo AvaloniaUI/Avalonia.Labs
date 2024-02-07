@@ -35,7 +35,7 @@
       </labs:InfoBadge.Badge>
     </Button>
 
-    <Button Content="Trinagle Badge" ClipToBounds="False" Padding="5,5,20,5">
+    <Button Content="Trinagle Badge" ClipToBounds="False">
       <labs:InfoBadge.Badge>
         <labs:InfoBadge Background="Green"
                         ClipToBounds="False"
@@ -54,7 +54,7 @@
       </labs:InfoBadge.Badge>
     </Button>
 
-    <TextBlock Text="Any Visual Control can have badge      "
+    <TextBlock Text="Any Visual Control can have badge"
                HorizontalAlignment="Left"
                >
       <labs:InfoBadge.Badge>
