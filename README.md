@@ -1,3 +1,6 @@
+
+![Labs Header](https://github.com/AvaloniaUI/Avalonia.Labs/assets/552074/b9a462fc-8cb7-437b-9023-07e44ab0aabd)
+
 # Avalonia Labs
 Experimental Controls for [Avalonia](https://github.com/AvaloniaUI/Avalonia).
 
