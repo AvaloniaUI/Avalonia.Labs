@@ -182,8 +182,8 @@ public class StepBar : SelectingItemsControl
                 {
                     var current = progressBar.Value;
                     progressBar.BeginAnimation(ProgressBar.ValueProperty
-                        , TimeSpan.FromMilliseconds(200)
-                        , (double)selectIndex);
+                        , TimeSpan.FromMilliseconds(100)
+                        , selectIndex);
                 }
             }
             _backCommand?.RaiseCanExecuteChanged();
