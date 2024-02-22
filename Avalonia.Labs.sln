@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Lottie", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Panels", "src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj", "{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Labs.ExpressionBuilder", "src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj", "{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
