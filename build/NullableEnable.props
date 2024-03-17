@@ -3,7 +3,7 @@
     The Nullable annotations on netstandard2.0 are incomplete and incorrect in places. Ignore
     nullable warnings on netstandard2.0 and make them errors on later target frameworks.
   -->
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(Nullable)' == ''">
     <Nullable>enable</Nullable>
     <WarningsAsErrors Condition="'$(TargetFramework)' != 'netstandard2.0'">$(WarningsAsErrors);nullable</WarningsAsErrors>
     <NoWarn Condition="'$(TargetFramework)' == 'netstandard2.0'">$(NoWarn);nullable</NoWarn>
