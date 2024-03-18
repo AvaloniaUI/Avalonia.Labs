@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Qr", "src\Ava
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Lottie", "src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj", "{633A51E9-65E7-4350-9AE6-E527FECD15F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.RoutedCommand", "src\Avalonia.Labs.RoutedCommand\Avalonia.Labs.RoutedCommand.csproj", "{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.CommandManager", "src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj", "{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Panels", "src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj", "{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}"
 EndProject

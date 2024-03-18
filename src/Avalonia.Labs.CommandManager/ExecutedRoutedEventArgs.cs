@@ -5,7 +5,7 @@ using System.Windows.Input;
 namespace Avalonia.Labs.Input;
 
 /// <summary>
-/// Provides data for the <see cref="RoutedCommandManager.ExecutedEvent"/> routed event.
+/// Provides data for the <see cref="CommandManager.ExecutedEvent"/> routed event.
 /// </summary>
 public sealed class ExecutedRoutedEventArgs : RoutedEventArgs
 {
@@ -23,6 +23,6 @@ public sealed class ExecutedRoutedEventArgs : RoutedEventArgs
     {
         Command = command ?? throw new ArgumentNullException(nameof(command));
         Parameter = parameter;
-        RoutedEvent = RoutedCommandManager.ExecutedEvent;
+        RoutedEvent = CommandManager.ExecutedEvent;
     }
 }

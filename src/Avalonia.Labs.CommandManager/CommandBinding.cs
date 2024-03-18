@@ -5,21 +5,21 @@ namespace Avalonia.Labs.Input;
 /// <summary>
 /// Binds a <see cref="RoutedCommand"/> to the event handlers that implement the command.
 /// </summary>
-public sealed class RoutedCommandBinding : AvaloniaObject
+public sealed class CommandBinding : AvaloniaObject
 {
     /// <summary>
     /// Defines the <see cref="RoutedCommand"/> property.
     /// </summary>
-    public static readonly DirectProperty<RoutedCommandBinding, RoutedCommand?> RoutedCommandProperty =
-        AvaloniaProperty.RegisterDirect<RoutedCommandBinding, RoutedCommand?>(nameof(RoutedCommand),
+    public static readonly DirectProperty<CommandBinding, RoutedCommand?> RoutedCommandProperty =
+        AvaloniaProperty.RegisterDirect<CommandBinding, RoutedCommand?>(nameof(RoutedCommand),
             o => o.RoutedCommand,
             (o, v) => o.RoutedCommand = v);
 
     /// <summary>
     /// Defines the <see cref="ExecutingCommand"/> property.
     /// </summary>
-    public static readonly DirectProperty<RoutedCommandBinding, ICommand?> ExecutingCommandProperty =
-        AvaloniaProperty.RegisterDirect<RoutedCommandBinding, ICommand?>(nameof(ExecutingCommand),
+    public static readonly DirectProperty<CommandBinding, ICommand?> ExecutingCommandProperty =
+        AvaloniaProperty.RegisterDirect<CommandBinding, ICommand?>(nameof(ExecutingCommand),
             o => o.ExecutingCommand,
             (o, v) => o.ExecutingCommand = v
         );
@@ -28,25 +28,25 @@ public sealed class RoutedCommandBinding : AvaloniaObject
     /// Defines the <see cref="ExecutingCommandParameter"/> property.
     /// </summary>
     public static readonly AvaloniaProperty<object?> ExecutingCommandParameterProperty =
-        AvaloniaProperty.Register<RoutedCommandBinding, object?>(nameof(ExecutingCommandParameter));
+        AvaloniaProperty.Register<CommandBinding, object?>(nameof(ExecutingCommandParameter));
 
     private RoutedCommand? _routedCommand;
     private ICommand? _executingCommand;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RoutedCommandBinding"/> class.
+    /// Initializes a new instance of the <see cref="CommandBinding"/> class.
     /// </summary>
-    public RoutedCommandBinding()
+    public CommandBinding()
     {
 
     }
         
     /// <summary>
-    /// Initializes a new instance of the <see cref="RoutedCommandBinding"/> class by using the specified handler.
+    /// Initializes a new instance of the <see cref="CommandBinding"/> class by using the specified handler.
     /// </summary>
     /// <param name="routedCommand"><see cref="RoutedCommand"/> associated with this CommandBinding</param>
     /// <param name="executingCommand"><see cref="ICommand"/> handler for the routed command.</param>
-    public RoutedCommandBinding(RoutedCommand routedCommand, ICommand? executingCommand)
+    public CommandBinding(RoutedCommand routedCommand, ICommand? executingCommand)
     {
         RoutedCommand = routedCommand;
         ExecutingCommand = executingCommand;

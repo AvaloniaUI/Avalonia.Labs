@@ -68,7 +68,7 @@ public class RoutedCommand : ICommand
             if (_handler is null)
             {
                 _handler ??= new RoutedCommandRequeryHandler(this);
-                RoutedCommandManager.PrivateRequerySuggestedEvent.Subscribe(RoutedCommandManager.Current, _handler);
+                CommandManager.PrivateRequerySuggestedEvent.Subscribe(CommandManager.Current, _handler);
             }
         }
         remove
@@ -77,7 +77,7 @@ public class RoutedCommand : ICommand
             
             if (_handler is not null && _canExecuteChanged is null)
             {
-                RoutedCommandManager.PrivateRequerySuggestedEvent.Unsubscribe(RoutedCommandManager.Current, _handler);
+                CommandManager.PrivateRequerySuggestedEvent.Unsubscribe(CommandManager.Current, _handler);
                 _handler = null;
             }
         }
@@ -111,10 +111,10 @@ public class RoutedCommand : ICommand
     }
 
     bool ICommand.CanExecute(object? parameter) =>
-        CanExecuteCore(parameter, RoutedCommandManager.FocusedElement, out _);
+        CanExecuteCore(parameter, CommandManager.FocusedElement, out _);
 
     void ICommand.Execute(object? parameter) =>
-        ExecuteCore(parameter, RoutedCommandManager.FocusedElement);
+        ExecuteCore(parameter, CommandManager.FocusedElement);
 
     internal bool CanExecuteCore(object? parameter, IInputElement? target, out bool continueRouting)
     {
@@ -122,7 +122,7 @@ public class RoutedCommand : ICommand
         {
             var args = new CanExecuteRoutedEventArgs(this, parameter)
             {
-                RoutedEvent = RoutedCommandManager.CanExecuteEvent
+                RoutedEvent = CommandManager.CanExecuteEvent
             };
             target.RaiseEvent(args);
 
@@ -142,7 +142,7 @@ public class RoutedCommand : ICommand
         {
             var args = new ExecutedRoutedEventArgs(this, parameter)
             {
-                RoutedEvent = RoutedCommandManager.ExecutedEvent
+                RoutedEvent = CommandManager.ExecutedEvent
             };
             target.RaiseEvent(args);
 

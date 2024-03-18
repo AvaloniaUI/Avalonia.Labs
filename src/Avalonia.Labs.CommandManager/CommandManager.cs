@@ -9,13 +9,13 @@ using Avalonia.Utilities;
 namespace Avalonia.Labs.Input;
 
 /// <summary>
-/// Provides command related utility methods that register <see cref="RoutedCommandBinding"/> objects for class owners and commands,
+/// Provides command related utility methods that register <see cref="CommandBinding"/> objects for class owners and commands,
 /// add and remove command event handlers, and provides services for querying the status of a command.
 /// </summary>
-public sealed class RoutedCommandManager : AvaloniaObject
+public sealed class CommandManager : AvaloniaObject
 {
     [ThreadStatic]
-    private static RoutedCommandManager? s_commandManager;
+    private static CommandManager? s_commandManager;
     private static readonly WeakReference<IInputElement?> s_inputElement = new(default);
 
     private DispatcherOperation? _requerySuggestedOperation;
@@ -25,22 +25,22 @@ public sealed class RoutedCommandManager : AvaloniaObject
     /// Identifies the CanExecute attached event.
     /// </summary>
     public static RoutedEvent<CanExecuteRoutedEventArgs> CanExecuteEvent =
-        RoutedEvent.Register<CanExecuteRoutedEventArgs>("CanExecute", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(RoutedCommandManager));
+        RoutedEvent.Register<CanExecuteRoutedEventArgs>("CanExecute", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(CommandManager));
 
     /// <summary>
     /// Identifies the Executed attached event.
     /// </summary>
     public static RoutedEvent<ExecutedRoutedEventArgs> ExecutedEvent =
-        RoutedEvent.Register<ExecutedRoutedEventArgs>("Executed", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(RoutedCommandManager));
+        RoutedEvent.Register<ExecutedRoutedEventArgs>("Executed", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(CommandManager));
 
     /// <summary>
     /// Defines the <see cref="CommandBindings"/> property.
     /// </summary>
-    public static readonly AttachedProperty<IList<RoutedCommandBinding>?> CommandBindingsProperty =
-        AvaloniaProperty.RegisterAttached<RoutedCommandManager, InputElement, IList<RoutedCommandBinding>?>("CommandBindings");
+    public static readonly AttachedProperty<IList<CommandBinding>?> CommandBindingsProperty =
+        AvaloniaProperty.RegisterAttached<CommandManager, InputElement, IList<CommandBinding>?>("CommandBindings");
 
     /// <summary>
-    /// Occurs when the <see cref="RoutedCommandManager"/> detects conditions that might change the ability of a command to execute.
+    /// Occurs when the <see cref="CommandManager"/> detects conditions that might change the ability of a command to execute.
     /// </summary>
     public static event EventHandler RequerySuggested
     {
@@ -49,8 +49,8 @@ public sealed class RoutedCommandManager : AvaloniaObject
         remove => PrivateRequerySuggestedEvent.Unsubscribe(Current, new WeakHandlerWrapper(value));
     }
 
-    internal static readonly WeakEvent<RoutedCommandManager, EventArgs> PrivateRequerySuggestedEvent =
-        WeakEvent.Register<RoutedCommandManager>(
+    internal static readonly WeakEvent<CommandManager, EventArgs> PrivateRequerySuggestedEvent =
+        WeakEvent.Register<CommandManager>(
             (m, v) => m.PrivateRequerySuggested += v,
             (m, v) => m.PrivateRequerySuggested -= v);
 
@@ -65,12 +65,12 @@ public sealed class RoutedCommandManager : AvaloniaObject
     /// <summary>
     /// Gets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
     /// </summary>
-    public static IList<RoutedCommandBinding> GetCommandBindings(InputElement element)
+    public static IList<CommandBinding> GetCommandBindings(InputElement element)
     {
         var commands = element.GetValue(CommandBindingsProperty);
         if (commands is null)
         {
-            commands = new List<RoutedCommandBinding>();
+            commands = new List<CommandBinding>();
             element.SetValue(CommandBindingsProperty, commands);
         }
         return commands;
@@ -79,10 +79,10 @@ public sealed class RoutedCommandManager : AvaloniaObject
     /// <summary>
     /// Sets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
     /// </summary>
-    public static void SetCommandBindings(InputElement element, IList<RoutedCommandBinding> commands) =>
+    public static void SetCommandBindings(InputElement element, IList<CommandBinding> commands) =>
         element.SetValue(CommandBindingsProperty, commands);
     
-    static RoutedCommandManager()
+    static CommandManager()
     {
         CanExecuteEvent.AddClassHandler<InputElement>(CanExecuteEventHandler);
         ExecutedEvent.AddClassHandler<InputElement>(ExecutedEventHandler);
@@ -90,11 +90,11 @@ public sealed class RoutedCommandManager : AvaloniaObject
         InputElement.KeyDownEvent.AddClassHandler<InputElement>(KeyDownEventHandler, RoutingStrategies.Tunnel);
     }
 
-    private RoutedCommandManager()
+    private CommandManager()
     {
     }
 
-    internal static RoutedCommandManager Current => s_commandManager ??= new RoutedCommandManager();
+    internal static CommandManager Current => s_commandManager ??= new CommandManager();
 
     internal static IInputElement? FocusedElement => s_inputElement.TryGetTarget(out var element) ? element : default;
 
