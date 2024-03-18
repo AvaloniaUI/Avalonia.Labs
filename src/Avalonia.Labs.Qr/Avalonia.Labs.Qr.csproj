@@ -3,7 +3,6 @@
       <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
       <LangVersion>latest</LangVersion>
       <IsPackable>true</IsPackable>
-      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />

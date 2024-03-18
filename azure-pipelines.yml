@@ -9,16 +9,10 @@ steps:
     - task: CmdLine@2
       displayName: Install workload
       inputs:
-          script: dotnet workload install ios android wasm-tools wasm-experimental
+          script: dotnet workload install ios android wasm-tools
     - task: DotNetCoreCLI@2
       inputs:
           command: test
-    - task: DotNetCoreCLI@2
-      displayName: Pack
-      inputs:
-          projects: src/**/*.csproj
-          command: build
-          verbosityPack: normal
     - task: DotNetCoreCLI@2
       displayName: Pack
       inputs:

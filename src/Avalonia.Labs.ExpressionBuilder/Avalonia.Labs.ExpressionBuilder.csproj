@@ -6,7 +6,6 @@
     <Nullable>disable</Nullable>
     <IsPackable>true</IsPackable>
     <NoWarn>1701;1702;8305</NoWarn>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
