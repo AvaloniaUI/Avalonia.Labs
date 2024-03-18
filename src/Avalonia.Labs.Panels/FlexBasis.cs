@@ -38,7 +38,7 @@ public readonly struct FlexBasis : IEquatable<FlexBasis>
         obj is FlexBasis other && Equals(other);
 
     public override int GetHashCode() =>
-        HashCode.Combine(Value, (int)Kind);
+        (Value, Kind).GetHashCode();
 
     public static bool operator ==(FlexBasis left, FlexBasis right) =>
         left.Equals(right);
@@ -62,7 +62,7 @@ public readonly struct FlexBasis : IEquatable<FlexBasis>
         return str.ToUpperInvariant() switch
         {
             "AUTO" => Auto,
-            var s when s.EndsWith("%") => new FlexBasis(ParseDouble(s[..^1].Trim()) / 100, FlexBasisKind.Relative),
+            var s when s.EndsWith("%") => new FlexBasis(ParseDouble(s.TrimEnd('%').TrimEnd()) / 100, FlexBasisKind.Relative),
             _ => new FlexBasis(ParseDouble(str), FlexBasisKind.Absolute),
         };
         double ParseDouble(string s) => double.Parse(s, CultureInfo.InvariantCulture);

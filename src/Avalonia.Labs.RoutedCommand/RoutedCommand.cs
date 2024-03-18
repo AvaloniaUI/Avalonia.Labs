@@ -27,7 +27,8 @@ public class RoutedCommand : ICommand
         Name = name;
     }
 
-    event EventHandler ICommand.CanExecuteChanged
+
+    event EventHandler? ICommand.CanExecuteChanged
     {
         add
         {
@@ -78,10 +79,10 @@ public class RoutedCommand : ICommand
         ExecuteImpl(parameter, target);
     }
 
-    bool ICommand.CanExecute(object parameter) =>
+    bool ICommand.CanExecute(object? parameter) =>
         CanExecuteImpl(parameter, RoutedCommandManager.FocusedElement, out _);
 
-    void ICommand.Execute(object parameter) =>
+    void ICommand.Execute(object? parameter) =>
         ExecuteImpl(parameter, RoutedCommandManager.FocusedElement);
 
     private bool CanExecuteImpl(object? parameter, IInputElement? target, out bool continueRouting)
