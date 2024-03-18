@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Qr", "src\Ava
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Lottie", "src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj", "{633A51E9-65E7-4350-9AE6-E527FECD15F9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.RoutedCommand", "src\Avalonia.Labs.RoutedCommand\Avalonia.Labs.RoutedCommand.csproj", "{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Panels", "src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj", "{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Labs.ExpressionBuilder", "src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj", "{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}"
@@ -93,6 +95,10 @@ Global
 		{633A51E9-65E7-4350-9AE6-E527FECD15F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{633A51E9-65E7-4350-9AE6-E527FECD15F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{633A51E9-65E7-4350-9AE6-E527FECD15F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CCD9CC7-CAA3-4F97-86D2-A789107B7F30}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEDDF9B6-5B8D-4524-975C-485F87DDE7A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
