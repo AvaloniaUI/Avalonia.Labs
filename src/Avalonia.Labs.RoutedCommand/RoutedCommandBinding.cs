@@ -7,17 +7,26 @@ namespace Avalonia.Labs.Input;
 /// </summary>
 public sealed class RoutedCommandBinding : AvaloniaObject
 {
+    /// <summary>
+    /// Defines the <see cref="RoutedCommand"/> property.
+    /// </summary>
     public static readonly DirectProperty<RoutedCommandBinding, RoutedCommand?> RoutedCommandProperty =
         AvaloniaProperty.RegisterDirect<RoutedCommandBinding, RoutedCommand?>(nameof(RoutedCommand),
             o => o.RoutedCommand,
             (o, v) => o.RoutedCommand = v);
 
+    /// <summary>
+    /// Defines the <see cref="ExecutingCommand"/> property.
+    /// </summary>
     public static readonly DirectProperty<RoutedCommandBinding, ICommand?> ExecutingCommandProperty =
         AvaloniaProperty.RegisterDirect<RoutedCommandBinding, ICommand?>(nameof(ExecutingCommand),
             o => o.ExecutingCommand,
             (o, v) => o.ExecutingCommand = v
         );
 
+    /// <summary>
+    /// Defines the <see cref="ExecutingCommandParameter"/> property.
+    /// </summary>
     public static readonly AvaloniaProperty<object?> ExecutingCommandParameterProperty =
         AvaloniaProperty.Register<RoutedCommandBinding, object?>(nameof(ExecutingCommandParameter));
 

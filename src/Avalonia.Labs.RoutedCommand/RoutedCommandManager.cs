@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Windows.Input;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -16,7 +16,10 @@ public sealed class RoutedCommandManager : AvaloniaObject
 {
     [ThreadStatic]
     private static RoutedCommandManager? s_commandManager;
+    private static readonly WeakReference<IInputElement?> s_inputElement = new(default);
+
     private DispatcherOperation? _requerySuggestedOperation;
+    private event EventHandler? PrivateRequerySuggested;
 
     /// <summary>
     /// Identifies the CanExecute attached event.
@@ -30,18 +33,15 @@ public sealed class RoutedCommandManager : AvaloniaObject
     public static RoutedEvent<ExecutedRoutedEventArgs> ExecutedEvent =
         RoutedEvent.Register<ExecutedRoutedEventArgs>("Executed", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(RoutedCommandManager));
 
-    public static readonly AttachedProperty<IList<RoutedCommandBinding>?> CommandsProperty =
-        AvaloniaProperty.RegisterAttached<RoutedCommandManager, InputElement, IList<RoutedCommandBinding>?>("Commands");
+    /// <summary>
+    /// Defines the <see cref="CommandBindings"/> property.
+    /// </summary>
+    public static readonly AttachedProperty<IList<RoutedCommandBinding>?> CommandBindingsProperty =
+        AvaloniaProperty.RegisterAttached<RoutedCommandManager, InputElement, IList<RoutedCommandBinding>?>("CommandBindings");
 
-    private static readonly WeakReference<IInputElement?> s_inputElement = 
-        new WeakReference<IInputElement?>(default);
-
-    internal static readonly WeakEvent<RoutedCommandManager, EventArgs> PrivateRequerySuggestedEvent =
-        WeakEvent.Register<RoutedCommandManager>(
-            (m, v) => m.PrivateRequerySuggested += v,
-            (m, v) => m.PrivateRequerySuggested -= v);
-
-    private event EventHandler? PrivateRequerySuggested;
+    /// <summary>
+    /// Occurs when the <see cref="RoutedCommandManager"/> detects conditions that might change the ability of a command to execute.
+    /// </summary>
     public static event EventHandler RequerySuggested
     {
         // WeakHandlerWrapper will ensure, that add/remove with the same handler will work.
@@ -49,11 +49,45 @@ public sealed class RoutedCommandManager : AvaloniaObject
         remove => PrivateRequerySuggestedEvent.Unsubscribe(Current, new WeakHandlerWrapper(value));
     }
 
+    internal static readonly WeakEvent<RoutedCommandManager, EventArgs> PrivateRequerySuggestedEvent =
+        WeakEvent.Register<RoutedCommandManager>(
+            (m, v) => m.PrivateRequerySuggested += v,
+            (m, v) => m.PrivateRequerySuggested -= v);
+
+    /// <summary>
+    /// Invokes RequerySuggested listeners registered on the current thread.
+    /// </summary>
+    public static void InvalidateRequerySuggested()
+    {
+        Current.RaiseRequerySuggested();
+    }
+
+    /// <summary>
+    /// Gets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
+    /// </summary>
+    public static IList<RoutedCommandBinding> GetCommandBindings(InputElement element)
+    {
+        var commands = element.GetValue(CommandBindingsProperty);
+        if (commands is null)
+        {
+            commands = new List<RoutedCommandBinding>();
+            element.SetValue(CommandBindingsProperty, commands);
+        }
+        return commands;
+    }
+
+    /// <summary>
+    /// Sets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
+    /// </summary>
+    public static void SetCommandBindings(InputElement element, IList<RoutedCommandBinding> commands) =>
+        element.SetValue(CommandBindingsProperty, commands);
+    
     static RoutedCommandManager()
     {
         CanExecuteEvent.AddClassHandler<InputElement>(CanExecuteEventHandler);
         ExecutedEvent.AddClassHandler<InputElement>(ExecutedEventHandler);
-        InputElement.GotFocusEvent.AddClassHandler<Interactive>(GotFocusEventHandler);
+        InputElement.GotFocusEvent.AddClassHandler<InputElement>(GotFocusEventHandler);
+        InputElement.KeyDownEvent.AddClassHandler<InputElement>(KeyDownEventHandler, RoutingStrategies.Tunnel);
     }
 
     private RoutedCommandManager()
@@ -64,54 +98,125 @@ public sealed class RoutedCommandManager : AvaloniaObject
 
     internal static IInputElement? FocusedElement => s_inputElement.TryGetTarget(out var element) ? element : default;
 
-    private static void GotFocusEventHandler(Interactive control, GotFocusEventArgs args)
+    private static void GotFocusEventHandler(InputElement targetElement, GotFocusEventArgs args)
     {
         s_inputElement.SetTarget(args.Source as IInputElement);
         Current.RaiseRequerySuggested();
     }
 
-    /// <summary>
-    /// Invokes RequerySuggested listeners registered on the current thread.
-    /// </summary>
-    public static void InvalidateRequerySuggested()
+    private static void KeyDownEventHandler(InputElement targetElement, KeyEventArgs inputEventArgs)
     {
-        Current.RaiseRequerySuggested();
-    }
-    
-    public static IList<RoutedCommandBinding> GetCommands(InputElement element)
-    {
-        var commands = element.GetValue(CommandsProperty);
-        if (commands is null)
-        {
-            commands = new List<RoutedCommandBinding>();
-            element.SetValue(CommandsProperty, commands);
-        }
-        return commands;
-    }
+        ICommand? command = null;
+        IInputElement? target = null;
+        object? parameter = null;
 
-    public static void SetCommands(InputElement element, IList<RoutedCommandBinding> commands) =>
-        element.SetValue(CommandsProperty, commands);
+        // Step 1: Check local input bindings
+        // TODO
+        
+        // Step 2: If no command, check class input bindings
+        // TODO
+        
+        // Step 3: If no command, check local command bindings
+        if (GetCommandBindings(targetElement) is { Count :> 0 } bindings)
+        {
+            command = FindMatch();
+
+            ICommand? FindMatch()
+            {
+                foreach (var binding in bindings)
+                {
+                    if (binding.RoutedCommand is { } routedCommand)
+                    {
+                        foreach (var gesture in routedCommand.Gestures)
+                        {
+                            if (gesture.Matches(inputEventArgs))
+                            {
+                                // TODO: wpf doesn't set DataContext here as it seems, should we?
+                                parameter = (inputEventArgs.Source as InputElement)?.DataContext;
+                                return routedCommand;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+        }
+
+        // Step 4: If no command, look at class command bindings
+        // TODO
+        
+        // Step 5: If found a command, then execute it (unless it is
+        // the special "NotACommand" command, which we simply ignore without
+        // setting Handled=true, so that the input bubbles up to the parent)
+        if (command != null && command != AvaloniaCommands.NotACommand)
+        {
+            // We currently do not support declaring the element with focus as the target
+            // element by setting target == null.  Instead, we interpret a null target to indicate
+            // the element that we are routing the event through, e.g. the targetElement parameter.
+            if (target == null)
+            {
+                target = targetElement;
+            }
+
+            bool continueRouting = false;
+
+            if (command is RoutedCommand routedCommand)
+            {
+                if (routedCommand.CanExecuteCore(parameter, target, out continueRouting))
+                {
+                    // If the command can be executed, we never continue to route the
+                    // input event.
+                    continueRouting = false;
+
+                    routedCommand.ExecuteCore(parameter, target);
+                }
+            }
+            else
+            {
+                if (command.CanExecute(parameter))
+                {
+                    command.Execute(parameter);
+                }
+            }
+
+            // If we mapped an input event to a command, we should always
+            // handle the input event - regardless of whether the command
+            // was executed or not.  Unless the CanExecute handler told us
+            // to continue the route.
+            inputEventArgs.Handled = !continueRouting;
+        }
+    }
 
     private static void CanExecuteEventHandler(InputElement inputElement, CanExecuteRoutedEventArgs args)
     {
-        if (GetCommands(inputElement) is { } commands)
+        if (GetCommandBindings(inputElement) is { Count :> 0 } commands)
         {
-            var binding = commands
-                .Where(c => c != null)
-                .FirstOrDefault(c => c.RoutedCommand == args.Command && c.DoCanExecute(inputElement, args));
-            if(!args.Handled)
-                args.CanExecute = binding != null;
+            foreach (var command in commands)
+            {
+                if (command.RoutedCommand == args.Command && command.DoCanExecute(inputElement, args))
+                {
+                    if (!args.Handled)
+                    {
+                        args.CanExecute = true;
+                    }
+
+                    break;
+                }
+            }
         }
     }
 
     private static void ExecutedEventHandler(InputElement inputElement, ExecutedRoutedEventArgs args)
     {
-        if (GetCommands(inputElement) is { } commands)
+        if (GetCommandBindings(inputElement) is { Count :> 0 } commands)
         {
-            // ReSharper disable once UnusedVariable
-            var binding = commands
-                .Where(c => c != null)
-                .FirstOrDefault(c => c.RoutedCommand == args.Command && c.DoExecuted(inputElement, args));
+            foreach (var command in commands)
+            {
+                if (command.RoutedCommand == args.Command && command.DoExecuted(inputElement, args))
+                {
+                    break;
+                }
+            }
         }
     }
     

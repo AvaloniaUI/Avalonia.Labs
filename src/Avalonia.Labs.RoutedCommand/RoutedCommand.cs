@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 using Avalonia.Input;
 using Avalonia.Utilities;
@@ -12,6 +13,7 @@ public class RoutedCommand : ICommand
 {
     private EventHandler? _canExecuteChanged;
     private RoutedCommandRequeryHandler? _handler;
+    private IList<KeyGesture>? _gestures;
 
     /// <summary>
     /// Gets the name of the command.
@@ -19,14 +21,43 @@ public class RoutedCommand : ICommand
     public string Name { get; }
 
     /// <summary>
+    /// Gets the list of <see cref="KeyGesture"/> object that are associated with this command.
+    /// </summary>
+    public IList<KeyGesture> Gestures
+    {
+        get => _gestures ??= new List<KeyGesture>();
+        set => _gestures = value;
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="RoutedCommand"/> class with the specified name.
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Declared name.</param>
     public RoutedCommand(string name)
     {
         Name = name;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutedCommand"/> class with the specified name.
+    /// </summary>
+    /// <param name="name">Declared name.</param>
+    /// <param name="gestures">Default input gestures associated with this command.</param>
+    public RoutedCommand(string name, IList<KeyGesture> gestures)
+        : this(name)
+    {
+        Gestures = gestures;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutedCommand"/> class with the specified name.
+    /// </summary>
+    /// <param name="name">Declared name.</param>
+    /// <param name="gesture">Default input gestures associated with this command.</param>
+    public RoutedCommand(string name, KeyGesture gesture)
+        : this(name, [gesture])
+    {
+    }
 
     event EventHandler? ICommand.CanExecuteChanged
     {
@@ -63,7 +94,7 @@ public class RoutedCommand : ICommand
         if (target == null)
             throw new ArgumentNullException(nameof(target));
 
-        return CanExecuteImpl(parameter, target, out _);
+        return CanExecuteCore(parameter, target, out _);
     }
 
     /// <summary>
@@ -76,16 +107,16 @@ public class RoutedCommand : ICommand
         if (target == null)
             throw new ArgumentNullException(nameof(target));
 
-        ExecuteImpl(parameter, target);
+        ExecuteCore(parameter, target);
     }
 
     bool ICommand.CanExecute(object? parameter) =>
-        CanExecuteImpl(parameter, RoutedCommandManager.FocusedElement, out _);
+        CanExecuteCore(parameter, RoutedCommandManager.FocusedElement, out _);
 
     void ICommand.Execute(object? parameter) =>
-        ExecuteImpl(parameter, RoutedCommandManager.FocusedElement);
+        ExecuteCore(parameter, RoutedCommandManager.FocusedElement);
 
-    private bool CanExecuteImpl(object? parameter, IInputElement? target, out bool continueRouting)
+    internal bool CanExecuteCore(object? parameter, IInputElement? target, out bool continueRouting)
     {
         if (target != null)
         {
@@ -105,7 +136,7 @@ public class RoutedCommand : ICommand
         }
     }
 
-    private bool ExecuteImpl(object? parameter, IInputElement? target)
+    internal bool ExecuteCore(object? parameter, IInputElement? target)
     {
         if (target is not null)
         {
