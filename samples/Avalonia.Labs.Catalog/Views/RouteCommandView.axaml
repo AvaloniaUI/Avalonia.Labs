@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:lab="clr-namespace:Avalonia.Labs.Catalog"
-             xmlns:rc="clr-namespace:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
+             xmlns:rc="clr-namespace:Avalonia.Labs.Input;assembly=Avalonia.Labs.CommandManager"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
              x:Class="Avalonia.Labs.Catalog.Views.RouteCommandView"
@@ -11,27 +11,17 @@
              HorizontalContentAlignment="Stretch"
              VerticalContentAlignment="Stretch"
              >
-  <rc:RoutedCommandManager.Commands>
-    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
-    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
-  </rc:RoutedCommandManager.Commands>
+  <rc:CommandManager.CommandBindings>
+    <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
+    <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
+    <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Delete}" ExecutingCommand="{Binding Delete}" />
+  </rc:CommandManager.CommandBindings>
   <StackPanel>
-    <UniformGrid Columns="10">
-      <Button Content="Del"
-              Command="{x:Static lab:ApplicationCommands.Delete}"
-              Focusable="False"/>
-    </UniformGrid>
     <ItemsControl Grid.IsSharedSizeScope="True"
               ItemsSource="{Binding Dettails}">
       <ItemsControl.ItemTemplate>
         <DataTemplate DataType="viewModels:RouteCommandItemViewModel">
           <Grid>
-            <rc:RoutedCommandManager.Commands>
-              <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Delete}"
-                                       ExecutingCommand="{Binding Delete}"
-                                       ExecutingCommandParameter="{Binding .}"
-                                       />
-            </rc:RoutedCommandManager.Commands>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -18,7 +19,10 @@ public class RouteCommandViewModel : ViewModelBase, IViewBinder
 
     public bool CanOpen(object? parameter)
     {
-        if (TopLevel.GetTopLevel(View)?.StorageProvider is { CanOpen: true } && parameter is RouteCommandItemViewModel item && item.HasChanges == false)
+        if (TopLevel.GetTopLevel(View)?.StorageProvider is { CanOpen: true } && parameter is RouteCommandItemViewModel
+            {
+                HasChanges: false
+            } or null)
         {
             return true;
         }
@@ -53,8 +57,20 @@ public class RouteCommandViewModel : ViewModelBase, IViewBinder
         await Task.CompletedTask;
     }
 
-    public IReadOnlyList<RouteCommandItemViewModel> Dettails { get; } =
-        new RouteCommandItemViewModel[]
+    public bool CanDelete(object? parameter) =>
+        parameter is RouteCommandItemViewModel;
+
+    public void Delete(object? parameter)
+    {
+        if (parameter is RouteCommandItemViewModel item)
+        {
+            Dettails.Remove(item);
+            item.Accept();
+        }
+    }
+    
+    public ObservableCollection<RouteCommandItemViewModel> Dettails { get; } =
+        new ObservableCollection<RouteCommandItemViewModel>()
         {
             new() {Id = 1},
             new() {Id = 2},

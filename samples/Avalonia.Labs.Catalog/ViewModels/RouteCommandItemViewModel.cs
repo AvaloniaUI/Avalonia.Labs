@@ -25,9 +25,4 @@ public class RouteCommandItemViewModel : ViewModelBase
     {
         HasChanges = false;
     }
-
-    public void Delete(object? parameter)
-    {
-
-    }
 }

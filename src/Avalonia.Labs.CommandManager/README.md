@@ -8,18 +8,18 @@ the currently supported flow is this:
 sequenceDiagram
     participant RotendCommand
     participant View
-    participant RoutedCommandManager
+    participant CommandManager
     participant ViewModel
     participant TopLevel
-    TopLevel->>RoutedCommandManager: Got Focus
-    RoutedCommandManager->>RotendCommand: Raise CanExecuteChanged
-    RotendCommand->>View: Raise RoutedCommandManager.CanExecuteEvent
-    View->>RoutedCommandManager: Raise RoutedCommandManager.CanExecuteEvent
-    RoutedCommandManager->>ViewModel: ICommand.CanExecute
-    RoutedCommandManager->>RotendCommand: Handle=True
-    RotendCommand->>View: Raise RoutedCommandManager.ExecuteEvent
-    View->>RoutedCommandManager: Raise RoutedCommandManager.ExecuteEvent
-    RoutedCommandManager->>ViewModel: ICommand.Execute
+    TopLevel->>CommandManager: Got Focus
+    CommandManager->>RotendCommand: Raise CanExecuteChanged
+    RotendCommand->>View: Raise CommandManager.CanExecuteEvent
+    View->>CommandManager: Raise CommandManager.CanExecuteEvent
+    CommandManager->>ViewModel: ICommand.CanExecute
+    CommandManager->>RotendCommand: Handle=True
+    RotendCommand->>View: Raise CommandManager.ExecuteEvent
+    View->>CommandManager: Raise CommandManager.ExecuteEvent
+    CommandManager->>ViewModel: ICommand.Execute
 ``````
 
 ## Get Started
@@ -27,7 +27,7 @@ sequenceDiagram
 01. Install package
 
     ```bash
-    dotnet add package package Avalonia.Labs.RoutedCommand
+    dotnet add package package Avalonia.Labs.CommandManager
     ```
 
 02. Add XML Namespace
@@ -82,7 +82,7 @@ sequenceDiagram
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:lab="using:Avalonia.Labs.Catalog"
-                xmlns:rc="using:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
+                xmlns:rc="using:Avalonia.Labs.Input"
                 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                 xmlns:viewModels="using:Avalonia.Labs.Catalog.ViewModels"
                 x:Class="Avalonia.Labs.Catalog.Views.RouteCommandView"
@@ -90,10 +90,10 @@ sequenceDiagram
                 HorizontalContentAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
                 >
-    <rc:RoutedCommandManager.Commands>
-        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
-        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
-    </rc:RoutedCommandManager.Commands>
+    <rc:CommandManager.Commands>
+        <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
+        <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
+    </rc:CommandManager.Commands>
     ...
     </UserControl>
     ```
