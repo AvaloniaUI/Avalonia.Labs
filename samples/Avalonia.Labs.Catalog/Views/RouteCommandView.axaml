@@ -11,10 +11,10 @@
              HorizontalContentAlignment="Stretch"
              VerticalContentAlignment="Stretch"
              >
-  <rc:RoutedCommandsManager.Commands>
-    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" Command="{Binding Open}" />
-    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" Command="{Binding Save}" />
-  </rc:RoutedCommandsManager.Commands>
+  <rc:RoutedCommandManager.Commands>
+    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
+    <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
+  </rc:RoutedCommandManager.Commands>
   <StackPanel>
     <UniformGrid Columns="10">
       <Button Content="Del"
@@ -26,12 +26,12 @@
       <ItemsControl.ItemTemplate>
         <DataTemplate DataType="viewModels:RouteCommandItemViewModel">
           <Grid>
-            <rc:RoutedCommandsManager.Commands>
+            <rc:RoutedCommandManager.Commands>
               <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Delete}"
-                                       Command="{Binding Delete}"
-                                       CommandParameter="{Binding .}"
+                                       ExecutingCommand="{Binding Delete}"
+                                       ExecutingCommandParameter="{Binding .}"
                                        />
-            </rc:RoutedCommandsManager.Commands>
+            </rc:RoutedCommandManager.Commands>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>

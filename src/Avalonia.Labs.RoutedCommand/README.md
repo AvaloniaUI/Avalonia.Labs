@@ -8,18 +8,18 @@ the currently supported flow is this:
 sequenceDiagram
     participant RotendCommand
     participant View
-    participant RoutedCommandsManager
+    participant RoutedCommandManager
     participant ViewModel
     participant TopLevel
-    TopLevel->>RoutedCommandsManager: Got Focus
-    RoutedCommandsManager->>RotendCommand: Raise CanExecuteChanged
-    RotendCommand->>View: Raise RoutedCommandsManager.CanExecuteEvent
-    View->>RoutedCommandsManager: Raise RoutedCommandsManager.CanExecuteEvent
-    RoutedCommandsManager->>ViewModel: ICommand.CanExecute
-    RoutedCommandsManager->>RotendCommand: Handle=True
-    RotendCommand->>View: Raise RoutedCommandsManager.ExecuteEvent
-    View->>RoutedCommandsManager: Raise RoutedCommandsManager.ExecuteEvent
-    RoutedCommandsManager->>ViewModel: ICommand.Execute
+    TopLevel->>RoutedCommandManager: Got Focus
+    RoutedCommandManager->>RotendCommand: Raise CanExecuteChanged
+    RotendCommand->>View: Raise RoutedCommandManager.CanExecuteEvent
+    View->>RoutedCommandManager: Raise RoutedCommandManager.CanExecuteEvent
+    RoutedCommandManager->>ViewModel: ICommand.CanExecute
+    RoutedCommandManager->>RotendCommand: Handle=True
+    RotendCommand->>View: Raise RoutedCommandManager.ExecuteEvent
+    View->>RoutedCommandManager: Raise RoutedCommandManager.ExecuteEvent
+    RoutedCommandManager->>ViewModel: ICommand.Execute
 ``````
 
 ## Get Started
@@ -37,10 +37,10 @@ sequenceDiagram
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:lab="clr-namespace:Avalonia.Labs.Catalog"
-    +             xmlns:rc="clr-namespace:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
+                xmlns:lab="using:Avalonia.Labs.Catalog"
+    +             xmlns:rc="using:Avalonia.Labs.Input"
                 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+                xmlns:viewModels="using:Avalonia.Labs.Catalog.ViewModels"
                 x:Class="Avalonia.Labs.Catalog.Views.RouteCommandView"
                 x:DataType="viewModels:RouteCommandViewModel"
                 HorizontalContentAlignment="Stretch"
@@ -60,7 +60,7 @@ sequenceDiagram
     }
     ```
 
-04. Assing your `RotedCommand`
+04. Assign your `RotedCommand`
 
     ```xaml
             <UniformGrid Columns="2"
@@ -74,26 +74,26 @@ sequenceDiagram
             </UniformGrid>
     ```
 
-05. Binding `RouterCommand` to your's ViewModel
+05. Binding `RouterCommand` to yours ViewModel
 
     ```xaml
     <UserControl xmlns="https://github.com/avaloniaui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:lab="clr-namespace:Avalonia.Labs.Catalog"
-                xmlns:rc="clr-namespace:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
+                xmlns:lab="using:Avalonia.Labs.Catalog"
+                xmlns:rc="using:Avalonia.Labs.Input;assembly=Avalonia.Labs.RoutedCommand"
                 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+                xmlns:viewModels="using:Avalonia.Labs.Catalog.ViewModels"
                 x:Class="Avalonia.Labs.Catalog.Views.RouteCommandView"
                 x:DataType="viewModels:RouteCommandViewModel"
                 HorizontalContentAlignment="Stretch"
                 VerticalContentAlignment="Stretch"
                 >
-    <rc:RoutedCommandsManager.Commands>
-        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" Command="{Binding Open}" />
-        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" Command="{Binding Save}" />
-    </rc:RoutedCommandsManager.Commands>
+    <rc:RoutedCommandManager.Commands>
+        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
+        <rc:RoutedCommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
+    </rc:RoutedCommandManager.Commands>
     ...
     </UserControl>
     ```

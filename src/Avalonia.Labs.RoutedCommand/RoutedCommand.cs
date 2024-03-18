@@ -1,55 +1,127 @@
 ﻿using System;
 using System.Windows.Input;
 using Avalonia.Input;
+using Avalonia.Utilities;
 
 namespace Avalonia.Labs.Input;
 
-public partial class RoutedCommand : ICommand
+/// <summary>
+/// Defines a command that implements <see cref="ICommand"/> and is routed through the element tree.
+/// </summary>
+public class RoutedCommand : ICommand
 {
-    public string Name { get; }
-    public KeyGesture? Gesture { get; }
+    private EventHandler? _canExecuteChanged;
+    private RoutedCommandRequeryHandler? _handler;
 
-    public RoutedCommand(string name, KeyGesture? keyGesture = default)
+    /// <summary>
+    /// Gets the name of the command.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutedCommand"/> class with the specified name.
+    /// </summary>
+    /// <param name="name"></param>
+    public RoutedCommand(string name)
     {
         Name = name;
-        Gesture = keyGesture;
     }
 
     event EventHandler ICommand.CanExecuteChanged
     {
         add
         {
-            RoutedCommandsManager.Invalidate += value;
+            _canExecuteChanged += value;
+
+            if (_handler is null)
+            {
+                _handler ??= new RoutedCommandRequeryHandler(this);
+                RoutedCommandManager.PrivateRequerySuggestedEvent.Subscribe(RoutedCommandManager.Current, _handler);
+            }
         }
         remove
         {
-            RoutedCommandsManager.Invalidate -= value;
+            _canExecuteChanged -= value;
+            
+            if (_handler is not null && _canExecuteChanged is null)
+            {
+                RoutedCommandManager.PrivateRequerySuggestedEvent.Unsubscribe(RoutedCommandManager.Current, _handler);
+                _handler = null;
+            }
         }
     }
 
-    public bool CanExecute(object? parameter, IInputElement? target)
+    /// <summary>
+    /// Determines whether this <see cref="RoutedCommand"/> can execute in its current state.
+    /// </summary>
+    /// <param name="parameter">A user defined data type.</param>
+    /// <param name="target">The command target.</param>
+    /// <returns>true if the command can execute on the current command target; otherwise, false.</returns>
+    public bool CanExecute(object? parameter, IInputElement target)
     {
         if (target == null)
-            return false;
+            throw new ArgumentNullException(nameof(target));
 
-        var args = new CanExecuteRoutedEventArgs(this, parameter);
-        target.RaiseEvent(args);
-
-        return args.CanExecute;
+        return CanExecuteImpl(parameter, target, out _);
     }
 
-    public void Execute(object? parameter, IInputElement? target)
+    /// <summary>
+    /// Executes the RoutedCommand on the current command target.
+    /// </summary>
+    /// <param name="parameter">User defined parameter to be passed to the handler.</param>
+    /// <param name="target">Element at which to begin looking for command handlers.</param>
+    public void Execute(object? parameter, IInputElement target)
     {
         if (target == null)
-            return;
+            throw new ArgumentNullException(nameof(target));
 
-        var args = new ExecutedRoutedEventArgs(this, parameter);
-        target.RaiseEvent(args);
+        ExecuteImpl(parameter, target);
     }
 
     bool ICommand.CanExecute(object parameter) =>
-        CanExecute(parameter, RoutedCommandsManager.CurrentElement);
+        CanExecuteImpl(parameter, RoutedCommandManager.FocusedElement, out _);
 
     void ICommand.Execute(object parameter) =>
-        Execute(parameter, RoutedCommandsManager.CurrentElement);
+        ExecuteImpl(parameter, RoutedCommandManager.FocusedElement);
+
+    private bool CanExecuteImpl(object? parameter, IInputElement? target, out bool continueRouting)
+    {
+        if (target != null)
+        {
+            var args = new CanExecuteRoutedEventArgs(this, parameter)
+            {
+                RoutedEvent = RoutedCommandManager.CanExecuteEvent
+            };
+            target.RaiseEvent(args);
+
+            continueRouting = args.Handled;
+            return args.CanExecute;
+        }
+        else
+        {
+            continueRouting = false;
+            return false;
+        }
+    }
+
+    private bool ExecuteImpl(object? parameter, IInputElement? target)
+    {
+        if (target is not null)
+        {
+            var args = new ExecutedRoutedEventArgs(this, parameter)
+            {
+                RoutedEvent = RoutedCommandManager.ExecutedEvent
+            };
+            target.RaiseEvent(args);
+
+            return args.Handled;
+        }
+
+        return false;
+    }
+
+    private class RoutedCommandRequeryHandler(RoutedCommand command) : IWeakEventSubscriber<EventArgs>
+    {
+        public void OnEvent(object? sender, WeakEvent ev, EventArgs e) => command._canExecuteChanged?.Invoke(sender, e);
+    }
 }

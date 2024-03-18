@@ -1,92 +1,108 @@
 ﻿using System.Windows.Input;
 
-namespace Avalonia.Labs.Input
+namespace Avalonia.Labs.Input;
+
+/// <summary>
+/// Binds a <see cref="RoutedCommand"/> to the event handlers that implement the command.
+/// </summary>
+public sealed class RoutedCommandBinding : AvaloniaObject
 {
-    public sealed class RoutedCommandBinding : AvaloniaObject
+    public static readonly DirectProperty<RoutedCommandBinding, RoutedCommand?> RoutedCommandProperty =
+        AvaloniaProperty.RegisterDirect<RoutedCommandBinding, RoutedCommand?>(nameof(RoutedCommand),
+            o => o.RoutedCommand,
+            (o, v) => o.RoutedCommand = v);
+
+    public static readonly DirectProperty<RoutedCommandBinding, ICommand?> ExecutingCommandProperty =
+        AvaloniaProperty.RegisterDirect<RoutedCommandBinding, ICommand?>(nameof(ExecutingCommand),
+            o => o.ExecutingCommand,
+            (o, v) => o.ExecutingCommand = v
+        );
+
+    public static readonly AvaloniaProperty<object?> ExecutingCommandParameterProperty =
+        AvaloniaProperty.Register<RoutedCommandBinding, object?>(nameof(ExecutingCommandParameter));
+
+    private RoutedCommand? _routedCommand;
+    private ICommand? _executingCommand;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutedCommandBinding"/> class.
+    /// </summary>
+    public RoutedCommandBinding()
     {
 
-        public static readonly DirectProperty<RoutedCommandBinding, RoutedCommand?> RoutedCommandProperty =
-            AvaloniaProperty.RegisterDirect<RoutedCommandBinding, RoutedCommand?>(nameof(RoutedCommand),
-                o => o.RoutedCommand,
-                (o, v) => o.RoutedCommand = v
-                );
+    }
+        
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutedCommandBinding"/> class by using the specified handler.
+    /// </summary>
+    /// <param name="routedCommand"><see cref="RoutedCommand"/> associated with this CommandBinding</param>
+    /// <param name="executingCommand"><see cref="ICommand"/> handler for the routed command.</param>
+    public RoutedCommandBinding(RoutedCommand routedCommand, ICommand? executingCommand)
+    {
+        RoutedCommand = routedCommand;
+        ExecutingCommand = executingCommand;
+    }
 
-        public static readonly DirectProperty<RoutedCommandBinding, ICommand?> CommandProperty =
-            AvaloniaProperty.RegisterDirect<RoutedCommandBinding, ICommand?>(nameof(Command),
-                o => o.Command,
-                (o, v) => o.Command = v
-                );
+    /// <summary>
+    /// Gets or sets the <see cref="ICommand"/> associated with this CommandBinding.
+    /// </summary>
+    public RoutedCommand? RoutedCommand
+    {
+        get => _routedCommand;
+        set => SetAndRaise(RoutedCommandProperty, ref _routedCommand, value);
+    }
 
-        public static readonly AvaloniaProperty<object?> CommandParameterProperty =
-            AvaloniaProperty.Register<RoutedCommandBinding, object?>(nameof(CommandParameter));
+    /// <summary>
+    /// <see cref="ICommand"/> handler for the routed command.
+    /// </summary>
+    public ICommand? ExecutingCommand
+    {
+        get => _executingCommand;
+        set => SetAndRaise(ExecutingCommandProperty, ref _executingCommand, value);
+    }
 
+    /// <summary>
+    /// Parameter of <see cref="ICommand"/> handler for the routed command.
+    /// </summary>
+    public object? ExecutingCommandParameter
+    {
+        get => GetValue(ExecutingCommandParameterProperty);
+        set => SetValue(ExecutingCommandParameterProperty, value);
+    }
 
-        private RoutedCommand? _routedCommand;
+    internal bool DoCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        if (e.Handled)
+            return true;
 
-        private ICommand? _command;
-
-        public RoutedCommandBinding()
+        if (ExecutingCommand is { } command)
         {
-
-        }
-        public RoutedCommandBinding(RoutedCommand routedCommand, ICommand? command)
-        {
-            RoutedCommand = routedCommand;
-            Command = command;
-        }
-
-        public RoutedCommand? RoutedCommand
-        {
-            get => _routedCommand;
-            set => SetAndRaise(RoutedCommandProperty, ref _routedCommand, value);
-        }
-
-        public ICommand? Command
-        {
-            get => _command;
-            set => SetAndRaise(CommandProperty, ref _command, value);
-        }
-
-        public object? CommandParameter
-        {
-            get => GetValue(CommandParameterProperty);
-            set => SetValue(CommandParameterProperty, value);
-        }
-
-        internal bool DoCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            if (e.Handled)
-                return true;
-
-            if (Command is { } command)
+            var parameter = e.Parameter;
+            if (IsSet(ExecutingCommandParameterProperty))
             {
-                var parameter = e.Parameter;
-                if (IsSet(CommandParameterProperty))
-                {
-                    parameter = CommandParameter;
-                }
-                e.CanExecute = command.CanExecute(parameter);
-                e.Handled = true;
+                parameter = ExecutingCommandParameter;
             }
-
-            return e.CanExecute;
+            e.CanExecute = command.CanExecute(parameter);
+            e.Handled = true;
         }
 
-        internal bool DoExecuted(object sender, ExecutedRoutedEventArgs e)
+        return e.CanExecute;
+    }
+
+    internal bool DoExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (!e.Handled && (ExecutingCommand is { } command))
         {
-            if (!e.Handled && (Command is { } command))
+            var parameter = e.Parameter;
+            if (IsSet(ExecutingCommandParameterProperty))
             {
-                var parameter = e.Parameter;
-                if (IsSet(CommandParameterProperty))
-                {
-                    parameter = CommandParameter;
-                }
-                command.Execute(parameter);
-                e.Handled = true;
-                return true;
+                parameter = ExecutingCommandParameter;
             }
-
-            return false;
+            command.Execute(parameter);
+            e.Handled = true;
+            return true;
         }
+
+        return false;
     }
 }
