@@ -15,7 +15,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="compObj">The comp object.</param>
-        internal ReferenceNode(string paramName, CompositionObject compObj = null)
+        internal ReferenceNode(string? paramName, CompositionObject? compObj = null)
         {
             Reference = compObj;
             NodeType = ExpressionNodeType.Reference;
@@ -26,7 +26,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Gets the reference.
         /// </summary>
         /// <value>The reference.</value>
-        public CompositionObject Reference { get; private set; }
+        public CompositionObject? Reference { get; private set; }
 
         /// <summary>
         /// Create a reference to the specified boolean property. This maybe be a property on the CompositionObject directly, or on the its PropertySet.
@@ -122,7 +122,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Gets the reference parameter string.
         /// </summary>
         /// <returns>System.String.</returns>
-        internal string GetReferenceNodeString()
+        internal string? GetReferenceNodeString()
         {
             if (NodeType == ExpressionNodeType.TargetReference)
             {

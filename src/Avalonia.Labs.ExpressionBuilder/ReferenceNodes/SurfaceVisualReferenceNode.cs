@@ -14,7 +14,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="brush">The brush.</param>
-        internal SurfaceVisualReferenceNode(string paramName, CompositionSurfaceVisual brush = null)
+        internal SurfaceVisualReferenceNode(string? paramName, CompositionSurfaceVisual? brush = null)
             : base(paramName, brush)
         {
         }

@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
@@ -14,8 +15,8 @@ namespace Avalonia.Labs.ExpressionBuilder
     /// </summary>
     public abstract class ExpressionNode : IDisposable
     {
-        private List<ReferenceInfo> _objRefList = null;
-        private Dictionary<CompositionObject, string> _compObjToNodeNameMap = null;
+        private List<ReferenceInfo>? _objRefList = null;
+        private Dictionary<CompositionObject, string>? _compObjToNodeNameMap = null;
         private Dictionary<string, object> _constParamMap = new Dictionary<string, object>(StringComparer.CurrentCultureIgnoreCase);
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace Avalonia.Labs.ExpressionBuilder
 
             for (int i = 0; i < _objRefList.Count; i++)
             {
-                if (string.Compare(_objRefList[i].ParameterName, parameterName, true /*ignoreCase*/) == 0)
+                if (string.Compare(_objRefList[i].ParameterName, parameterName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     var item = _objRefList[i];
                     item.CompObject = compObj;
@@ -143,13 +144,13 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             _objRefList = null;
             this._compObjToNodeNameMap = null;
-            _constParamMap = null;
-            Subchannels = null;
+            _constParamMap = null!;
+            Subchannels = null!;
             PropertyName = null;
             NodeType = ExpressionNodeType.Count;
 
             // Note: we don't recursively dispose all child nodes, as those nodes could be in use by a different Expression
-            Children = null;
+            Children = null!;
 
             if (ExpressionAnimation != null)
             {
@@ -167,7 +168,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         internal static T CreateExpressionNode<T>()
             where T : ExpressionNode
         {
-            T newNode;
+            T? newNode;
 
             if (typeof(T) == typeof(BooleanNode))
             {
@@ -210,7 +211,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                 throw new Exception("unexpected type");
             }
 
-            return newNode;
+            return newNode!;
         }
 
         /// <summary>
@@ -276,6 +277,9 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Ensures the reference information.
         /// </summary>
         /// <exception cref="Exception">Reference and paramName can't both be null</exception>
+#if NET6_0_OR_GREATER
+        [MemberNotNull(nameof(_objRefList))]
+#endif
         internal void EnsureReferenceInfo()
         {
             if (_objRefList == null)
@@ -309,7 +313,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                 _objRefList = new List<ReferenceInfo>();
                 foreach (var refNode in referenceNodes)
                 {
-                    string nodeName = refNode.GetReferenceNodeString();
+                    var nodeName = refNode.GetReferenceNodeString();
 
                     if ((refNode.Reference == null) && (nodeName == null))
                     {
@@ -319,7 +323,7 @@ namespace Avalonia.Labs.ExpressionBuilder
 
                     if (nodeName == null)
                     {
-                        nodeName = this._compObjToNodeNameMap[refNode.Reference];
+                        nodeName = this._compObjToNodeNameMap[refNode.Reference!];
                     }
 
                     _objRefList.Add(new ReferenceInfo(nodeName, refNode.Reference));
@@ -372,7 +376,10 @@ namespace Avalonia.Labs.ExpressionBuilder
 
             foreach (var refInfo in _objRefList)
             {
-                animation.SetReferenceParameter(refInfo.ParameterName, refInfo.CompObject);
+                if (refInfo.CompObject is not null)
+                {
+                    animation.SetReferenceParameter(refInfo.ParameterName, refInfo.CompObject);
+                }
             }
 
             foreach (var constParam in _constParamMap)
@@ -438,7 +445,7 @@ namespace Avalonia.Labs.ExpressionBuilder
             where T : ExpressionNode
         {
             ExpressionNodeType swizzleNodeType = ExpressionNodeType.Swizzle;
-            T newNode;
+            T? newNode;
 
             switch (subchannels.GetLength(0))
             {
@@ -470,7 +477,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                     throw new Exception($"Invalid subchannel count ({subchannels.GetLength(0)})");
             }
 
-            (newNode as ExpressionNode).Subchannels = subchannels;
+            newNode!.Subchannels = subchannels;
 
             return newNode;
         }
@@ -511,14 +518,14 @@ namespace Avalonia.Labs.ExpressionBuilder
             return ExpressionFunctions.GetNodeInfoFromType(NodeType).NodeOperationKind;
         }
 
-        private string GetOperationString()
+        private string? GetOperationString()
         {
             return ExpressionFunctions.GetNodeInfoFromType(NodeType).OperationString;
         }
 
         private string ToExpressionStringInternal()
         {
-            string ret;
+            string? ret;
 
             // Do a recursive depth-first traversal of the node tree to print out the full expression string
             switch (GetOperationKind())
@@ -576,7 +583,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                     }
 
                     string swizzleString = string.Empty;
-                    foreach (var sub in Subchannels)
+                    foreach (var sub in Subchannels!)
                     {
                         swizzleString += sub;
                     }
@@ -594,7 +601,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                             throw new Exception("References cannot have children");
                         }
 
-                        ret = (this as ReferenceNode).GetReferenceNodeString();
+                        ret = ((ReferenceNode)this).GetReferenceNodeString();
                     }
                     else if (NodeType == ExpressionNodeType.ReferenceProperty)
                     {
@@ -651,7 +658,7 @@ namespace Avalonia.Labs.ExpressionBuilder
                     throw new Exception($"Unexpected operation type ({GetOperationKind()}), nodeType = {NodeType}");
             }
 
-            return ret;
+            return ret!;
         }
 
         /// <summary>
@@ -664,7 +671,7 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// </summary>
             /// <param name="paramName">Name of the parameter.</param>
             /// <param name="compObj">The comp object.</param>
-            public ReferenceInfo(string paramName, CompositionObject compObj)
+            public ReferenceInfo(string paramName, CompositionObject? compObj)
             {
                 ParameterName = paramName;
                 CompObject = compObj;
@@ -680,14 +687,14 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// Gets or sets the comp object.
             /// </summary>
             /// <value>The comp object.</value>
-            public CompositionObject CompObject { get; set; }
+            public CompositionObject? CompObject { get; set; }
         }
 
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
         /// <value>The name of the property.</value>
-        internal string PropertyName { get; set; }
+        internal string? PropertyName { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the node.
@@ -705,24 +712,24 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Gets or sets the user-defined name of the parameter.
         /// </summary>
         /// <value>The name of the parameter.</value>
-        internal string ParamName { get; set; }
+        internal string? ParamName { get; set; }
 
         /// <summary>
         /// Gets or sets the unique name for the expression node. Can be user-defined or generated.
         /// </summary>
         /// <value>The name of the parameter.</value>
-        internal string NodeName { get; set; }
+        internal string? NodeName { get; set; }
 
         /// <summary>
         /// Gets or sets the expression animation.
         /// </summary>
         /// <value>The expression animation.</value>
-        internal ExpressionAnimation ExpressionAnimation { get; set; }
+        internal ExpressionAnimation? ExpressionAnimation { get; set; }
 
         /// <summary>
         /// Gets or sets the subchannels.
         /// </summary>
         /// <value>The subchannels.</value>
-        protected internal string[] Subchannels { get; set; }
+        protected internal string[]? Subchannels { get; set; }
     }
 }

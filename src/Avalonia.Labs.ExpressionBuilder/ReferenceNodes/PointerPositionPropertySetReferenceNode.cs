@@ -14,7 +14,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="ps">The ps.</param>
-        internal PointerPositionPropertySetReferenceNode(string paramName, CompositionPropertySet ps = null)
+        internal PointerPositionPropertySetReferenceNode(string? paramName, CompositionPropertySet? ps = null)
             : base(paramName, ps)
         {
         }

@@ -1226,7 +1226,7 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// </summary>
             /// <param name="nodeOperationKind">Kind of the node operation.</param>
             /// <param name="operationString">The operation string.</param>
-            public ExpressionNodeInfo(OperationType nodeOperationKind, string operationString)
+            public ExpressionNodeInfo(OperationType nodeOperationKind, string? operationString)
             {
                 NodeOperationKind = nodeOperationKind;
                 OperationString = operationString;
@@ -1242,7 +1242,7 @@ namespace Avalonia.Labs.ExpressionBuilder
             /// Gets or sets the operation string.
             /// </summary>
             /// <value>The operation string.</value>
-            internal string OperationString { get; set; }
+            internal string? OperationString { get; set; }
         }
 
         /// <summary>

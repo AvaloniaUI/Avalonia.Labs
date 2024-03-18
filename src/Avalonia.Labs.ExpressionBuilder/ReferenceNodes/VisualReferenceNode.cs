@@ -14,7 +14,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="v">The v.</param>
-        internal VisualReferenceNode(string paramName, CompositionVisual v = null)
+        internal VisualReferenceNode(string? paramName, CompositionVisual? v = null)
             : base(paramName, v)
         {
         }

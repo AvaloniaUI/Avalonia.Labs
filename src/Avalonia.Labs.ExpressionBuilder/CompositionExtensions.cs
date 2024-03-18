@@ -144,11 +144,11 @@ namespace Avalonia.Labs.ExpressionBuilder
         {
             if (typeof(T) == typeof(ManipulationPropertySetReferenceNode))
             {
-                return new ManipulationPropertySetReferenceNode(null, ps) as T;
+                return (new ManipulationPropertySetReferenceNode(null, ps) as T)!;
             }
             else if (typeof(T) == typeof(PointerPositionPropertySetReferenceNode))
             {
-                return new PointerPositionPropertySetReferenceNode(null, ps) as T;
+                return (new PointerPositionPropertySetReferenceNode(null, ps) as T)!;
             }
             else
             {
@@ -174,7 +174,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// <param name="normalizedProgressKey">The time the key frame should occur at, expressed as a percentage of the animation Duration. Allowed value is from 0.0 to 1.0.</param>
         /// <param name="expressionNode">The root ExpressionNode that represents the ExpressionAnimation.</param>
         /// <param name="easing">The easing function to use when interpolating between frames.</param>
-        public static void InsertExpressionKeyFrame(this KeyFrameAnimation keyframeAnimation, float normalizedProgressKey, ExpressionNode expressionNode, Easing easing = null)
+        public static void InsertExpressionKeyFrame(this KeyFrameAnimation keyframeAnimation, float normalizedProgressKey, ExpressionNode expressionNode, Easing? easing = null)
         {
             expressionNode.ClearReferenceInfo();
 

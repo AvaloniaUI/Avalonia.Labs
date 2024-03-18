@@ -14,7 +14,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// </summary>
         /// <param name="paramName">Name of the parameter.</param>
         /// <param name="ps">The ps.</param>
-        internal PropertySetReferenceNode(string paramName, CompositionPropertySet ps = null)
+        internal PropertySetReferenceNode(string? paramName, CompositionPropertySet? ps = null)
             : base(paramName, ps)
         {
         }
@@ -32,7 +32,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Gets or sets the source.
         /// </summary>
         /// <value>The source.</value>
-        internal CompositionPropertySet Source { get; set; }
+        internal CompositionPropertySet? Source { get; set; }
 
         /// <summary>
         /// Creates the target reference.
