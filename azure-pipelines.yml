@@ -5,7 +5,7 @@ steps:
       displayName: Use .NET SDK
       inputs:
           packageType: sdk
-          version: 7.0.402
+          version: 8.0.203
     - task: CmdLine@2
       displayName: Install workload
       inputs:
