@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0-browser</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <WasmMainJSPath>AppBundle\main.js</WasmMainJSPath>
+    <WasmMainJSPath>wwwroot\main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <WasmExtraFilesToDeploy Include="AppBundle\**" />
+    <WasmExtraFilesToDeploy Include="wwwroot\**" />
   </ItemGroup>
 
   <ItemGroup>
