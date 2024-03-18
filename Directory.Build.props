@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <AvaloniaVersion>11.0.0</AvaloniaVersion>
     <AvaloniaSampleVersion>11.0.6</AvaloniaSampleVersion>
     <SkiaSharpVersion>2.88.3</SkiaSharpVersion>
