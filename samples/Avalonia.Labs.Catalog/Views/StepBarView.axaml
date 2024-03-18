@@ -18,6 +18,7 @@
         RowDefinitions="Auto,Auto,Auto,Auto"
         Margin="32">
     <labs:StepBar Grid.ColumnSpan="2"
+                  AnimationDuration="00:00:01"
                   x:Name="top">
       <labs:StepBarItem>Register</labs:StepBarItem>
       <labs:StepBarItem>Basinc Info</labs:StepBarItem>

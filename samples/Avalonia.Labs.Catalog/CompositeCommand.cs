@@ -15,7 +15,6 @@ internal class CompositeCommand : AvaloniaObject, ICommand
         foreach (ICommand command in _commands)
         {
             command.CanExecuteChanged += Command_CanExecuteChanged;
-            ;
         }
     }
 
