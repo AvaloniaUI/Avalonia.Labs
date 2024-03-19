@@ -12,42 +12,38 @@
   </Design.PreviewWith>
 
   <StreamGeometry x:Key="Icons.Forbidden">M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z</StreamGeometry>
+  <StreamGeometry x:Key="ComboBoxDropDownSymbol">M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z</StreamGeometry>
 
   <ControlTheme TargetType="TextBox"
                 x:Key="ComboBoxTextBoxStyle"
                 BasedOn="{StaticResource {x:Type TextBox}}">
   </ControlTheme>
 
-  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBox}"
-                TargetType="{x:Type controls:MultiSelectionComboBox}">
+  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBox}" TargetType="controls:MultiSelectionComboBox">
     <Setter Property="Padding" Value="{DynamicResource ComboBoxPadding}" />
+    <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="MaxDropDownHeight" Value="504" />
     <Setter Property="Foreground" Value="{DynamicResource ComboBoxForeground}" />
     <Setter Property="Background" Value="{DynamicResource ComboBoxBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrush}" />
     <Setter Property="BorderThickness" Value="{DynamicResource ComboBoxBorderThemeThickness}" />
-    <Setter Property="KeyboardNavigation.TabNavigation" Value="Once" />
-    <Setter Property="TextBoxTheme" Value="{StaticResource ComboBoxTextBoxStyle}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="MinHeight" Value="{DynamicResource ComboBoxMinHeight}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Top" />
-    <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
-    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="PlaceholderForeground" Value="{DynamicResource ComboBoxPlaceHolderForeground}" />
+    <Setter Property="KeyboardNavigation.TabNavigation" Value="Once" />
+    <Setter Property="TextBoxTheme" Value="{StaticResource ComboBoxTextBoxStyle}" />
     <Setter Property="ObjectToStringComparer" Value="{x:Static controls:DefaultObjectToStringComparer.Instance}" />
-    <Setter Property="ItemsPanel">
-      <ItemsPanelTemplate>
-        <VirtualizingStackPanel />
-      </ItemsPanelTemplate>
-    </Setter>
     <Setter Property="SelectedItemsItemPanel">
       <ItemsPanelTemplate>
         <WrapPanel />
       </ItemsPanelTemplate>
     </Setter>
-    <Setter Property="PlaceholderForeground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
     <Setter Property="DisabledPopupOverlayContent">
       <Template>
         <Grid RowDefinitions="*, 2*, *, Auto" ColumnDefinitions="*, 2*, *" Background="#3777">
@@ -67,230 +63,199 @@
     </Setter>
     <Setter Property="Template">
       <ControlTemplate>
-        <Grid Name="LayoutRoot"
-              ColumnDefinitions="*,38">
+        <DataValidationErrors>
+          <Grid ColumnDefinitions="*,32">
+            <Border x:Name="Background"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    MinWidth="{DynamicResource ComboBoxThemeMinWidth}" />
+            <Border x:Name="HighlightBackground"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Background="{DynamicResource ComboBoxBackgroundUnfocused}"
+                    BorderBrush="{DynamicResource ComboBoxBackgroundBorderBrushUnfocused}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    IsVisible="False" />
 
-          <Border Name="HighlightBackground"
-                  Grid.Column="0"
-                  Grid.ColumnSpan="2"
-                  Margin="-4"
-                  Background="{DynamicResource ComboBoxBackgroundFocused}"
-                  BorderBrush="{DynamicResource ComboBoxBackgroundBorderBrushFocused}"
-                  BorderThickness="{DynamicResource ComboBoxBackgroundBorderThicknessFocused}"
-                  CornerRadius="{DynamicResource ComboBoxHighlightBorderCornerRadius}"
-                  Opacity="0" />
+            <controls:MultiSelectionComboBoxSelectedItemsPresenter Name="PART_SelectedItemsPresenter"
+                                                                   Grid.Column="0"
+                                                                   IsVisible="{TemplateBinding IsEditable, Converter={x:Static BoolConverters.Not}}"
+                                                                   Margin="{TemplateBinding Padding}"
+                                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                   ItemsSource="{TemplateBinding SelectedItems}"
+                                                                   ItemsPanel="{TemplateBinding SelectedItemsItemPanel}"
+                                                                   ItemTemplate="{TemplateBinding SelectedItemTemplate}" />
+            <TextBlock Name="PlaceholderTextBlock"
+                       Grid.Column="0"
+                       Margin="{TemplateBinding Padding}"
+                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                       Foreground="{TemplateBinding PlaceholderForeground}"
+                       Text="{TemplateBinding PlaceholderText}">
+              <TextBlock.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <TemplateBinding Property="IsEditable" Converter="{x:Static BoolConverters.Not}" />
+                  <TemplateBinding Property="Text" Converter="{x:Static StringConverters.IsNotNullOrEmpty}" />
+                </MultiBinding>
+              </TextBlock.IsVisible>
+            </TextBlock>
 
-          <Border Name="Background"
-                  Grid.Column="0"
-                  Grid.ColumnSpan="2"
-                  Background="{TemplateBinding Background}"
-                  BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}"
-                  CornerRadius="{TemplateBinding CornerRadius}"
-                  TemplatedControl.IsTemplateFocusTarget="True"
-                  MinWidth="{DynamicResource ComboBoxThemeMinWidth}" />
-
-          <controls:MultiSelectionComboBoxSelectedItemsPresenter Name="PART_SelectedItemsPresenter"
-                                                                 Grid.Column="0"
-                                                                 IsVisible="{TemplateBinding IsEditable, Converter={x:Static BoolConverters.Not}}"
-                                                                 Margin="{TemplateBinding Padding}"
-                                                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                                 ItemsSource="{TemplateBinding SelectedItems}"
-                                                                 ItemsPanel="{TemplateBinding SelectedItemsItemPanel}"
-                                                                 ItemTemplate="{TemplateBinding SelectedItemTemplate}" />
-          <TextBlock Name="PlaceholderTextBlock"
+            <TextBox Name="PART_EditableTextBox"
                      Grid.Column="0"
-                     Margin="{TemplateBinding Padding}"
+                     Grid.ColumnSpan="2"
+                     Theme="{TemplateBinding TextBoxTheme}"
+                     Margin="0,0,0,0"
+                     Padding="{DynamicResource ComboBoxEditableTextPadding}"
+                     IsReadOnly="{TemplateBinding IsReadOnly}"
+                     BorderBrush="Transparent"
                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                     Text="{TemplateBinding PlaceholderText}">
-            <TextBlock.IsVisible>
-              <MultiBinding Converter="{x:Static BoolConverters.And}">
-                <TemplateBinding Property="IsEditable" Converter="{x:Static BoolConverters.Not}" />
-                <TemplateBinding Property="Text" Converter="{x:Static BoolConverters.Not}" />
-              </MultiBinding>
-            </TextBlock.IsVisible>
-          </TextBlock>
+                     Watermark="{TemplateBinding PlaceholderText}"
+                     Foreground="{TemplateBinding Foreground}"
+                     Text="{TemplateBinding Text, Mode=TwoWay}"
+                     IsVisible="{TemplateBinding IsEditable}"
+                     CornerRadius="{TemplateBinding CornerRadius}" />
 
-          <TextBox Name="PART_EditableTextBox"
-                   Grid.Column="0"
-                   Grid.ColumnSpan="2"
-                   Theme="{TemplateBinding TextBoxTheme}"
-                   Margin="0,0,0,0"
-                   Padding="{DynamicResource ComboBoxEditableTextPadding}"
-                   IsReadOnly="{TemplateBinding IsReadOnly}"
-                   BorderBrush="Transparent"
-                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                   Watermark="{TemplateBinding PlaceholderText}"
-                   Foreground="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}}"
-                   Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Text, Mode=TwoWay}"
-                   IsVisible="{TemplateBinding IsEditable}"
-                   CornerRadius="{TemplateBinding CornerRadius}" />
-
-          <Border Name="PART_DropDownOverlay"
-                  Grid.Column="1"
-                  Background="Transparent"
-                  Margin="4,4,4,4"
-                  CornerRadius="{DynamicResource ComboBoxDropDownButtonBackgroundCornerRadius}"
-                  Width="30"
-                  IsVisible="{TemplateBinding IsEditable}"
-                  HorizontalAlignment="Right" />
-
-          <PathIcon Name="DropDownGlyph"
+            <Border x:Name="PART_DropDownOverlay"
                     Grid.Column="1"
-                    UseLayoutRounding="False"
-                    IsHitTestVisible="False"
-                    Height="12"
-                    Width="12"
-                    Margin="0,0,10,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
-                    Data="M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z" />
+                    Background="Transparent"
+                    Margin="0,1,1,1"
+                    Width="30"
+                    IsVisible="False"
+                    HorizontalAlignment="Right" />
 
-          <!-- Skipping description property -->
+            <PathIcon x:Name="DropDownGlyph"
+                      Grid.Column="1"
+                      UseLayoutRounding="False"
+                      IsHitTestVisible="False"
+                      Height="12"
+                      Width="12"
+                      Margin="0,0,10,0"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
+                      Data="{DynamicResource ComboBoxDropDownSymbol}" />
 
-          <Popup Name="PART_Popup"
-                 WindowManagerAddShadowHint="False"
-                 IsOpen="{TemplateBinding IsDropDownOpen, Mode=TwoWay}"
-                 MinWidth="{Binding Bounds.Width, RelativeSource={RelativeSource TemplatedParent}}"
-                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
-                 PlacementTarget="{TemplateBinding}"
-                 IsLightDismissEnabled="True"
-                 InheritsTransform="True">
-            <Border Name="PopupBorder"
-                    Background="{DynamicResource ComboBoxDropDownBackground}"
-                    BorderBrush="{DynamicResource ComboBoxDropDownBorderBrush}"
-                    BorderThickness="{DynamicResource ComboBoxDropdownBorderThickness}"
-                    Padding="{DynamicResource ComboBoxDropdownBorderPadding}"
-                    HorizontalAlignment="Stretch"
-                    CornerRadius="{DynamicResource OverlayCornerRadius}">
-              <Grid RowDefinitions="Auto,*,Auto">
-                <ContentPresenter Grid.Row="0"
-                                  x:Name="PART_DropDownHeader"
-                                  Content="{TemplateBinding DropDownHeaderContent}"
-                                  ContentTemplate="{TemplateBinding DropDownHeaderContentTemplate}"
-                                  IsVisible="{TemplateBinding IsDropDownHeaderVisible}" />
-                <ScrollViewer Name="ScrollViewer"
-                              Grid.Row="1"
-                              Foreground="{DynamicResource ComboBoxDropDownForeground}"
-                              HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                              VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
-                  <ItemsPresenter x:Name="PART_ItemsPresenter"
-                                  IsEnabled="{TemplateBinding HasCustomText, Converter={x:Static BoolConverters.Not}}"
-                                  Margin="{DynamicResource ComboBoxDropdownContentMargin}"
-                                  ItemsPanel="{TemplateBinding ItemsPanel}" />
-                </ScrollViewer>
+            <Popup x:Name="PART_Popup"
+                   WindowManagerAddShadowHint="False"
+                   IsOpen="{TemplateBinding IsDropDownOpen, Mode=TwoWay}"
+                   MinWidth="{Binding Bounds.Width, RelativeSource={RelativeSource TemplatedParent}}"
+                   MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                   PlacementTarget="Background"
+                   IsLightDismissEnabled="True"
+                   InheritsTransform="True">
+              <Border x:Name="PopupBorder"
+                      Background="{DynamicResource ComboBoxDropDownBackground}"
+                      BorderBrush="{DynamicResource ComboBoxDropDownBorderBrush}"
+                      BorderThickness="{DynamicResource ComboBoxDropdownBorderThickness}"
+                      Padding="{DynamicResource ComboBoxDropdownBorderPadding}"
+                      HorizontalAlignment="Stretch"
+                      CornerRadius="{DynamicResource OverlayCornerRadius}">
+                <Grid RowDefinitions="Auto,*,Auto">
+                  <ContentPresenter Grid.Row="0"
+                                    x:Name="PART_DropDownHeader"
+                                    Content="{TemplateBinding DropDownHeaderContent}"
+                                    ContentTemplate="{TemplateBinding DropDownHeaderContentTemplate}"
+                                    IsVisible="{TemplateBinding IsDropDownHeaderVisible}" />
+                  <!-- TODO 11.1: IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}" -->
+                  <ScrollViewer Name="ScrollViewer"
+                                Grid.Row="1"
+                                Foreground="{DynamicResource ComboBoxDropDownForeground}"
+                                HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                    <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                    IsEnabled="{TemplateBinding HasCustomText, Converter={x:Static BoolConverters.Not}}"
+                                    Margin="{DynamicResource ComboBoxDropdownContentMargin}"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}" />
+                  </ScrollViewer>
 
-                <ContentPresenter Grid.Row="2"
-                                  x:Name="PART_DropDownFooter"
-                                  Content="{TemplateBinding DropDownFooterContent}"
-                                  ContentTemplate="{TemplateBinding DropDownFooterContentTemplate}"
-                                  IsVisible="{TemplateBinding IsDropDownFooterVisible}" />
-                <!-- Disabled Overlay -->
-                <ContentPresenter Grid.Row="1"
-                                  x:Name="PART_PopupDisabledOverlay"
-                                  Content="{TemplateBinding DisabledPopupOverlayContent}"
-                                  ContentTemplate="{TemplateBinding DisabledPopupOverlayContentTemplate}"
-                                  IsVisible="{TemplateBinding HasCustomText}" />
-              </Grid>
-            </Border>
-          </Popup>
-        </Grid>
+                  <ContentPresenter Grid.Row="2"
+                                    x:Name="PART_DropDownFooter"
+                                    Content="{TemplateBinding DropDownFooterContent}"
+                                    ContentTemplate="{TemplateBinding DropDownFooterContentTemplate}"
+                                    IsVisible="{TemplateBinding IsDropDownFooterVisible}" />
+                  <!-- Disabled Overlay -->
+                  <ContentPresenter Grid.Row="1"
+                                    x:Name="PART_PopupDisabledOverlay"
+                                    Content="{TemplateBinding DisabledPopupOverlayContent}"
+                                    ContentTemplate="{TemplateBinding DisabledPopupOverlayContentTemplate}"
+                                    IsVisible="{TemplateBinding HasCustomText}" />
+                </Grid>
+              </Border>
+            </Popup>
+          </Grid>
+        </DataValidationErrors>
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-      <Setter Property="Foreground"
-              Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}}" />
-    </Style>
-    <Style Selector="^ /template/ TextBox#EditableText">
-      <Setter Property="Foreground"
-              Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}}" />
+    <!--  PointerOver State  -->
+    <Style Selector="^:pointerover /template/ Border#Background">
+      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPointerOver}" />
     </Style>
 
-    <Style Selector="^:pointerover">
-      <Style Selector="^ /template/ Border#Background">
-        <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPointerOver}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPointerOver}" />
-      </Style>
-      <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundPointerOver}" />
+    <!--  Pressed State  -->
+    <Style Selector="^:pressed /template/ Border#Background">
+      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPressed}" />
+    </Style>
+
+    <!-- Error State -->
+    <Style Selector="^:error /template/ Border#Background">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+    </Style>
+
+    <!--  Focus Pressed State  -->
+    <Style Selector="^:focused:pressed">
+      <Style Selector="^ /template/ ContentControl#ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundPointerOver}" />
-        <!--<Setter Property="Foreground" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={DynamicResource ComboBoxPlaceHolderForegroundPointerOver}}" />-->
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundFocusedPressed}" />
+      </Style>
+      <Style Selector="^ /template/ PathIcon#DropDownGlyph">
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocusedPressed}" />
       </Style>
     </Style>
 
-    <Style Selector="^:pressed">
-      <Style Selector="^ /template/ Border#Background">
-        <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPressed}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPressed}" />
+    <!--  Focused State  -->
+    <Style Selector="^:focus-visible">
+      <Style Selector="^ /template/ Border#HighlightBackground">
+        <Setter Property="IsVisible" Value="True" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBackgroundBorderBrushFocused}" />
       </Style>
-      <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundPressed}" />
+      <Style Selector="^ /template/ ContentControl#ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundPressed}" />
-        <!--<Setter Property="Foreground" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={DynamicResource ComboBoxPlaceHolderForegroundPressed}}" />-->
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
+      </Style>
+      <Style Selector="^ /template/ PathIcon#DropDownGlyph">
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocused}" />
       </Style>
     </Style>
 
+    <!--  Disabled State  -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#Background">
         <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundDisabled}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushDisabled}" />
       </Style>
-      <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+      <Style Selector="^ /template/ ContentControl#ContentPresenter">
         <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
       </Style>
-      <Style Selector="^ /template/ ContentPresenter#HeaderContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxHeaderForegroundDisabled}" />
-      </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundDisabled}" />
-        <!--<Setter Property="Foreground" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={DynamicResource ComboBoxPlaceHolderForegroundDisabled}}" />-->
+        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
         <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundDisabled}" />
       </Style>
     </Style>
-
-    <Style Selector="^:focus-visible">
-      <Style Selector="^ /template/ Border#HighlightBackground">
-        <Setter Property="Opacity" Value="1" />
-      </Style>
-      <Style Selector="^ /template/ Rectangle#Pill">
-        <Setter Property="Opacity" Value="1" />
-      </Style>
-      <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
-      </Style>
-      <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundFocused}" />
-        <!--<Setter Property="Foreground" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={DynamicResource ComboBoxPlaceHolderForegroundFocused}}" />-->
-      </Style>
-      <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocused}" />
-      </Style>
-
-      <Style Selector="^:pressed">
-        <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
-          <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocusedPressed}" />
-        </Style>
-        <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-          <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundFocusedPressed}" />
-          <!--<Setter Property="Foreground" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={DynamicResource ComboBoxPlaceHolderForegroundFocusedPressed}}" />-->
-        </Style>
-        <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-          <Setter Property="Foreground"
-                  Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocusedPressed}" />
-        </Style>
-      </Style>
-    </Style>
   </ControlTheme>
-
 </ResourceDictionary>
