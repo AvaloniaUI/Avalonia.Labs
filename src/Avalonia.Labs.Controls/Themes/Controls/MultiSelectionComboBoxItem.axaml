@@ -1,64 +1,69 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:Avalonia.Labs.Controls">
-    <Design.PreviewWith>
-        <StackPanel>
-            <controls:MultiSelectionComboBoxItem IsSelected="True"> 123</controls:MultiSelectionComboBoxItem>
-            <controls:MultiSelectionComboBoxSelectionBoxItem Content="Test" />
-        </StackPanel>
+  <Design.PreviewWith>
+    <StackPanel>
+      <controls:MultiSelectionComboBoxItem IsSelected="True"> 123</controls:MultiSelectionComboBoxItem>
+      <controls:MultiSelectionComboBoxSelectionBoxItem Content="Test" />
+    </StackPanel>
 
-    </Design.PreviewWith>
+  </Design.PreviewWith>
 
-    <StreamGeometry x:Key="Icons.RemoveItem">M829.44 674.56l-90.88 90.88-226.56-227.2-226.56 227.2-90.88-90.88 227.2-226.56-227.2-226.56 90.88-90.88 226.56 227.2 226.56-227.2 90.88 90.88-227.2 226.56 227.2 226.56z</StreamGeometry>
+  <StreamGeometry x:Key="Icons.RemoveItem">M829.44 674.56l-90.88 90.88-226.56-227.2-226.56 227.2-90.88-90.88 227.2-226.56-227.2-226.56 90.88-90.88 226.56 227.2 226.56-227.2 90.88 90.88-227.2 226.56 227.2 226.56z</StreamGeometry>
 
-    <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxItem}"
-                  TargetType="controls:MultiSelectionComboBoxItem"
-                  BasedOn="{StaticResource {x:Type ListBoxItem}}">
-        <!-- Empty -->
-    </ControlTheme>
+  <SolidColorBrush x:Key="MultiSelectionComboBoxBoxItemBackground" Color="{DynamicResource RegionColor}" />
+  <SolidColorBrush x:Key="MultiSelectionComboBoxBoxRemoveButtonPointerOver" Color="{DynamicResource SystemAccentColor}" />
 
-    <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxSelectionBoxItem}"
-                  TargetType="controls:MultiSelectionComboBoxSelectionBoxItem">
-        <Setter Property="ShowRemoveButton" Value="True" />
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="Background" Value="{DynamicResource  LayerOnMicaBaseAltFillColorSecondaryBrush}"></Setter>
-        <Setter Property="CornerRadius"
-                Value="10">
-        </Setter>
-        <Setter Property="Padding" Value="7,2,2,2"></Setter>
-        <Setter Property="Margin" Value="2"></Setter>
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Border CornerRadius="{TemplateBinding CornerRadius}"
-                        Background="{TemplateBinding Background}"
-                        Margin="{TemplateBinding Margin}">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <ContentPresenter Content="{TemplateBinding Content}"
-                                          Margin="{TemplateBinding Padding}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Foreground="{TemplateBinding Foreground}" />
-                        <Button Grid.Column="1"
-                                x:Name="PART_RemoveButton"
-                                IsVisible="{TemplateBinding ShowRemoveButton}"
-                                VerticalAlignment="Stretch"
-                                Padding="0"
-                                Margin="2"
-                                Width="{Binding $self.Bounds.Height}"
-                                CornerRadius="10">
-                            <PathIcon Height="9" Width="9"
-                                                 Data="{DynamicResource Icons.RemoveItem}" />
-                        </Button>
-                    </Grid>
-                </Border>
-            </ControlTemplate>
-        </Setter>
+  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxItem}"
+                TargetType="controls:MultiSelectionComboBoxItem"
+                BasedOn="{StaticResource {x:Type ListBoxItem}}">
+    <!-- Empty -->
+  </ControlTheme>
 
-        <Style Selector="^ /template/ Button#PART_RemoveButton:pointerover PathIcon">
-            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"></Setter>
-        </Style>
 
-    </ControlTheme>
+  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxSelectionBoxItem}"
+                TargetType="controls:MultiSelectionComboBoxSelectionBoxItem">
+    <Setter Property="ShowRemoveButton" Value="True" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="Background" Value="{DynamicResource  MultiSelectionComboBoxBoxItemBackground}" />
+    <Setter Property="CornerRadius"
+            Value="10">
+    </Setter>
+    <Setter Property="Padding" Value="7,2,2,2"></Setter>
+    <Setter Property="Margin" Value="2"></Setter>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border CornerRadius="{TemplateBinding CornerRadius}"
+                Background="{TemplateBinding Background}"
+                Margin="{TemplateBinding Margin}">
+          <Grid ColumnDefinitions="*, Auto">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              Margin="{TemplateBinding Padding}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Foreground="{TemplateBinding Foreground}" />
+            <Button Grid.Column="1"
+                    x:Name="PART_RemoveButton"
+                    IsVisible="{TemplateBinding ShowRemoveButton}"
+                    VerticalAlignment="Stretch"
+                    Padding="0"
+                    Margin="2"
+                    Width="{Binding $self.Bounds.Height}"
+                    CornerRadius="10">
+              <PathIcon Height="9" Width="9"
+                        Data="{DynamicResource Icons.RemoveItem}" />
+            </Button>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ Button#PART_RemoveButton:pointerover PathIcon">
+      <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxBoxRemoveButtonPointerOver}"></Setter>
+    </Style>
+
+  </ControlTheme>
+
 
 </ResourceDictionary>
