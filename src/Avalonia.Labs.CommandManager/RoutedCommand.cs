@@ -122,7 +122,8 @@ public class RoutedCommand : ICommand
         {
             var args = new CanExecuteRoutedEventArgs(this, parameter)
             {
-                RoutedEvent = CommandManager.CanExecuteEvent
+                RoutedEvent = CommandManager.CanExecuteEvent,
+                CanExecute = true // initial value
             };
             target.RaiseEvent(args);
 

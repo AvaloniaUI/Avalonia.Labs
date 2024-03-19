@@ -91,8 +91,8 @@ sequenceDiagram
                 VerticalContentAlignment="Stretch"
                 >
     <rc:CommandManager.CommandBindings>
-        <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
-        <rc:CommandBinding RoutedCommand="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
+        <rc:CommandBinding Command="{x:Static lab:ApplicationCommands.Open}" ExecutingCommand="{Binding Open}" />
+        <rc:CommandBinding Command="{x:Static lab:ApplicationCommands.Save}" ExecutingCommand="{Binding Save}" />
     </rc:CommandManager.CommandBindings>
     ...
     </UserControl>
