@@ -81,7 +81,7 @@ public sealed class CommandManager : AvaloniaObject
     /// </summary>
     public static void SetCommandBindings(InputElement element, IList<CommandBinding> commands) =>
         element.SetValue(CommandBindingsProperty, commands);
-    
+
     static CommandManager()
     {
         CanExecuteEvent.AddClassHandler<InputElement>(CanExecuteEventHandler);
@@ -125,7 +125,7 @@ public sealed class CommandManager : AvaloniaObject
             {
                 foreach (var binding in bindings)
                 {
-                    if (binding.RoutedCommand is { } routedCommand)
+                    if (binding.Command is RoutedCommand routedCommand)
                     {
                         foreach (var gesture in routedCommand.Gestures)
                         {
@@ -193,14 +193,13 @@ public sealed class CommandManager : AvaloniaObject
         {
             foreach (var command in commands)
             {
-                if (command.RoutedCommand == args.Command && command.DoCanExecute(inputElement, args))
+                if (command.Command == args.Command)
                 {
-                    if (!args.Handled)
+                    command.OnCanExecute(inputElement, args);
+                    if (args.Handled)
                     {
-                        args.CanExecute = true;
+                        break;
                     }
-
-                    break;
                 }
             }
         }
@@ -212,9 +211,13 @@ public sealed class CommandManager : AvaloniaObject
         {
             foreach (var command in commands)
             {
-                if (command.RoutedCommand == args.Command && command.DoExecuted(inputElement, args))
+                if (command.Command == args.Command)
                 {
-                    break;
+                    command.OnExecuted(inputElement, args);
+                    if (args.Handled)
+                    {
+                        break;
+                    }
                 }
             }
         }

@@ -13,4 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AvaloniaEdit, PublicKeyToken=" />
+  </ItemGroup>
 </Project>
