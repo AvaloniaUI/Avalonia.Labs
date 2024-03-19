@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
-             x:Class="Avalonia.Labs.Catalog.Views.ContentDialogView">
+             x:Class="Avalonia.Labs.Catalog.Views.ContentDialogView"
+             x:DataType="vm:ContentDialogViewModel">
   <DockPanel>
     <StackPanel Orientation="Vertical" 
                 Spacing="4" 

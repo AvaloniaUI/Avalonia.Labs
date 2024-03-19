@@ -32,7 +32,7 @@
     <labs:NavigationControl.HeaderTemplate>
       <DataTemplate x:DataType="viewModels:ViewModelBase">
         <DockPanel>
-          <Button Command="{Binding $parent[views:MainView].DataContext.SwapTheme}"
+          <Button Command="{Binding $parent[views:MainView].((viewModels:MainViewModel)DataContext).SwapTheme}"
                   DockPanel.Dock="Right"
                   Background="Transparent">
             <PathIcon Data="{StaticResource SwapThemeIcon}"

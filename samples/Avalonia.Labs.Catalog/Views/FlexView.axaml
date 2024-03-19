@@ -184,8 +184,7 @@
 
     </ScrollViewer>
 
-    <ItemsControl IsVisible="{Binding IsItemsControl}"
-                  BorderBrush="#666"
+    <ItemsControl BorderBrush="#666"
                   BorderThickness="1"
                   ItemsSource="{Binding Numbers}"
                   ItemTemplate="{StaticResource ItemTemplate}">
