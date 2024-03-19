@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
@@ -11,6 +12,9 @@ namespace Avalonia.Labs.Controls
     ///   It uses the <see cref="TypeConverter"/> for the elements <see cref="Type"/>. If you need more control
     ///   over the conversion you should create your own class which implements <see cref="IParseStringToObject"/>
     /// </summary>
+    #if NET6_0_OR_GREATER
+    [RequiresUnreferencedCode("Hello World")]
+    #endif
     public class DefaultStringToObjectParser : IParseStringToObject
     {
         public static readonly DefaultStringToObjectParser Instance = new();
