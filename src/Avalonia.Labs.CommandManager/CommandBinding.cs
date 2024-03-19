@@ -16,7 +16,17 @@ public class CommandBinding : AvaloniaObject
             o => o.Command,
             (o, v) => o.Command = v);
 
+    /// <summary>
+    /// Defines the <see cref="ExecutingCommand"/> property.
+    /// </summary>
+    public static readonly DirectProperty<CommandBinding, ICommand?> ExecutingCommandProperty =
+        AvaloniaProperty.RegisterDirect<CommandBinding, ICommand?>(nameof(ExecutingCommand),
+            o => o.ExecutingCommand,
+            (o, v) => o.ExecutingCommand = v
+        );
+
     private ICommand? _command;
+    private ICommand? _executingCommand;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandBinding"/> class.
@@ -68,6 +78,15 @@ public class CommandBinding : AvaloniaObject
     }
 
     /// <summary>
+    /// <see cref="ICommand"/> handler for the routed command.
+    /// </summary>
+    public ICommand? ExecutingCommand
+    {
+        get => _executingCommand;
+        set => SetAndRaise(ExecutingCommandProperty, ref _executingCommand, value);
+    }
+
+    /// <summary>
     /// Called when the command is executed.
     /// </summary>
     public event EventHandler<ExecutedRoutedEventArgs>? Executed;
@@ -77,11 +96,6 @@ public class CommandBinding : AvaloniaObject
     /// </summary>
     public event EventHandler<CanExecuteRoutedEventArgs>? CanExecute;
 
-    /// <summary>
-    ///     Calls the CanExecute or PreviewCanExecute event based on the event argument's RoutedEvent.
-    /// </summary>
-    /// <param name="sender">The sender of the event.</param>
-    /// <param name="e">Event arguments.</param>
     internal void OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
         if (e.Handled) return;
@@ -117,11 +131,6 @@ public class CommandBinding : AvaloniaObject
         return canExecuteArgs.CanExecute;
     }
 
-    /// <summary>
-    ///     Calls Executed or PreviewExecuted based on the event argument's RoutedEvent.
-    /// </summary>
-    /// <param name="sender">The sender of the event.</param>
-    /// <param name="e">Event arguments.</param>
     internal void OnExecuted(object sender, ExecutedRoutedEventArgs e)
     {
         if (e.Handled) return;
@@ -129,5 +138,44 @@ public class CommandBinding : AvaloniaObject
         if (!CheckCanExecute(sender, e)) return;
         Executed(sender, e);
         e.Handled = true;
+    }
+
+    /// <inheritdoc />
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == ExecutingCommandProperty)
+        {
+            if (change.GetOldValue<ICommand?>() is not null)
+            {
+                CanExecute -= OnCanExecuteRedirect;
+                Executed -= OnExecutedRedirect;
+            }
+
+            if (change.GetNewValue<ICommand?>() is not null)
+            {
+                CanExecute += OnCanExecuteRedirect;
+                Executed += OnExecutedRedirect;
+            }
+        }
+    }
+
+    private void OnExecutedRedirect(object? sender, ExecutedRoutedEventArgs e)
+    {
+        if (!e.Handled && (ExecutingCommand is { } command))
+        {
+            command.Execute(e.Parameter);
+            e.Handled = true;
+        }
+    }
+
+    private void OnCanExecuteRedirect(object? sender, CanExecuteRoutedEventArgs e)
+    {
+        if (!e.Handled && (ExecutingCommand is { } command))
+        {
+            e.CanExecute = command.CanExecute(e.Parameter);
+            e.Handled = true;
+        }
     }
 }
