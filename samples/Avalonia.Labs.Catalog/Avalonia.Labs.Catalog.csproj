@@ -27,4 +27,10 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\BadgesView.axaml.cs">
+      <DependentUpon>BadgesView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
