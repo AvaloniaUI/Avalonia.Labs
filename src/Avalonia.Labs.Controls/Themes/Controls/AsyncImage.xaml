@@ -17,6 +17,7 @@
         <ControlTemplate>
             <Border Margin="0"
                     Padding="0"
+                    ClipToBounds="True"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="{TemplateBinding BorderThickness}"
