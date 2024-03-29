@@ -41,6 +41,14 @@ namespace Avalonia.Labs.Qr
         /// </summary>
         public static readonly StyledProperty<Thickness> PaddingProperty = Decorator.PaddingProperty.AddOwner<QrCode>();
         /// <summary>
+        /// Property indicating whether the Quiet Zone of 4 modules should be added to the QR Code as additional padding.  Default: True
+        ///
+        /// Note: Disabling the Quiet Zone makes the generated QRCodes "non-standard" according to the ISO 18004 standard.
+        /// The padding created by the Quiet Zone depends on the module size and therefore on the amount of data. This can be
+        /// disabled and a fixed <see cref="Padding"/> can be set instead to have more control over the layout. 
+        /// </summary>
+        public static readonly StyledProperty<bool> IsQuietZoneEnabledProperty = AvaloniaProperty.Register<QrCode, bool>(nameof(IsQuietZoneEnabled), true);
+        /// <summary>
         /// Property indicating the Error Correction Code of the generated data.  Default: Medium
         ///
         /// Note: See <see cref="EccLevel" /> for the specific definitions of each value.
@@ -75,6 +83,12 @@ namespace Avalonia.Labs.Qr
             get => GetValue(PaddingProperty);
             set => SetValue(PaddingProperty, value);
         }
+        /// <inheritdoc cref="IsQuietZoneEnabledProperty" />
+        public bool IsQuietZoneEnabled
+        {
+            get => GetValue(IsQuietZoneEnabledProperty);
+            set => SetValue(IsQuietZoneEnabledProperty, value);
+        }
         /// <inheritdoc cref="ErrorCorrectionProperty" />
         public EccLevel ErrorCorrection
         {
@@ -97,10 +111,14 @@ namespace Avalonia.Labs.Qr
         /// A cache of currently set bits in the bit matrix.  This is used to potentially speed up processing.
         /// </summary>
         private readonly Hashtable _setBitsTable = new();
-
+        /// <summary>
+        /// A cache of the last encoded QRCode.  This is used to reuse the last generated data whenever a style property like Width, Height or Padding was changed.
+        /// </summary>
+        private Gma.QrCodeNet.Encoding.QrCode? _encodedQrCode;
+        
         // QRCode specs mandate a standard 4-symbol-sized space on each side of the data.  We support custom Padding and will ignore this zone when processing
-        private const int QuietZoneCount = 4;
-        private const int QuietMargin = QuietZoneCount * 2;
+        private int QuietZoneCount => IsQuietZoneEnabled ? 4 : 0;
+        private int QuietMargin => QuietZoneCount * 2;
 
         /// <summary>
         /// Defines the geometry of the previously displayed QRCode
@@ -146,18 +164,37 @@ namespace Avalonia.Labs.Qr
             if (Data == null)
                 return;
 
+            // Invalidates the cached QRCode if needed.  We do not need recreate the bit matrix for layout changes.
             switch (change.Property.Name)
             {
-                // Padding requires the geometry paths to be adjusted to match the new locations. ToDo: Can this be simulated with a scale to enhance performance?
-                case nameof(Padding):
                 // Error Correction change requires the data to be reprocessed to recalculate the new bit matrix.  This is unavoidable.
                 case nameof(ErrorCorrection):
                 // A change in data obviously indicates the need to update the bit matrix    
                 case nameof(Data):
-                    lock (_setBitsTable)
-                        _setBitsTable.Clear();
-                    QrCodeGenerator.ErrorCorrectionLevel = ToQrCoderEccLevel(ErrorCorrection);
-                    OnDataChanged(QrCodeGenerator.Encode(Data));
+                    _encodedQrCode = null;
+                    break;
+            }
+
+            // Generating the QRCode bit matrix if needed.
+            if (_encodedQrCode is null)
+            {
+                lock (_setBitsTable)
+                    _setBitsTable.Clear();
+                
+                QrCodeGenerator.ErrorCorrectionLevel = ToQrCoderEccLevel(ErrorCorrection);
+                _encodedQrCode = QrCodeGenerator.Encode(Data);
+            }
+            
+            switch (change.Property.Name)
+            {
+                // Padding and size requires the geometry paths to be adjusted to match the new locations. ToDo: Can this be simulated with a scale to enhance performance?
+                case nameof(Padding):
+                case nameof(Width):
+                case nameof(Height):
+                case nameof(IsQuietZoneEnabled):
+                case nameof(ErrorCorrection):
+                case nameof(Data):
+                    OnLayoutChanged(_encodedQrCode);
 
                     // This is hard coded for now as I'm sure there is a better and more "Avalonia" way to transition between renders.
                     // Eventually, it may be a property of some sort.
@@ -187,7 +224,7 @@ namespace Avalonia.Labs.Qr
         /// Raised whenever a property of the control changes that impacts the layout of the QRCode geometry
         /// </summary>
         /// <param name="qrCodeData">The QRCode Data with the underlying bit matrix</param>
-        private void OnDataChanged(Gma.QrCodeNet.Encoding.QrCode qrCodeData)
+        private void OnLayoutChanged(Gma.QrCodeNet.Encoding.QrCode qrCodeData)
         {
             /*
              * The following code turns the QRCode bit matrix into a geometry path.  The path represents the SHAPE of the QRCode and
@@ -202,8 +239,8 @@ namespace Avalonia.Labs.Qr
             // Bounds of the entire control
             var bounds = new Rect(0, 0, Width, Height);
             var matrix = qrCodeData.Matrix;
-            var columnCount = matrix.Width - QuietMargin;
-            var rowCount = matrix.Height - QuietMargin;
+            var columnCount = matrix.Width + QuietMargin;
+            var rowCount = matrix.Height + QuietMargin;
 
             // The size of each symbol taking into account the size of the QRCode and our custom quiet zone aka padding
             var symbolSize = new Size(
@@ -231,10 +268,6 @@ namespace Avalonia.Labs.Qr
 
             for (var row = 0; row < matrix.Height; row++)
             {
-                // Quiet Space - helper not used to speed up processing
-                if (row < QuietZoneCount || row > matrix.Height - QuietZoneCount - 1)
-                    continue;
-
                 ProcessRow(geometry, matrix, row, symbolSize);
             }
 
@@ -254,10 +287,6 @@ namespace Avalonia.Labs.Qr
             // Loop through each item within the row
             for (var column = 0; column < bitMatrix.Width; column++)
             {
-                // Quiet Space - helper not used to speed up processing
-                if (column < QuietZoneCount || column > bitMatrix.Width - QuietZoneCount - 1)
-                    continue;
-
                 ProcessSymbol(geometry, bitMatrix, row, column, symbolSize);
             }
         }
@@ -274,8 +303,8 @@ namespace Avalonia.Labs.Qr
         {
             // The full bounds of the symbol
             var symbolBounds = new Rect(
-                (column - QuietZoneCount) * symbolSize.Width + Padding.Left,
-                (row - QuietZoneCount) * symbolSize.Height + Padding.Top,
+                (column + QuietZoneCount) * symbolSize.Width + Padding.Left,
+                (row + QuietZoneCount) * symbolSize.Height + Padding.Top,
                 symbolSize.Width,
                 symbolSize.Height
             );
@@ -545,6 +574,10 @@ namespace Avalonia.Labs.Qr
         /// <returns></returns>
         private bool IsValid(BitMatrix bitMatrix, int x, int y)
         {
+            // Validate bounds of the bit matrix
+            if (x < 0 || y < 0 || x >= bitMatrix.Width || y >= bitMatrix.Height)
+                return false;
+            
             var key = (x, y).GetHashCode();
 
             lock (_setBitsTable)
@@ -553,13 +586,13 @@ namespace Avalonia.Labs.Qr
                     return (bool)_setBitsTable[key]!;
 
                 // Top Left Marker
-                if (x < QuietZoneCount + 8 && y < QuietZoneCount + 8)
+                if (x < 8 && y < 8)
                     return (bool)(_setBitsTable[key] = false);
                 // Top Right Marker
-                if (x > bitMatrix.Width - QuietZoneCount - 9 && y < QuietZoneCount + 8)
+                if (x > bitMatrix.Width - 9 && y < 8)
                     return (bool)(_setBitsTable[key] = false);
                 // Bottom Left Marker
-                if (x < QuietZoneCount + 8 && y > bitMatrix.Height - QuietZoneCount - 9)
+                if (x < 8 && y > bitMatrix.Height - 9)
                     return (bool)(_setBitsTable[key] = false);
 
                 /*
@@ -583,7 +616,9 @@ namespace Avalonia.Labs.Qr
         private void AddPositionDetectionPattern(PathGeometry geometry, Rect bounds, Size symbolSize)
         {
             // Pre-calculations to reduce the amount of repeat math
-            var dataBounds = bounds.Deflate(Padding);
+            var dataBounds = bounds
+                .Deflate(Padding)
+                .Deflate(new Thickness(symbolSize.Width * QuietZoneCount, symbolSize.Height * QuietZoneCount));
             var markerSize = symbolSize * 7;
             var markerRadiusSize = markerSize / 2;
             var twiceSymbolSize = symbolSize * 2;

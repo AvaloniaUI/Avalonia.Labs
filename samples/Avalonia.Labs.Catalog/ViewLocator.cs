@@ -24,7 +24,12 @@ public class ViewLocator : IDataTemplate
 
         if (type != null && ViewModelRegistry.TryGetValue(type, out var factory))
         {
-            return factory();
+            var control = factory();
+            if (data is IViewBinder viewBinder)
+            {
+                viewBinder.View = control;
+            }
+            return control;
         }
         
         return new TextBlock { Text = type?.FullName };

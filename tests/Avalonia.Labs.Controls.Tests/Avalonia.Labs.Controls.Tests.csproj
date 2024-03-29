@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -10,6 +10,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\build\XUnit.props" />

@@ -6,7 +6,9 @@
              d:DesignHeight="450"
              xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
              xmlns:base="clr-namespace:Avalonia.Labs.Controls.Base;assembly=Avalonia.Labs.Controls"
-             x:Class="Avalonia.Labs.Catalog.Views.SwipeView">
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             x:Class="Avalonia.Labs.Catalog.Views.SwipeView"
+             x:DataType="viewModels:SwipeViewModel">
   <ScrollViewer>
     <ItemsControl ItemsSource="{Binding Items}">
       <ItemsControl.ItemTemplate>

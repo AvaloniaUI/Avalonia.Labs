@@ -69,6 +69,17 @@
               CornerRadius="10"
               Margin="0,5">
         <Button.CommandParameter>
+          <viewModels:CompositionViewModel/>
+        </Button.CommandParameter>
+        <Label FontSize="18"
+               VerticalAlignment="Center">Composition</Label>
+      </Button>
+      <Button HorizontalAlignment="Stretch"
+              Height="60"
+              Command="{Binding NavigateTo}"
+              CornerRadius="10"
+              Margin="0,5">
+        <Button.CommandParameter>
           <viewModels:FlexViewModel/>
         </Button.CommandParameter>
         <Label FontSize="18"
@@ -117,6 +128,17 @@
         </Button.CommandParameter>
         <Label FontSize="18"
                VerticalAlignment="Center">Qr Generator</Label>
+      </Button>
+      <Button HorizontalAlignment="Stretch"
+              Height="60"
+              Command="{Binding NavigateTo}"
+              CornerRadius="10"
+              Margin="0,5">
+        <Button.CommandParameter>
+          <viewModels:RouteCommandViewModel/>
+        </Button.CommandParameter>
+        <Label FontSize="18"
+               VerticalAlignment="Center">RoutedCommand</Label>
       </Button>
       <Button HorizontalAlignment="Stretch"
               Height="60"

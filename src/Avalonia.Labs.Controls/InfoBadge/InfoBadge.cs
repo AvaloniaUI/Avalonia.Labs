@@ -20,7 +20,7 @@ public class InfoBadge : ContentControl
 
     static InfoBadge()
     {
-        TemplateProperty.OverrideDefaultValue<ContentControl>(
+        TemplateProperty.OverrideDefaultValue<InfoBadge>(
             new FuncControlTemplate((_, ns) =>
             {
                 return new Panel()

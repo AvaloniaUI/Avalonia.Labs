@@ -1,7 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:control="using:Avalonia.Labs.Controls"
-        xmlns:converters="using:Avalonia.Controls.Converters">
+        xmlns:control="using:Avalonia.Labs.Controls">
 
   <Styles.Resources>
     <ResourceDictionary>
@@ -21,8 +20,8 @@
   </Styles.Resources>
   <Style Selector="control|FlipView > control|FlipViewItem">
     <Setter Property="Width"
-            Value="{Binding $parent.Bounds.Width}" />
+            Value="{Binding $parent[control:FlipView].Bounds.Width}" />
     <Setter Property="Height"
-            Value="{Binding $parent.Bounds.Height}" />
+            Value="{Binding $parent[control:FlipView].Bounds.Height}" />
   </Style>
 </Styles>

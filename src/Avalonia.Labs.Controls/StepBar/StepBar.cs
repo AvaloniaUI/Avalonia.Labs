@@ -13,18 +13,24 @@ namespace Avalonia.Labs.Controls;
 [TemplatePart("PART_ProgressBar", typeof(ProgressBar))]
 public class StepBar : SelectingItemsControl
 {
-    private Command? _nextCommand;
-    private Command? _backCommand;
+    private Command _nextCommand;
+    private Command _backCommand;
     private ProgressBar? _bar;
+    private bool _animationInProgress = false;
+    private bool _firstRun = true;
 
     public StepBar()
     {
         this.Items.CollectionChanged += Items_CollectionChanged;
+        _nextCommand = new Command(GoNext, CanGoNext);
+        _backCommand = new Command(GoBack, CanGoBack);
     }
+
 
     private void Items_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         UpdateProgressBar();
+        RefreshCommands();
     }
 
     private void UpdateProgressBar()
@@ -45,6 +51,12 @@ public class StepBar : SelectingItemsControl
         }
     }
 
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private void RefreshCommands()
+    {
+        _backCommand.RaiseCanExecuteChanged();
+        _nextCommand.RaiseCanExecuteChanged();
+    }
 
     public static readonly AvaloniaProperty<Dock> DockProperty =
         AvaloniaProperty.Register<StepBar, Dock>(nameof(Dock)
@@ -69,25 +81,26 @@ public class StepBar : SelectingItemsControl
         AvaloniaProperty.RegisterDirect<StepBar, ICommand>(nameof(NextCommand),
             o => o.NextCommand);
 
-    public ICommand NextCommand
-    {
-        get => _nextCommand ??=
-            new Command(GoNext, CanGoNext);
-    }
+    public ICommand NextCommand => _nextCommand;
 
     public static readonly DirectProperty<StepBar, ICommand> BackCommandProperty =
         AvaloniaProperty.RegisterDirect<StepBar, ICommand>(nameof(BackCommand),
             o => o.BackCommand);
 
-    public ICommand BackCommand
+    public ICommand BackCommand => _backCommand;
+
+    public static readonly StyledProperty<TimeSpan> AnimationDurationProperty =
+        AvaloniaProperty.Register<StepBar, TimeSpan>("", TimeSpan.FromMilliseconds(200));
+
+    public TimeSpan AnimationDuration
     {
-        get => _backCommand ??=
-            new Command(GoBack, CanGoBack);
+        get => GetValue(AnimationDurationProperty);
+        set => SetValue(AnimationDurationProperty, value);
     }
 
     bool CanGoBack(object? parameter)
     {
-        if (Items?.Count is int count)
+        if (!_animationInProgress && Items?.Count is int count)
             return count > 0 && (SelectedIndex - 1) >= 0;
         return false;
     }
@@ -98,7 +111,10 @@ public class StepBar : SelectingItemsControl
     }
 
     bool CanGoNext(object? parameter) =>
-     Items?.Count is int count && count > 0 && SelectedIndex + 1 < count;
+     !_animationInProgress
+        && Items?.Count is int count
+        && count > 0
+        && SelectedIndex + 1 < count;
 
     void GoNext(object? parameter)
     {
@@ -160,6 +176,8 @@ public class StepBar : SelectingItemsControl
         {
             if (change.NewValue is int selectIndex)
             {
+                var firstRun = _firstRun;
+                _firstRun = false;
                 var nItems = Items.Count;
                 int stepIndex = 0;
                 for (; stepIndex < selectIndex; stepIndex++)
@@ -178,16 +196,21 @@ public class StepBar : SelectingItemsControl
                         item.Status = StepStatus.Waiting;
                     }
                 }
-                if (_bar is ProgressBar progressBar)
+                if (!firstRun && _bar is ProgressBar progressBar)
                 {
-                    var current = progressBar.Value;
-                    progressBar.BeginAnimation(ProgressBar.ValueProperty
-                        , TimeSpan.FromMilliseconds(200)
-                        , (double)selectIndex);
+                    _animationInProgress = true;
+                    _backCommand.RaiseCanExecuteChanged();
+                    _nextCommand.RaiseCanExecuteChanged();
+                    progressBar.BeginAnimation(RangeBase.ValueProperty
+                        , AnimationDuration
+                        , selectIndex)
+                            .ContinueWith(_ =>
+                                {
+                                    _animationInProgress = false;
+                                    RefreshCommands();
+                                }, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
-            _backCommand?.RaiseCanExecuteChanged();
-            _nextCommand?.RaiseCanExecuteChanged();
         }
         else if (change.Property == BoundsProperty)
         {

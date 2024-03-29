@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -23,6 +23,8 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj" />
   </ItemGroup>
 
   <ItemGroup>

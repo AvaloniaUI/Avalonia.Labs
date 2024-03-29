@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,17 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="**/*.xaml" />
-    <AvaloniaResource Include="**/*.axaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvaloniaXaml Remove="Themes\Controls\ContentDialog.axaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvaloniaResource Update="Themes\Controls\ContentDialog.axaml">
-      <SubType>Designer</SubType>
-    </AvaloniaResource>
+    <AvaloniaXaml Include="**/*.xaml" />
   </ItemGroup>
 </Project>

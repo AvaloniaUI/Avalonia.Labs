@@ -9,14 +9,14 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Defines the <see cref="PlaceholderSource"/> property.
         /// </summary>
-        public static readonly StyledProperty<IImage> PlaceholderSourceProperty =
-            AvaloniaProperty.Register<AsyncImage, IImage>(nameof(PlaceholderSource));
+        public static readonly StyledProperty<IImage?> PlaceholderSourceProperty =
+            AvaloniaProperty.Register<AsyncImage, IImage?>(nameof(PlaceholderSource));
 
         /// <summary>
         /// Defines the <see cref="Source"/> property.
         /// </summary>
-        public static readonly StyledProperty<Uri> SourceProperty =
-            AvaloniaProperty.Register<AsyncImage, Uri>(nameof(Source));
+        public static readonly StyledProperty<Uri?> SourceProperty =
+            AvaloniaProperty.Register<AsyncImage, Uri?>(nameof(Source));
 
         /// <summary>
         /// Defines the <see cref="Stretch"/> property.
@@ -54,7 +54,7 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Gets or sets the placeholder image.
         /// </summary>
-        public IImage PlaceholderSource
+        public IImage? PlaceholderSource
         {
             get => GetValue(PlaceholderSourceProperty);
             set => SetValue(PlaceholderSourceProperty, value);
@@ -63,7 +63,7 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Gets or sets the uri pointing to the image resource
         /// </summary>
-        public Uri Source
+        public Uri? Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
