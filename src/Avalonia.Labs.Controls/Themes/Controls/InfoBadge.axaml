@@ -1,0 +1,94 @@
+<ResourceDictionary
+  xmlns="https://github.com/avaloniaui"
+  xmlns:ui="using:Avalonia.Labs.Controls"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  x:ClassModifier="internal"
+  >
+
+  <ControlTheme x:Key="{x:Type ui:InfoBadge}" TargetType="ui:InfoBadge">
+
+    <Style Selector="^.Icon /template/ ContentPresenter#PART_ContentPresenter" >
+      <Setter Property="IsVisible" Value="False" />
+      <Setter Property="Content" Value="{x:Static x:String.Empty}"/>
+    </Style>
+
+    <Style Selector="^.Dot /template/ ContentPresenter#PART_ContentPresenter" >
+      <Setter Property="IsVisible" Value="False" />
+      <Setter Property="Content" Value="{x:Static x:String.Empty}"/>
+    </Style>
+
+    <Style Selector="^.Icon">
+      <Setter Property="ShowOnNullContent" Value="True"/>
+    </Style>
+    
+    <Style Selector="^.Dot">
+      <Setter Property="ShowOnNullContent" Value="True"/>
+    </Style>
+    
+    <Style Selector="^.Attention">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorAttentionBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemAttentionDefaultShape}" />
+    </Style>
+    
+    <Style Selector="^.Attention.Dot">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorAttentionBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemAttentionDotShape}"/>
+    </Style>
+
+    <Style Selector="^.Attention.Icon">
+      <Setter Property="Shape" Value="{DynamicResource SystemAttentionIconShape}"/>
+    </Style>
+
+    <Style Selector="^.Informational">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorInformationalBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemInformationalDefaultShape}"/>
+    </Style>
+
+    <Style Selector="^.Informational.Dot">
+      <Setter Property="Shape" Value="{DynamicResource SystemInformationalDotShape}"/>
+    </Style>
+
+    <Style Selector="^.Informational.Icon">
+      <Setter Property="Shape" Value="{DynamicResource SystemInformationalIconShape}"/>
+    </Style>
+
+    <Style Selector="^.Success">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccesslBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemSuccessDefaultShape}"/>
+    </Style>
+
+    <Style Selector="^.Success.Dot">
+      <Setter Property="Shape" Value="{DynamicResource SystemSuccessDotShape}"/>
+    </Style>
+
+    <Style Selector="^.Success.Icon">
+      <Setter Property="Shape" Value="{DynamicResource SystemSuccessIconShape}"/>
+    </Style>
+
+    <Style Selector="^.Caution">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionlBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemCautionDefaultShape}"/>
+    </Style>
+
+    <Style Selector="^.Caution.Dot">
+      <Setter Property="Shape" Value="{DynamicResource SystemCautionDotShape}"/>
+    </Style>
+
+    <Style Selector="^.Caution.Icon">
+      <Setter Property="Shape" Value="{DynamicResource SystemCautionIconShape}"/>
+    </Style>
+
+    <Style Selector="^.Critical">
+      <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+      <Setter Property="Shape" Value="{DynamicResource SystemCriticalDefaultShape}"/>
+    </Style>
+
+    <Style Selector="^.Critical.Dot">
+      <Setter Property="Shape" Value="{DynamicResource SystemCriticalDotShape}"/>
+    </Style>
+
+    <Style Selector="^.Critical.Icon">
+      <Setter Property="Shape" Value="{DynamicResource SystemCriticalIconShape}"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

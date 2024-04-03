@@ -37,7 +37,6 @@ public class InfoBadge : ContentControl
                                 [~Avalonia.Controls.Shapes.Path.DataProperty] = new TemplateBinding(ShapeProperty),
                                 [~Avalonia.Controls.Shapes.Shape.StrokeProperty] = new TemplateBinding(BorderBrushProperty),
                                 [~Avalonia.Controls.Shapes.Shape.StrokeThicknessProperty] = new TemplateBinding(BorderThicknessProperty),
-                                //StrokeThickness = 5,
                                 [~Avalonia.Controls.Shapes.Shape.FillProperty] = new TemplateBinding(BackgroundProperty),
                             }.RegisterInNameScope(ns),
                         new ContentPresenter
@@ -85,6 +84,22 @@ public class InfoBadge : ContentControl
         set => SetValue(ShapeProperty, value);
     }
 
+    /// <summary>
+    /// ShowOnNullContent StyledProperty definition
+    /// </summary>
+    public static readonly StyledProperty<bool> ShowOnNullContentProperty =
+        AvaloniaProperty.Register<InfoBadge, bool>(nameof(ShowOnNullContent));
+
+    /// <summary>
+    /// Gets or sets the ShowOnNullContent property. This StyledProperty
+    /// indicates ....
+    /// </summary>
+    public bool ShowOnNullContent
+    {
+        get => GetValue(ShowOnNullContentProperty);
+        set => SetValue(ShowOnNullContentProperty, value);
+    }
+
     public static InfoBadge? GetBadge(Visual element) =>
         element.GetValue(BadgeProperty);
 
@@ -98,7 +113,6 @@ public class InfoBadge : ContentControl
         {
             if (AdornerLayer.GetAdornerLayer(visual) is { } layer)
             {
-
                 if (change.OldValue is InfoBadge oldBadge)
                 {
                     visual.DetachedFromVisualTree -= Parent_DetachedFromVisualTreeHandler;
@@ -157,9 +171,9 @@ public class InfoBadge : ContentControl
         if (change.Property == ContentProperty)
         {
             // Hide Adorner if Content is Null
-            SetCurrentValue(IsVisibleProperty, change.NewValue is not null);
+            SetCurrentValue(IsVisibleProperty, ShowOnNullContent || change.NewValue is not null);
         }
-        else if (change.Property == IsVisibleProperty)
+        if (change.Property == IsVisibleProperty)
         {
             if (change.NewValue is false)
             {
@@ -171,13 +185,17 @@ public class InfoBadge : ContentControl
                 ApplyPadding();
             }
         }
+        if (change.Property == ShowOnNullContentProperty)
+        {
+            SetCurrentValue(IsVisibleProperty, change.GetNewValue<bool>() || Content is not null);
+        }
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
         // Ensure Visibilty
-        SetCurrentValue(IsVisibleProperty, Content is not null);
+        SetCurrentValue(IsVisibleProperty, ShowOnNullContent || Content is not null);
         _disposablePadding = ApplyPadding();
     }
 
