@@ -2,10 +2,15 @@
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-internal class BadgesViewModel:ViewModelBase
+internal class BadgesViewModel : ViewModelBase
 {
-    static BadgesViewModel() 
+    static BadgesViewModel()
     {
         ViewLocator.Register(typeof(BadgesViewModel), () => new BadgesView());
-    } 
+    }
+
+    public BadgesViewModel()
+    {
+        Title = "InfoBadge";
+    }
 }
