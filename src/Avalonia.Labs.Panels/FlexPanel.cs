@@ -258,7 +258,7 @@ namespace Avalonia.Labs.Panels
             var totalV = totalLineV + totalSpacingV;
             var freeV = panelSize.V - totalV;
 
-            var alignContent = freeV >= 0.0 ? AlignContent : AlignContent switch
+            var alignContent = freeV > 0.0 ? AlignContent : AlignContent switch
             {
                 AlignContent.FlexStart or AlignContent.Stretch or AlignContent.SpaceBetween => AlignContent.FlexStart,
                 AlignContent.Center or AlignContent.SpaceAround or AlignContent.SpaceEvenly => AlignContent.Center,
