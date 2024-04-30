@@ -80,6 +80,7 @@ public class PanGestureRecognizer : GestureRecognizer
             e.Pointer.Capture(_inputElement);
             OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(PanGestureStatus.Started, 0, 0));
             e.Handled = true;
+            Capture(e.Pointer);
         }
 
         OnPan?.Invoke(_inputElement, new PanUpdatedEventArgs(PanGestureStatus.Running, _delta.X, _delta.Y));
