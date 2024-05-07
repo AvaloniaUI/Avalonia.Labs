@@ -15,6 +15,7 @@
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/AsyncImage.xaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentDialog.axaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/InfoBadge.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
