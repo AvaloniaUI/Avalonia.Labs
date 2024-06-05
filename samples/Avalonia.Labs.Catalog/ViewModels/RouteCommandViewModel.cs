@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Labs.Catalog.Views;
+using Avalonia.Labs.Input;
 using Avalonia.Platform.Storage;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
@@ -42,6 +43,7 @@ public class RouteCommandViewModel : ViewModelBase, IViewBinder
                     item.Text = file.Name;
                 }
             }
+            CommandManager.InvalidateRequerySuggested();
         }
     }
 
@@ -53,6 +55,7 @@ public class RouteCommandViewModel : ViewModelBase, IViewBinder
         if (parameter is RouteCommandItemViewModel { HasChanges: true } item)
         {
             item.Accept();
+            CommandManager.InvalidateRequerySuggested();
         }
         await Task.CompletedTask;
     }
@@ -66,6 +69,7 @@ public class RouteCommandViewModel : ViewModelBase, IViewBinder
         {
             Dettails.Remove(item);
             item.Accept();
+            CommandManager.InvalidateRequerySuggested();
         }
     }
     

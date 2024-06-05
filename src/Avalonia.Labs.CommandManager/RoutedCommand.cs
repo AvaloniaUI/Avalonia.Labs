@@ -11,7 +11,11 @@ namespace Avalonia.Labs.Input;
 /// </summary>
 public class RoutedCommand : ICommand
 {
-    private EventHandler? _canExecuteChanged;
+    /// <summary>
+    /// The weak collection of delegates for <see cref="ICommand.CanExecuteChanged"/>.
+    /// </summary>
+    private readonly WeakCollection<EventHandler> _canExecuteChanged = new();
+
     private RoutedCommandRequeryHandler? _handler;
     private IList<KeyGesture>? _gestures;
 
@@ -63,8 +67,7 @@ public class RoutedCommand : ICommand
     {
         add
         {
-            _canExecuteChanged += value;
-
+            _canExecuteChanged.Add(value!);
             if (_handler is null)
             {
                 _handler ??= new RoutedCommandRequeryHandler(this);
@@ -73,8 +76,7 @@ public class RoutedCommand : ICommand
         }
         remove
         {
-            _canExecuteChanged -= value;
-            
+            _canExecuteChanged.Remove(value!);
             if (_handler is not null && _canExecuteChanged is null)
             {
                 CommandManager.PrivateRequerySuggestedEvent.Unsubscribe(CommandManager.Current, _handler);
@@ -155,6 +157,11 @@ public class RoutedCommand : ICommand
 
     private class RoutedCommandRequeryHandler(RoutedCommand command) : IWeakEventSubscriber<EventArgs>
     {
-        public void OnEvent(object? sender, WeakEvent ev, EventArgs e) => command._canExecuteChanged?.Invoke(sender, e);
+        public void OnEvent(object? sender, WeakEvent ev, EventArgs e)
+        {
+            var list = command._canExecuteChanged.GetLiveItems();
+            foreach (var canExecuteChanged in list)
+                canExecuteChanged(sender, EventArgs.Empty);
+        }
     }
 }
