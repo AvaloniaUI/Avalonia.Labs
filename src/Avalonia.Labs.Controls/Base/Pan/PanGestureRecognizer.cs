@@ -32,7 +32,6 @@ public class PanGestureRecognizer : GestureRecognizer
         _tracking = e.Pointer;
         _visual = Target as Visual;
         _parent = _visual?.Parent as Visual;
-        _state = PanGestureStatus.Completed;
         _startPosition = e.GetPosition(_parent);
         _state = PanGestureStatus.Started;
     }
@@ -93,7 +92,7 @@ public class PanGestureRecognizer : GestureRecognizer
     /// <inheritdoc />
     protected override void PointerReleased(PointerReleasedEventArgs e)
     {
-        if (_tracking is null || e.Pointer != _tracking)
+        if (e.Pointer != _tracking)
         {
             return;
         }
@@ -117,7 +116,6 @@ public class PanGestureRecognizer : GestureRecognizer
     /// <inheritdoc />
     protected override void PointerCaptureLost(IPointer pointer)
     {
-        var startPosition = _startPosition;
         var delta = _delta;
 
         _tracking = null;
