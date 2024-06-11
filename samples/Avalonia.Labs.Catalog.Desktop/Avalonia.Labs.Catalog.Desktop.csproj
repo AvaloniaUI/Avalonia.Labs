@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications.Windows\Avalonia.Labs.Notifications.Windows.csproj" />
     <ProjectReference Include="..\Avalonia.Labs.Catalog\Avalonia.Labs.Catalog.csproj" />
   </ItemGroup>
 </Project>

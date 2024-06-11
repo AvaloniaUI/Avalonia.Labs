@@ -1,0 +1,220 @@
+@clr-namespace Avalonia.Labs.Notifications.Windows.WinRT
+@clr-access internal
+@clr-map HSTRING IntPtr
+@clr-map HWND IntPtr
+@clr-map BOOL int
+@clr-map DWORD int
+@clr-map boolean int
+@clr-map BYTE byte
+@clr-map INT16 short
+@clr-map INT32 int
+@clr-map INT64 long
+@clr-map UINT16 ushort
+@clr-map UINT32 uint
+@clr-map UINT64 ulong
+@clr-map DOUBLE double
+
+enum TrustLevel
+{
+    BaseTrust,
+    PartialTrust,
+    FullTrust
+}
+
+enum UserNotificationChangedKind
+{
+    Added = 0,
+    Removed = 1
+};
+
+enum NotificationSetting
+{
+    Enabled = 0,
+    DisabledForApplication = 1,
+    DisabledForUser = 2,
+    DisabledByGroupPolicy = 3,
+    DisabledByManifest = 4
+};
+
+enum NotificationUpdateResult
+{
+    Succeeded = 0,
+    Failed = 1,
+    NotificationNotFound = 2
+};
+
+[uuid(79F577F8-0DE7-48CD-9740-9B370490C838)]
+interface IScheduledToastNotification : IInspectable
+{
+    [propget] HRESULT Content([out][retval] IXmlDocument** value);
+    [propget] HRESULT DeliveryTime([out][retval] void** value);
+    [propget] HRESULT SnoozeInterval([out][retval] void** value);
+    [propget] HRESULT MaximumSnoozeCount([out][retval] UINT32* value);
+    [propput] HRESULT Id([in] HSTRING value);
+    [propget] HRESULT Id([out][retval] HSTRING* value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.Data.Xml.Dom.XmlDocument)]
+[uuid(F7F3A506-1E87-42D6-BCFB-B8C809FA5494)]
+interface IXmlDocument : IInspectable
+{
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotificationManager)]
+[uuid(50AC103F-D235-4598-BBEF-98FE4D1A3AD4)]
+interface IToastNotificationManagerStatics : IInspectable
+{
+    [overload("CreateToastNotifier")] HRESULT CreateToastNotifier([out][retval] IToastNotifier** result);
+    [overload("CreateToastNotifier")] HRESULT CreateToastNotifierWithId([in] HSTRING applicationId, [out][retval] IToastNotifier** result);
+    //    HRESULT GetTemplateContent([in] Windows.UI.Notifications.ToastTemplateType type, [out] [retval] Windows.Data.Xml.Dom.XmlDocument** result);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotification)]
+[uuid(9DFB9FD1-143A-490E-90BF-B9FBA7132DE7)]
+interface IToastNotification2 : IInspectable
+{
+    [propput] HRESULT Tag([in] HSTRING value);
+    [propget] HRESULT Tag([out][retval] HSTRING* value);
+    [propput] HRESULT Group([in] HSTRING value);
+    [propget] HRESULT Group([out][retval] HSTRING* value);
+    [propput] HRESULT SuppressPopup([in] boolean value);
+    [propget] HRESULT SuppressPopup([out][retval] boolean* value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotification)]
+[uuid(04124B20-82C6-4229-B109-FD9ED4662B53)]
+interface IToastNotificationFactory : IInspectable
+{
+    HRESULT CreateToastNotification([in] IXmlDocument* content, [out][retval] IToastNotification** value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.Data.Xml.Dom.XmlDocument)]
+[uuid(6CD0E74E-EE65-4489-9EBF-CA43E87BA637)]
+interface IXmlDocumentIO : IInspectable
+{
+    [overload("LoadXml")] HRESULT LoadXml([in] HSTRING xml);
+}
+
+[uuid(997E2675-059E-4E60-8B06-1760917C8B80)]
+interface IToastNotification : IInspectable
+{
+    [propget] HRESULT Content([out][retval] IXmlDocument** value);
+    [propput] HRESULT ExpirationTime([in] void* value);
+    [propget] HRESULT ExpirationTime([out][retval] void** value);
+    [eventadd] HRESULT AddDismissed([in] void* handler, [out][retval] int* cookie);
+    [eventremove] HRESULT RemoveDismissed([in] int cookie);
+    [eventadd] HRESULT AddActivated([in] void* handler, [out][retval] int* cookie);
+    [eventremove] HRESULT RemoveActivated([in] int cookie);
+    [eventadd] HRESULT AddFailed([in] void* handler, [out][retval] int* token);
+    [eventremove] HRESULT RemoveFailed([in] int token);
+}
+
+
+[uuid(9FFD2312-9D6A-4AAF-B6AC-FF17F0C1F280)]
+interface INotificationData : IInspectable
+{
+    [propget] HRESULT Values([out][retval] void** value);
+    [propget] HRESULT SequenceNumber([out][retval] UINT32* value);
+    [propput] HRESULT SequenceNumber([in] UINT32 value);
+}
+
+[uuid(68835B8E-AA56-4E11-86D3-5F9A6957BC5B)]
+interface INotificationVisual : IInspectable
+{
+    [propget] HRESULT Language([out][retval] HSTRING* value);
+    [propput] HRESULT Language([in] HSTRING value);
+    [propget] HRESULT Bindings([out][retval] void** result);
+    HRESULT GetBinding([in] HSTRING templateName, [out][retval] void** result);
+}
+
+[uuid(108037FE-EB76-4F82-97BC-DA07530A2E20)]
+interface INotification : IInspectable
+{
+    [propget] HRESULT ExpirationTime([out][retval] void** value);
+    [propput] HRESULT ExpirationTime([in] void* value);
+    [propget] HRESULT Visual([out][retval] INotificationVisual** value);
+    [propput] HRESULT Visual([in] INotificationVisual* value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[exclusiveto(Windows.UI.Notifications.ToastNotificationHistory)]
+[uuid(5CADDC63-01D3-4C97-986F-0533483FEE14)]
+interface IToastNotificationHistory : IInspectable
+{
+    [overload("RemoveGroup")] HRESULT RemoveGroup([in] HSTRING group);
+    [overload("RemoveGroup")] HRESULT RemoveGroupWithId([in] HSTRING group, [in] HSTRING applicationId);
+    [overload("Remove")] HRESULT RemoveGroupedTagWithId([in] HSTRING tag, [in] HSTRING group, [in] HSTRING applicationId);
+    [overload("Remove")] HRESULT RemoveGroupedTag([in] HSTRING tag, [in] HSTRING group);
+    [overload("Remove")] HRESULT Remove([in] HSTRING tag);
+    [overload("Clear")] HRESULT Clear();
+    [overload("Clear")] HRESULT ClearWithId([in] HSTRING applicationId);
+}
+
+[uuid(AF86E2E0-B12D-4c6a-9C5A-D7AA65101E90)]
+interface IInspectable : IUnknown
+{
+    HRESULT GetIids(ulong* iidCount, Guid** iids);
+    HRESULT GetRuntimeClassName([out] IntPtr* className);
+    HRESULT GetTrustLevel([out] TrustLevel* trustLevel);
+}
+
+[uuid(79AB57F6-43FE-487B-8A7F-99567200AE94)]
+interface IToastNotificationManagerForUser : IInspectable
+{
+    HRESULT CreateToastNotifier([out] IToastNotifier** result);
+    HRESULT CreateToastNotifierWithId([in] HSTRING applicationId, [out] IToastNotifier** result);
+    [propget] HRESULT History([out] IToastNotificationHistory** value);
+    [propget] HRESULT User([out] void** value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 1.0)]
+[uuid(7AB93C52-0E48-4750-BA9D-1A4113981847)]
+interface IToastNotificationManagerStatics2 : IInspectable
+{
+    [propget] HRESULT History([out][retval] IToastNotificationHistory** value);
+}
+
+[uuid(75927B93-03F3-41EC-91D3-6E5BAC1B38E7)]
+interface IToastNotifier : IInspectable
+{
+    HRESULT Show([in] IToastNotification* notification);
+    HRESULT Hide([in] IToastNotification* notification);
+    HRESULT Setting([out] [retval] NotificationSetting* value);
+    HRESULT AddToSchedule([in] IScheduledToastNotification* scheduledToast);
+    HRESULT RemoveFromSchedule([in] IScheduledToastNotification* scheduledToast);
+    HRESULT GetScheduledToastNotifications([out] [retval] void** scheduledToasts);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 4.0)]
+[exclusiveto(ToastNotifier)]
+[uuid(354389C6-7C01-4BD5-9C20-604340CD2B74)]
+interface IToastNotifier2 : IInspectable
+{
+    HRESULT UpdateWithTagAndGroup([in] INotificationData* data, [in] HSTRING tag, [in] HSTRING group, [out] [retval] NotificationUpdateResult* result);
+    HRESULT UpdateWithTag([in] INotificationData* data, [in] HSTRING tag, [out] [retval] NotificationUpdateResult* result);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 3.0)]
+[exclusiveto(UserNotification)]
+[uuid(ADF7E52F-4E53-42D5-9C33-EB5EA515B23E)]
+interface IUserNotification : IInspectable
+{
+    [propget] HRESULT Notification([out] [retval] INotification** value);
+    [propget] HRESULT AppInfo([out] [retval] void** value);
+    [propget] HRESULT Id([out] [retval] UINT32* value);
+    [propget] HRESULT CreationTime([out] [retval] void** value);
+}
+
+[contract(Windows.Foundation.UniversalApiContract, 3.0)]
+[exclusiveto(UserNotificationChangedEventArgs)]
+[uuid(B6BD6839-79CF-4B25-82C0-0CE1EEF81F8C)]
+interface IUserNotificationChangedEventArgs : IInspectable
+{
+    [propget] HRESULT ChangeKind([out] [retval] UserNotificationChangedKind* value);
+    [propget] HRESULT UserNotificationId([out] [retval] UINT32* value);
+}
