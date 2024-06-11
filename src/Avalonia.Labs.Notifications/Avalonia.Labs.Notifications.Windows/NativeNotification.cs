@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using Avalonia.Controls.Notifications;
-using Avalonia.Labs.Notifications.Windows.WinRT;
+﻿using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
     internal class NativeNotification : INativeNotification
     {
-        private static uint _currentId = 0;
+        private static uint s_currentId = 0;
         private readonly NativeNotificationManager _manager;
         private readonly NotificationChannel _channel;
 
@@ -65,7 +56,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
                 bool hasInput = false;
 
-                foreach (NativeNotificationAction action in Actions)
+                foreach (var action in Actions)
                 {
                     if (ReplyActionTag == action.Tag)
                     {
@@ -126,9 +117,10 @@ namespace Avalonia.Labs.Notifications.Windows
             CurrentNotification?.Dispose();
             CurrentNotification = null;
         }
-        private uint GetNextId()
+
+        private static uint GetNextId()
         {
-            return Interlocked.Increment(ref _currentId);
+            return Interlocked.Increment(ref s_currentId);
         }
     }
 }

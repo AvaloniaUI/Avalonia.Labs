@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
-using Avalonia.Controls.Notifications;
 using Avalonia.Media.Imaging;
 using static Avalonia.Labs.Notifications.Linux.NativeInterop;
 
@@ -11,7 +9,7 @@ namespace Avalonia.Labs.Notifications.Linux
 {
     internal class LinuxNativeNotification : INativeNotification
     {
-        private static int _currentId = 0;
+        private static int s_currentId = 0;
         private IntPtr _pixbuf;
 
         public uint Id { get; }
@@ -137,9 +135,9 @@ namespace Avalonia.Labs.Notifications.Linux
             _pixbuf = default;
         }
 
-        private int GetNextId()
+        private static int GetNextId()
         {
-            return Interlocked.Increment(ref _currentId);
+            return Interlocked.Increment(ref s_currentId);
         }
     }
 }

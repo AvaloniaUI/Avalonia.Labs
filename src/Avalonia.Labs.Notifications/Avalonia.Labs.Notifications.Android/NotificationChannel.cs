@@ -31,6 +31,7 @@ namespace Avalonia.Labs.Notifications.Android
                     NotificationPriority.Low => NotificationImportance.Low,
                     NotificationPriority.High => NotificationImportance.High,
                     NotificationPriority.Max => NotificationImportance.Max,
+                    _ => throw new NotImplementedException(),
                 }));
                 NotificationManagerCompat.From(_activity).CreateNotificationChannel(builder.Build());
             }

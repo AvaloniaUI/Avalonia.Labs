@@ -1,6 +1,4 @@
-﻿using Android.Content;
-
-namespace Avalonia.Labs.Notifications.Android
+﻿namespace Avalonia.Labs.Notifications.Android
 {
     public static class AppBuilderExtensions
     {

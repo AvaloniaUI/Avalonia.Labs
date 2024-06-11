@@ -63,7 +63,7 @@ namespace Avalonia.Labs.Notifications.Android
             return new NativeNotification(_activity, this, channel);
         }
 
-        public async Task Initialize()
+        public async void Initialize()
         {
             ChannelManager.ConsolidateChannels();
             _isActive = await CheckPermission();
@@ -77,7 +77,6 @@ namespace Avalonia.Labs.Notifications.Android
             if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
                 return true;
 
-            var currentRequestCode = PlatformSupport.GetNextRequestCode();
             return await PlatformSupport.CheckPermission(_activity, Manifest.Permission.PostNotifications);
         }
 

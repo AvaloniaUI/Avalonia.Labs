@@ -8,7 +8,7 @@ namespace Avalonia.Labs.Notifications.Android
 {
     internal class NativeNotification : INativeNotification
     {
-        private static uint _currentId = 0;
+        private static uint s_currentId = 0;
         private readonly Activity _activity;
         private readonly NativeNotificationManager _manager;
         private readonly NotificationChannel _channel;
@@ -102,6 +102,7 @@ namespace Avalonia.Labs.Notifications.Android
                     NotificationPriority.Low => NotificationCompat.PriorityLow,
                     NotificationPriority.High => NotificationCompat.PriorityHigh,
                     NotificationPriority.Max => NotificationCompat.PriorityMax,
+                    _ => throw new NotImplementedException(),
                 });
             }
 
@@ -144,7 +145,7 @@ namespace Avalonia.Labs.Notifications.Android
 
         private uint GetNextId()
         {
-            return Interlocked.Increment(ref _currentId);
+            return Interlocked.Increment(ref s_currentId);
         }
     }
 }

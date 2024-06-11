@@ -1,11 +1,7 @@
-﻿
-using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
-using Avalonia.Controls.Notifications;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
@@ -149,7 +145,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
                 return $"file:///{path}";
             }
-            catch(Exception ex)
+            catch(Exception _)
             {
                 return null;
             }

@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Labs.Notifications.Linux;
-using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
@@ -14,7 +13,7 @@ namespace Avalonia.Labs.Notifications.Windows
                 return appBuilder;
 
             var notificationManager = new LinuxNativeNotificationManager(options.AppName, options.AppIcon);
-            Notifications.NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
+            NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
             foreach (var channel in options.Channels)
             {

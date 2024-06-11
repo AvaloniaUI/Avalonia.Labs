@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Avalonia.Labs.Notifications.Linux
+namespace Avalonia.Labs.Notifications
 {
-    internal class LinuxNotificationChannelManager
+    public class NotificationChannelManager
     {
         public const string DefaultChannel = "default";
         public const string DefaultChannelLabel = "Notifications";

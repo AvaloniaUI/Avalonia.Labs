@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading;
-using Avalonia.Media.Imaging;
 using static Avalonia.Labs.Notifications.Linux.NativeInterop;
 
 namespace Avalonia.Labs.Notifications.Linux
@@ -24,14 +21,14 @@ namespace Avalonia.Labs.Notifications.Linux
         {
             _appName = appName;
             _appIcon = appIcon;
-            ChannelManager = new LinuxNotificationChannelManager();
+            ChannelManager = new NotificationChannelManager();
         }
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
         public IDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
-        internal LinuxNotificationChannelManager ChannelManager { get; set; }
+        internal NotificationChannelManager ChannelManager { get; set; }
 
         public string? AppIcon => _appIcon;
 
@@ -43,8 +40,8 @@ namespace Avalonia.Labs.Notifications.Linux
             {
                 return null;
             }
-            var channel = ChannelManager?.GetChannel(category ?? LinuxNotificationChannelManager.DefaultChannel) ??
-                ChannelManager?.AddChannel(new NotificationChannel(LinuxNotificationChannelManager.DefaultChannel, LinuxNotificationChannelManager.DefaultChannelLabel));
+            var channel = ChannelManager?.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
+                ChannelManager?.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
 
             if (channel == null)
             {
@@ -75,9 +72,9 @@ namespace Avalonia.Labs.Notifications.Linux
                     _loopThread.Start();
                 }
             }
-            catch (Exception ex)
+            catch (Exception _)
             {
-
+                _isInitialized = false;
             }
         }
 
@@ -90,13 +87,11 @@ namespace Avalonia.Labs.Notifications.Linux
 
             if (notification != null)
             {
-                IntPtr error = IntPtr.Zero;
+                IntPtr error = default;
                 var successfull = notify_notification_show(notification.NativeHandle, ref error);
 
                 if (!successfull)
                 {
-                    var details = GError.FromPointer(error);
-
                     CloseNotification(notification);
 
                     g_error_free(error);
@@ -165,6 +160,7 @@ namespace Avalonia.Labs.Notifications.Linux
             CloseAll();
 
             _loop = default;
+            notify_uninit();
         }
 
         internal void Close(LinuxNativeNotification? linuxNativeNotification)

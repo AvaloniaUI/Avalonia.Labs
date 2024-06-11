@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Avalonia.Labs.Notifications
+﻿namespace Avalonia.Labs.Notifications
 {
     public static class NativeNotificationManager
     {
