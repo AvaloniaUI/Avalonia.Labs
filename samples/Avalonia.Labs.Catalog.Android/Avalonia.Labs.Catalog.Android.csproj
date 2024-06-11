@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications.Android\Avalonia.Labs.Notifications.Android.csproj" />
     <ProjectReference Include="..\Avalonia.Labs.Catalog\Avalonia.Labs.Catalog.csproj" />
   </ItemGroup>
 </Project>
