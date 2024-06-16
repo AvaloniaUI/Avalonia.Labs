@@ -256,7 +256,7 @@
               </Border>
             </ControlTemplate>
           </Grid.Resources>
-          <control:FlipViewScrollViewer  Name="PART_ScrollViewer"
+          <control:FlipViewScrollViewer Name="PART_ScrollViewer"
                         VerticalSnapPointsType="MandatorySingle"
                         HorizontalSnapPointsType="MandatorySingle"
                         VerticalAlignment="Stretch">
