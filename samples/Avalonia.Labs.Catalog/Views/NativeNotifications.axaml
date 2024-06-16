@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             x:DataType="viewModels:NativeNotificationsViewModel"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             Padding="10"
+             xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             x:Class="Avalonia.Labs.Catalog.Views.NativeNotificationsView">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+              <Button Command="{Binding SendBasicNotification}" HorizontalAlignment="Stretch">Send Basic Notification</Button>
+              <Button Command="{Binding SendPredefinedActionsNotification}" HorizontalAlignment="Stretch">Send Notification With Predefined Actions</Button>
+              <Button Command="{Binding SendCustomActionsNotification}"
+                      HorizontalAlignment="Stretch">Send Notification With Custom Actions</Button>
+              <TextBox Watermark="Custom Action Caption" Text="{Binding CustomCaption}"/>
+              <Button Command="{Binding SendReplyActionNotification}"
+                      HorizontalAlignment="Stretch">Send Notification with Reply Action</Button>
+              <Label Content="{Binding Response}"/>
+            </StackPanel>
+</UserControl>
