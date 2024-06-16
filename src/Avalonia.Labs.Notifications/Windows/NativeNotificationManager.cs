@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
@@ -33,6 +34,7 @@ namespace Avalonia.Labs.Notifications.Windows
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
         internal void Initialize()
         {
             _aumid = NativeInterop.GetAumid();
@@ -90,6 +92,8 @@ namespace Avalonia.Labs.Notifications.Windows
 
         internal void Show(NativeNotification nativeNotification)
         {
+            if (nativeNotification.CurrentNotification == null)
+                return;
             using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
             using var notifier = managerStatics.CreateToastNotifier();
             notifier.Show(nativeNotification.CurrentNotification);
@@ -129,7 +133,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
         internal string GetAppDataFolderPath()
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", _aumid.Split("!")[0], "AppData", "Images");
+            return _aumid == null ? "" : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", _aumid.Split("!")[0], "AppData", "Images");
         }
 
         internal string? SaveBitmapToAppPath(Bitmap bitmap)

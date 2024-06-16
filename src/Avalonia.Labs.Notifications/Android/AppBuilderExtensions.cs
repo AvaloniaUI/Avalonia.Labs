@@ -1,4 +1,5 @@
-﻿namespace Avalonia.Labs.Notifications.Android
+﻿#if ANDROID
+namespace Avalonia.Labs.Notifications.Android
 {
     public static class AppBuilderExtensions
     {
@@ -29,3 +30,4 @@
         public IReadOnlyList<NotificationChannel> Channels { get; init; }
     }
 }
+#endif

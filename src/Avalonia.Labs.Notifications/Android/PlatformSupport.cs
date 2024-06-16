@@ -1,4 +1,5 @@
-﻿using Android.Content.PM;
+﻿#if ANDROID
+using Android.Content.PM;
 using Avalonia.Android;
 
 namespace Avalonia.Labs.Notifications.Android;
@@ -46,3 +47,4 @@ internal static class PlatformSupport
         }
     }
 }
+#endif

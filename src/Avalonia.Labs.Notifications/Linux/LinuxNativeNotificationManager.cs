@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using static Avalonia.Labs.Notifications.Linux.NativeInterop;
+﻿using static Avalonia.Labs.Notifications.Linux.NativeInterop;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
@@ -13,7 +10,7 @@ namespace Avalonia.Labs.Notifications.Linux
         private string _appName;
         private readonly string? _appIcon;
         private bool _isInitialized;
-        private Thread _loopThread;
+        private Thread? _loopThread;
         private IntPtr _loop;
         public ActionDelegate Callback = new ActionDelegate(Activated);
 

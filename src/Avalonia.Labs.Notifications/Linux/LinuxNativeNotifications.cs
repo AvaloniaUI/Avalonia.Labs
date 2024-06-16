@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using static Avalonia.Labs.Notifications.Linux.NativeInterop;
 
 namespace Avalonia.Labs.Notifications.Linux
@@ -76,10 +72,10 @@ namespace Avalonia.Labs.Notifications.Linux
                 }
             }
             var appIcon = _manager.AppIcon;
-            var handle = NativeHandle != default ? NativeHandle : notify_notification_new(Title, Message, appIcon);
+            var handle = NativeHandle != default ? NativeHandle : notify_notification_new(Title ?? "", Message ?? "", appIcon ?? "");
             if (NativeHandle != default)
             {
-                notify_notification_update(NativeHandle, Title, Message, appIcon);
+                notify_notification_update(NativeHandle, Title ?? "", Message ?? "", appIcon ?? "");
             }
 
             if(!string.IsNullOrWhiteSpace(_manager.AppName))
@@ -107,7 +103,7 @@ namespace Avalonia.Labs.Notifications.Linux
             {
                 foreach (var action in Actions)
                 {
-                    notify_notification_add_action(handle, action.Tag, action.Caption, _manager.Callback, (IntPtr)Id, IntPtr.Zero);
+                    notify_notification_add_action(handle, action.Tag ?? "", action.Caption ?? "", _manager.Callback, (IntPtr)Id, IntPtr.Zero);
                 }
             }
 

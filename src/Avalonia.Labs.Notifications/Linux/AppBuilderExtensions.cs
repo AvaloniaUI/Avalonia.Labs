@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Labs.Notifications.Linux;
 
-namespace Avalonia.Labs.Notifications.Windows
+namespace Avalonia.Labs.Notifications.Linux
 {
     public static class AppBuilderExtensions
     {
@@ -12,13 +12,14 @@ namespace Avalonia.Labs.Notifications.Windows
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return appBuilder;
 
-            var notificationManager = new LinuxNativeNotificationManager(options.AppName, options.AppIcon);
+            var notificationManager = new LinuxNativeNotificationManager(options.AppName ?? "", options.AppIcon);
             NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
-            foreach (var channel in options.Channels)
-            {
-                notificationManager.ChannelManager.AddChannel(channel);
-            }
+            if (options.Channels != null)
+                foreach (var channel in options.Channels)
+                {
+                    notificationManager.ChannelManager.AddChannel(channel);
+                }
 
             var callback = appBuilder.AfterSetupCallback;
             callback += (a) =>
@@ -43,8 +44,8 @@ namespace Avalonia.Labs.Notifications.Windows
 
     public class X11NotificationOptions
     {
-        public string AppName { get; set; }
-        public IReadOnlyList<NotificationChannel> Channels { get; set; }
+        public string? AppName { get; set; }
+        public IReadOnlyList<NotificationChannel>? Channels { get; set; }
         public string? AppIcon { get; set; }
     }
 }

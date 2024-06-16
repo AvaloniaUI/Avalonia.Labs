@@ -1,4 +1,5 @@
-﻿using Android.Content;
+﻿#if ANDROID
+using Android.Content;
 
 namespace Avalonia.Labs.Notifications.Android
 {
@@ -16,3 +17,4 @@ namespace Avalonia.Labs.Notifications.Android
         }
     }
 }
+#endif

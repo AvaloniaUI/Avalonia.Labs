@@ -1,4 +1,5 @@
-﻿using Android.OS;
+﻿#if ANDROID
+using Android.OS;
 using AndroidX.Core.App;
 
 namespace Avalonia.Labs.Notifications.Android
@@ -83,3 +84,4 @@ namespace Avalonia.Labs.Notifications.Android
         }
     }
 }
+#endif

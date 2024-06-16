@@ -11,10 +11,11 @@ namespace Avalonia.Labs.Notifications.Windows
             var notificationManager = new NativeNotificationManager();
             Notifications.NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
-            foreach (var channel in options.Channels)
-            {
-                notificationManager.ChannelManager.AddChannel(channel);
-            }
+            if (options.Channels != null)
+                foreach (var channel in options.Channels)
+                {
+                    notificationManager.ChannelManager.AddChannel(channel);
+                }
 
             var callback = appBuilder.AfterSetupCallback;
             callback += (a) =>
@@ -39,6 +40,6 @@ namespace Avalonia.Labs.Notifications.Windows
 
     public class Win32NotificationOptions
     {
-        public IReadOnlyList<NotificationChannel> Channels { get; init; }
+        public IReadOnlyList<NotificationChannel>? Channels { get; init; }
     }
 }

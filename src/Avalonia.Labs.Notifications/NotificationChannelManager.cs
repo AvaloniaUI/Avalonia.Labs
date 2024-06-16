@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Avalonia.Labs.Notifications
+﻿namespace Avalonia.Labs.Notifications
 {
     public class NotificationChannelManager
     {

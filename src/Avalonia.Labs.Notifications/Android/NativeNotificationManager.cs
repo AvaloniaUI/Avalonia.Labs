@@ -1,4 +1,5 @@
-﻿using Android;
+﻿#if ANDROID
+using Android;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
@@ -120,3 +121,4 @@ namespace Avalonia.Labs.Notifications.Android
         }
     }
 }
+#endif

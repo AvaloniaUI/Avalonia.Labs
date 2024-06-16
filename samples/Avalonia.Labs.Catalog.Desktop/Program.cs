@@ -5,6 +5,7 @@ using System.IO;
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.Labs.Notifications;
 using Avalonia.Labs.Notifications.Windows;
+using Avalonia.Labs.Notifications.Linux;
 using Avalonia.Platform;
 using Avalonia.ReactiveUI;
 
@@ -32,6 +33,41 @@ class Program
             {
                 AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
                 AppName = "Avalonia.Labs",
+                Channels = new[]
+                    {
+                        new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),
+                        new NotificationChannel("actions", "Send Notification with Predefined Actions", Notifications.NotificationPriority.High)
+                        {
+                            Actions = new List<NativeNotificationAction>
+                            {
+                                new NativeNotificationAction()
+                                {
+                                    Tag = "hello",
+                                    Caption = "Hello"
+                                },
+                                new NativeNotificationAction()
+                                {
+                                    Tag = "world",
+                                    Caption = "world"
+                                }
+                            }
+                        },
+                        new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
+                        new NotificationChannel("reply", "Send Notification with Reply Action", Notifications.NotificationPriority.High)
+                        {
+                            Actions = new List<NativeNotificationAction>
+                            {
+                                new NativeNotificationAction()
+                                {
+                                    Tag = "reply",
+                                    Caption = "Reply"
+                                }
+                            }
+                        },
+                    }
+            })
+            .WithWin32AppNotifications(new Win32NotificationOptions()
+            {
                 Channels = new[]
                     {
                         new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),

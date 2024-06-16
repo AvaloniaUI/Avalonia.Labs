@@ -1,4 +1,5 @@
-﻿using Android.Content;
+﻿#if ANDROID
+using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
 using AndroidX.Core.Graphics.Drawable;
@@ -149,3 +150,4 @@ namespace Avalonia.Labs.Notifications.Android
         }
     }
 }
+#endif

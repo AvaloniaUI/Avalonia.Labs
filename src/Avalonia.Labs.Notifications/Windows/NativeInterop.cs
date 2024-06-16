@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
@@ -58,11 +59,12 @@ namespace Avalonia.Labs.Notifications.Windows
             int LockServer(bool fLock);
         }
 
+        [RequiresUnreferencedCode("")]
         public static void CreateAndRegisterActivator()
         {
             var uuid = typeof(NotificationActivator).GUID;
             if (!IsContainerized())
-                RegisterComServer(uuid, Process.GetCurrentProcess().MainModule.FileName);
+                RegisterComServer(uuid, Process.GetCurrentProcess()?.MainModule?.FileName ?? "");
 
             CoRegisterClassObject(uuid,
                 new NotificationActivatorClassFactory(),
@@ -220,10 +222,8 @@ namespace Avalonia.Labs.Notifications.Windows
             }
             sb = new StringBuilder(length);
             GetPackagePathByFullName(packageName, ref length, sb);
-            var exe = Process.GetCurrentProcess().MainModule.FileName;
+            var exe = Process.GetCurrentProcess()?.MainModule?.FileName ?? "";
             var packagePath = sb.ToString();
-
-            
 
             return exe.StartsWith(packagePath);
         }

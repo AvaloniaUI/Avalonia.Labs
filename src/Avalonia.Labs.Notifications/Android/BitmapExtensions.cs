@@ -1,4 +1,5 @@
-﻿using Android.Graphics;
+﻿#if ANDROID
+using Android.Graphics;
 using AndroidBitmap = Android.Graphics.Bitmap;
 using AvaloniaBitmap = Avalonia.Media.Imaging.Bitmap;
 
@@ -15,3 +16,4 @@ namespace Avalonia.Labs.Notifications.Android
         }
     }
 }
+#endif
