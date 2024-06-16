@@ -1,5 +1,4 @@
 ﻿using System;
-using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
@@ -8,8 +7,6 @@ using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using Avalonia.Rendering.Composition;
-using Avalonia.Rendering.Composition.Animations;
 
 namespace Avalonia.Labs.Controls
 {
@@ -30,9 +27,10 @@ namespace Avalonia.Labs.Controls
         private Button? _previousButtonHorizontal;
         private Button? _nextButtonVertical;
         private bool _isApplied;
+        private bool _isHorizontal;
 
         internal ItemsPresenter? ItemsPresenterPart { get; private set; }
-        internal AnimatedScrollViewer? ScrollViewerPart { get; private set; }
+        internal FlipViewScrollViewer? ScrollViewerPart { get; private set; }
 
         static FlipView()
         {
@@ -87,31 +85,37 @@ namespace Avalonia.Labs.Controls
                 _previousButtonVertical.Click += PreviousButton_Click;
             }
 
-            var grid = e.NameScope.Find<Grid>("PART_Grid");
-            ScrollViewerPart = e.NameScope.Find<AnimatedScrollViewer>("PART_ScrollViewer");
+            if (ScrollViewerPart != null)
+            {
+                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+            }
+
+            ScrollViewerPart = e.NameScope.Find<FlipViewScrollViewer>("PART_ScrollViewer");
+
+            if(ScrollViewerPart != null)
+            {
+                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+            }
 
             _isApplied = true;
 
             SetButtonsVisibility();
-
-            if (grid != null)
-            {
-                grid.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
-            }
         }
 
         private void ScrollEndedEventHandler(object? sender, ScrollGestureEndedEventArgs e)
         {
+            UpdateSelectedIndex();
+        }
 
+        private void UpdateSelectedIndex()
+        {
             if (ItemsPresenterPart != null && ScrollViewerPart != null && ItemCount > 0)
             {
-                bool isHorizontal = _nextButtonHorizontal!.IsVisible;
+                var offset = _isHorizontal ? ScrollViewerPart.Offset.X : ScrollViewerPart.Offset.Y;
 
-                var offset = isHorizontal ? ScrollViewerPart.Offset.X : ScrollViewerPart.Offset.Y;
+                var index = offset / (long)(_isHorizontal ? ScrollViewerPart.Viewport.Width : ScrollViewerPart.Viewport.Height);
 
-                var index = offset / (long)(isHorizontal ? Bounds.Width : Bounds.Height);
-
-                SelectedIndex = (int)Math.Max(0, index);
+                SelectedIndex = (int)Math.Max(0, Math.Min(index, ItemCount));
             }
         }
 
@@ -128,6 +132,16 @@ namespace Avalonia.Labs.Controls
             if (ItemCount > 0)
             {
                 SelectedIndex = Math.Min(ItemCount - 1, SelectedIndex + 1);
+            }
+        }
+
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+        {
+            base.OnPointerWheelChanged(e);
+
+            if (ItemCount > 0)
+            {
+                SelectedIndex = Math.Max(0, Math.Min(ItemCount - 1, SelectedIndex + (e.Delta.Y < 0 ? 1 : - 1)));
             }
         }
 
@@ -149,12 +163,14 @@ namespace Avalonia.Labs.Controls
                         _previousButtonHorizontal!.IsVisible = true;
                         _nextButtonVertical!.IsVisible = false;
                         _previousButtonVertical!.IsVisible = false;
+                        _isHorizontal = true;
                         break;
                     case Orientation.Vertical:
                         _nextButtonVertical!.IsVisible = true;
                         _previousButtonVertical!.IsVisible = true;
                         _nextButtonHorizontal!.IsVisible = false;
                         _previousButtonHorizontal!.IsVisible = false;
+                        _isHorizontal = false;
                         break;
                 }
             }
@@ -168,12 +184,14 @@ namespace Avalonia.Labs.Controls
                         _previousButtonHorizontal!.IsVisible = true;
                         _nextButtonVertical!.IsVisible = false;
                         _previousButtonVertical!.IsVisible = false;
+                        _isHorizontal = true;
                         break;
                     case Orientation.Vertical:
                         _nextButtonVertical!.IsVisible = true;
                         _previousButtonVertical!.IsVisible = true;
                         _nextButtonHorizontal!.IsVisible = false;
                         _previousButtonHorizontal!.IsVisible = false;
+                        _isHorizontal = false;
                         break;
                 }
             }

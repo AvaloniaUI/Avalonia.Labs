@@ -42,7 +42,7 @@
                     Margin="{TemplateBinding Padding}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-              <control:AnimatedScrollViewer Name="PART_ScrollViewer"
+              <ScrollViewer Name="PART_ScrollViewer"
                             HorizontalScrollBarVisibility="Hidden"
                             VerticalScrollBarVisibility="Disabled"
                             HorizontalAlignment="Stretch"
@@ -52,7 +52,7 @@
                             VerticalAlignment="Stretch">
                 <ItemsPresenter Name="PART_ItemsPresenter"
                                 ItemsPanel="{TemplateBinding ItemsPanel}"/>
-              </control:AnimatedScrollViewer>
+              </ScrollViewer>
             </Border>
           </DockPanel>
         </Border>

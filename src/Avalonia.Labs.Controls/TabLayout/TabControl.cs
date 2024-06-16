@@ -24,7 +24,7 @@ namespace Avalonia.Labs.Controls
     /// </summary>
     [TemplatePart("PART_Header", typeof(TabHeader))]
     [TemplatePart("PART_Border", typeof(Border))]
-    [TemplatePart("PART_ScrollViewer", typeof(AnimatedScrollViewer))]
+    [TemplatePart("PART_ScrollViewer", typeof(ScrollViewer))]
     [TemplatePart("PART_ItemsPresenter", typeof(ItemsPresenter))]
     [PseudoClasses(":animate")]
     public class TabControl : SelectingItemsControl
@@ -160,7 +160,7 @@ namespace Avalonia.Labs.Controls
         internal TabHeader? HeaderPart { get; private set; }
         internal ItemsPresenter? ItemsPresenterPart { get; private set; }
         internal Border? BorderPart { get; private set; }
-        internal AnimatedScrollViewer? ScrollViewerPart { get; private set; }
+        internal ScrollViewer? ScrollViewerPart { get; private set; }
 
         protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) => new TabItem();
 
@@ -224,7 +224,7 @@ namespace Avalonia.Labs.Controls
             }
 
             BorderPart = e.NameScope.Find<Border>("PART_Border");
-            ScrollViewerPart = e.NameScope.Find<AnimatedScrollViewer>("PART_ScrollViewer");
+            ScrollViewerPart = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
 
             if (ScrollViewerPart != null)
             {

@@ -43,10 +43,6 @@
               Name="PART_Grid"
               HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
               VerticalAlignment="{TemplateBinding VerticalAlignment}">
-          <Grid.GestureRecognizers>
-            <ScrollGestureRecognizer CanHorizontallyScroll="True"
-                                     CanVerticallyScroll="True" />
-          </Grid.GestureRecognizers>
           <Grid.Resources>
             <ControlTemplate x:Key="HorizontalNextTemplate"
                              TargetType="Button">
@@ -260,17 +256,19 @@
               </Border>
             </ControlTemplate>
           </Grid.Resources>
-          <control:AnimatedScrollViewer Name="PART_ScrollViewer"
+          <control:FlipViewScrollViewer  Name="PART_ScrollViewer"
                         VerticalSnapPointsType="MandatorySingle"
                         HorizontalSnapPointsType="MandatorySingle"
-                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                        IsScrollChainingEnabled="{TemplateBinding ScrollViewer.IsScrollChainingEnabled}"
-                        IsScrollInertiaEnabled="False"
                         VerticalAlignment="Stretch">
+            
+            <control:FlipViewScrollViewer.Transitions>
+              <Transitions>
+                <VectorTransition Property="Offset" Duration="00:00:00.5"/>
+              </Transitions>
+            </control:FlipViewScrollViewer.Transitions>
             <ItemsPresenter Name="PART_ItemsPresenter"
                             ItemsPanel="{TemplateBinding ItemsPanel}"/>
-          </control:AnimatedScrollViewer>
+          </control:FlipViewScrollViewer>
           <Button x:Name="PART_PreviousButtonHorizontal"
                   Template="{StaticResource HorizontalPreviousTemplate}"
                   Width="38"
