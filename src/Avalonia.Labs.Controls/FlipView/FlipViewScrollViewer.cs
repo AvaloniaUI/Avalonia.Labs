@@ -36,11 +36,17 @@ namespace Avalonia.Labs.Controls
         public static readonly AttachedProperty<SnapPointsType> HorizontalSnapPointsTypeProperty =
             ScrollViewer.HorizontalSnapPointsTypeProperty.AddOwner<FlipViewScrollViewer>();
 
+        /// <summary>
+        /// Defines the <see cref="EnableTransition"/> property.
+        /// </summary>
         public static readonly StyledProperty<bool> EnableTransitionProperty =
             AvaloniaProperty.Register<FlipViewScrollViewer, bool>(nameof(EnableTransition), defaultValue: true);
 
+        /// <summary>
+        /// Defines the <see cref="TransitionDuration"/> property.
+        /// </summary>
         public static readonly StyledProperty<TimeSpan?> TransitionDurationProperty =
-            AvaloniaProperty.Register<FlipViewScrollViewer, TimeSpan?>(nameof(TransitionDuration), defaultValue: TimeSpan.FromMilliseconds(250));
+            AvaloniaProperty.Register<FlipViewScrollViewer, TimeSpan?>(nameof(TransitionDuration), defaultValue: TimeSpan.FromMilliseconds(500));
 
         /// <summary>
         /// Defines the <see cref="VerticalSnapPointsType"/> property.
@@ -95,18 +101,27 @@ namespace Avalonia.Labs.Controls
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether transitions are enabled for <see cref="Offset"/>
+        /// </summary>
         public bool EnableTransition
         {
             get => GetValue(EnableTransitionProperty);
             set => SetValue(EnableTransitionProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets the duration for <see cref="Offset"/> transitions
+        /// </summary>
         public TimeSpan? TransitionDuration
         {
             get => GetValue(TransitionDurationProperty);
             set => SetValue(TransitionDurationProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets how scroll gesture reacts to the snap points along the horizontal axis.
+        /// </summary>
         public SnapPointsType HorizontalSnapPointsType
         {
             get => GetValue(HorizontalSnapPointsTypeProperty);
@@ -227,7 +242,7 @@ namespace Avalonia.Labs.Controls
             {
                 return;
             }
-            if (e.Property == ScrollContentPresenter.OffsetProperty)
+            if (e.Property == ScrollContentPresenter.OffsetProperty && e.Priority != Data.BindingPriority.Animation)
             {
                 SetCurrentValue(OffsetProperty, e.GetNewValue<Vector>());
                 RaiseScrollChanged();
@@ -288,7 +303,7 @@ namespace Avalonia.Labs.Controls
 
             var subscriptionDisposables = new IDisposable?[]
             {
-                IfUnset(OffsetProperty, p => presenter.Bind(p, this.GetBindingObservable(ScrollViewer.OffsetProperty), Data.BindingPriority.Template)),
+                IfUnset(ScrollContentPresenter.OffsetProperty, p => presenter.Bind(p, this.GetBindingObservable(FlipViewScrollViewer.OffsetProperty), Data.BindingPriority.Template)),
                 IfUnset(ContentProperty, p => presenter.Bind(p, this.GetBindingObservable(ContentProperty), Data.BindingPriority.Template)),
             }.Where(d => d != null).Cast<IDisposable>().ToArray();
 
@@ -299,7 +314,7 @@ namespace Avalonia.Labs.Controls
                 _subscriptions.Add(disposable);
             }
 
-            presenter.Offset = default;
+            presenter.SetCurrentValue(ScrollContentPresenter.OffsetProperty, Offset);
             presenter.SetCurrentValue(ContentPresenter.ContentProperty, Content);
             presenter.SetCurrentValue(ScrollContentPresenter.CanHorizontallyScrollProperty, true);
             presenter.SetCurrentValue(ScrollContentPresenter.CanVerticallyScrollProperty, true);
@@ -307,7 +322,7 @@ namespace Avalonia.Labs.Controls
             presenter.AddHandler(FlipViewScrollGestureRecognizer.ScrollGesturePointerPressedEvent, OnScrollGesture);
             AddHandler(FlipViewScrollGestureRecognizer.ScrollGesturePointerReleasedEvent, OnScrollGestureEnded);
 
-            IDisposable? IfUnset<T>(T property, Func<T, IDisposable> func) where T : AvaloniaProperty => IsSet(property) ? null : func(property);
+            IDisposable? IfUnset<T>(T property, Func<T, IDisposable> func) where T : AvaloniaProperty => presenter.IsSet(property) ? null : func(property);
         }
 
         private void OnScrollGestureEnded(object? sender, PointerReleasedEventArgs e)
@@ -315,6 +330,7 @@ namespace Avalonia.Labs.Controls
             if (_offsetTransition != null)
             {
                 _offsetTransition.Duration = TransitionDuration ?? default;
+                e.Handled = true;
             }
         }
 

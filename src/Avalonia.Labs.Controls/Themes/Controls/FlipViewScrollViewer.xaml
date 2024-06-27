@@ -13,9 +13,10 @@
                                VerticalSnapPointsType="{TemplateBinding VerticalSnapPointsType}"
                                HorizontalSnapPointsAlignment="{TemplateBinding HorizontalSnapPointsAlignment}"
                                VerticalSnapPointsAlignment="{TemplateBinding VerticalSnapPointsAlignment}"
+                               ScrollViewer.IsScrollInertiaEnabled="{TemplateBinding (ScrollViewer.IsScrollInertiaEnabled)}"
                                Padding="{TemplateBinding Padding}">
          <ScrollContentPresenter.GestureRecognizers>
-            <ui:FlipViewScrollGestureRecognizer IsScrollInertiaEnabled="False" CanHorizontallyScroll="{Binding CanHorizontallyScroll, ElementName=PART_ContentPresenter}"
+            <ui:FlipViewScrollGestureRecognizer CanHorizontallyScroll="{Binding CanHorizontallyScroll, ElementName=PART_ContentPresenter}"
                                                 CanVerticallyScroll="{Binding CanVerticallyScroll, ElementName=PART_ContentPresenter}" />
           </ScrollContentPresenter.GestureRecognizers>
        </ScrollContentPresenter>

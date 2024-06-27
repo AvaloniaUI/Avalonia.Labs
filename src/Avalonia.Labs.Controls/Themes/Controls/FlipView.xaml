@@ -259,6 +259,9 @@
           <control:FlipViewScrollViewer Name="PART_ScrollViewer"
                         VerticalSnapPointsType="MandatorySingle"
                         HorizontalSnapPointsType="MandatorySingle"
+                                        
+                        ScrollViewer.IsScrollInertiaEnabled="{TemplateBinding (ScrollViewer.IsScrollInertiaEnabled)}"
+                        TransitionDuration="{TemplateBinding TransitionDuration}"
                         VerticalAlignment="Stretch">
             
             <control:FlipViewScrollViewer.Transitions>

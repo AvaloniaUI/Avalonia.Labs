@@ -224,9 +224,14 @@ namespace Avalonia.Labs.Controls
             }
 
             BorderPart = e.NameScope.Find<Border>("PART_Border");
+            if (ScrollViewerPart != null)
+            {
+                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+            }
+
             ScrollViewerPart = e.NameScope.Find<FlipViewScrollViewer>("PART_ScrollViewer");
 
-            if(ScrollViewerPart != null)
+            if (ScrollViewerPart != null)
             {
                 ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
             }
@@ -242,10 +247,14 @@ namespace Avalonia.Labs.Controls
             if (ItemsPresenterPart != null && ScrollViewerPart != null && ItemCount > 0)
             {
                 var offset = ScrollViewerPart.Offset.X;
+                var viewport = ScrollViewerPart.Viewport.Width;
+                var viewPortIndex = (long)(offset / viewport);
+                var lowerBounds = viewPortIndex * viewport;
+                var midPoint = lowerBounds + (viewport * 0.5);
 
-                var index = offset / (long)ScrollViewerPart.Viewport.Width;
+                var index = offset > midPoint ? viewPortIndex + 1 : viewPortIndex;
 
-                SelectedIndex = (int)Math.Max(0, Math.Min(index, ItemCount));
+                SetScrollViewerOffset((int)Math.Max(0, Math.Min(index, ItemCount)));
             }
         }
 
@@ -293,6 +302,50 @@ namespace Avalonia.Labs.Controls
             EnsureSelectionInView();
 
             return size;
+        }
+        private void SetScrollViewerOffset(int index)
+        {
+            var offset = IndexToOffset(index);
+            SetCurrentValue(SelectedIndexProperty, index);
+
+            if (ScrollViewerPart is { } scrollViewer)
+            {
+                scrollViewer.SetCurrentValue(FlipViewScrollViewer.OffsetProperty, offset);
+            }
+        }
+
+        protected Vector IndexToOffset(int index)
+        {
+            var container = ContainerFromIndex(index);
+            var panel = ItemsPanelRoot;
+            var scrollViewer = ScrollViewerPart;
+            if (container == null || panel == null || scrollViewer == null)
+                return default;
+
+            var bounds = container.Bounds;
+            var offset = scrollViewer.Offset;
+
+            if (bounds.Bottom > offset.Y + scrollViewer.Viewport.Height)
+            {
+                offset = offset.WithY((bounds.Bottom - scrollViewer.Viewport.Height) + panel.Margin.Top);
+            }
+
+            if (bounds.Y < offset.Y)
+            {
+                offset = offset.WithY(bounds.Y);
+            }
+
+            if (bounds.Right > offset.X + scrollViewer.Viewport.Width)
+            {
+                offset = offset.WithX((bounds.Right - scrollViewer.Viewport.Width) + panel.Margin.Left);
+            }
+
+            if (bounds.X < offset.X)
+            {
+                offset = offset.WithX(bounds.X);
+            }
+
+            return offset;
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
