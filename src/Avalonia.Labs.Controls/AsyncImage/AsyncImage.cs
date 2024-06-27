@@ -77,7 +77,7 @@ namespace Avalonia.Labs.Controls
                 return;
             }
 
-            var uri = Source;
+            var uri = Source as Uri;
 
             if (uri != null && uri.IsAbsoluteUri)
             {

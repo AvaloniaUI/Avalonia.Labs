@@ -15,8 +15,8 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Defines the <see cref="Source"/> property.
         /// </summary>
-        public static readonly StyledProperty<Uri?> SourceProperty =
-            AvaloniaProperty.Register<AsyncImage, Uri?>(nameof(Source));
+        public static readonly StyledProperty<object?> SourceProperty =
+            AvaloniaProperty.Register<AsyncImage, object?>(nameof(Source));
 
         /// <summary>
         /// Defines the <see cref="Stretch"/> property.
@@ -63,7 +63,7 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Gets or sets the uri pointing to the image resource
         /// </summary>
-        public Uri? Source
+        public object? Source
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);

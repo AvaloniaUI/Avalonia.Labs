@@ -154,7 +154,7 @@ namespace Avalonia.Labs.ExpressionBuilder
 
             if (ExpressionAnimation != null)
             {
-                (ExpressionAnimation as IDisposable)?.Dispose();
+                //(ExpressionAnimation)?.();
                 ExpressionAnimation = null;
             }
         }
