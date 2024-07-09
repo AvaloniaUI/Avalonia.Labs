@@ -28,19 +28,19 @@ namespace Avalonia.Labs.Panels
         /// Defines the <see cref="AlignItems"/> property.
         /// </summary>
         public static readonly StyledProperty<AlignItems> AlignItemsProperty =
-            AvaloniaProperty.Register<FlexPanel, AlignItems>(nameof(AlignItems));
+            AvaloniaProperty.Register<FlexPanel, AlignItems>(nameof(AlignItems), AlignItems.Stretch);
 
         /// <summary>
         /// Defines the <see cref="AlignContent"/> property.
         /// </summary>
         public static readonly StyledProperty<AlignContent> AlignContentProperty =
-            AvaloniaProperty.Register<FlexPanel, AlignContent>(nameof(AlignContent));
+            AvaloniaProperty.Register<FlexPanel, AlignContent>(nameof(AlignContent), AlignContent.Stretch);
 
         /// <summary>
         /// Defines the <see cref="Wrap"/> property.
         /// </summary>
         public static readonly StyledProperty<FlexWrap> WrapProperty =
-            AvaloniaProperty.Register<FlexPanel, FlexWrap>(nameof(Wrap), FlexWrap.Wrap);
+            AvaloniaProperty.Register<FlexPanel, FlexWrap>(nameof(Wrap));
 
         /// <summary>
         /// Defines the <see cref="ColumnSpacing"/> property.
