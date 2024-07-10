@@ -67,7 +67,7 @@ Welcome to the ExpressionBuilder classes! The ExpressionBuilder classes are a C#
 
 ## <a name="setting-up-the-expressionbuilder-classes-with-your-app"></a>Setting up the ExpressionBuilder classes with your app
 
-To use the ExpressionBuilder in your app, add the Microsoft.Toolkit.Uwp.UI.Animations nuget package to your project. Next, within your app project, make sure to add the using statement to leverage the ExpressionBuilder classes:
+To use the ExpressionBuilder in your app, add the Avalonia.Labs.ExpressionBuilder nuget package to your project. Next, within your app project, make sure to add the using statement to leverage the ExpressionBuilder classes:
 
 ```csharp
 using Avalonia.Labs.ExpressionBuilder;
