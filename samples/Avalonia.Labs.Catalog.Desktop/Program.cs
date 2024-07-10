@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.Labs.Notifications;
-using Avalonia.Labs.Notifications.Windows;
 using Avalonia.Labs.Notifications.Linux;
-using Avalonia.Platform;
+using Avalonia.Labs.Notifications.Windows;
 using Avalonia.ReactiveUI;
+
 
 namespace Avalonia.Labs.Catalog.Desktop;
 
@@ -29,81 +30,49 @@ class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .UseReactiveUI()
-            .WithX11AppNotifications(new X11NotificationOptions()
+            .WithDBusAppNotifications(new DBusNotificationOptions
             {
-                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
-                AppName = "Avalonia.Labs",
-                Channels = new[]
-                    {
-                        new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),
-                        new NotificationChannel("actions", "Send Notification with Predefined Actions", Notifications.NotificationPriority.High)
+                Channels =
+                [
+                    new NotificationChannel("basic", "Send Notifications", NotificationPriority.High),
+                        new NotificationChannel("actions", "Send Notification with Predefined Actions", NotificationPriority.High)
                         {
-                            Actions = new List<NativeNotificationAction>
-                            {
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "hello",
-                                    Caption = "Hello"
-                                },
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "world",
-                                    Caption = "world"
-                                }
-                            }
+                            Actions =
+                            [
+                                new NativeNotificationAction("hello", "Hello"),
+                                new NativeNotificationAction("world", "world")
+                            ]
                         },
-                        new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
-                        new NotificationChannel("reply", "Send Notification with Reply Action", Notifications.NotificationPriority.High)
+                        new NotificationChannel("custom", "Send Notification with Custom Actions", NotificationPriority.High),
+                        new NotificationChannel("reply", "Send Notification with Reply Action", NotificationPriority.High)
                         {
-                            Actions = new List<NativeNotificationAction>
-                            {
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "reply",
-                                    Caption = "Reply"
-                                }
-                            }
-                        },
-                    }
+                            Actions = [new NativeNotificationAction("reply", "Reply")]
+                        }
+                ]
             })
-            .WithWin32AppNotifications(new Win32NotificationOptions()
+            .WithWin32AppNotifications(new Win32NotificationOptions
             {
-                Channels = new[]
+                Channels =
+                [
+                    new NotificationChannel("basic", "Send Notifications", NotificationPriority.High),
+                    new NotificationChannel("actions", "Send Notification with Predefined Actions", NotificationPriority.High)
                     {
-                        new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),
-                        new NotificationChannel("actions", "Send Notification with Predefined Actions", Notifications.NotificationPriority.High)
-                        {
-                            Actions = new List<NativeNotificationAction>
-                            {
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "hello",
-                                    Caption = "Hello"
-                                },
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "world",
-                                    Caption = "world"
-                                }
-                            }
-                        },
-                        new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
-                        new NotificationChannel("reply", "Send Notification with Reply Action", Notifications.NotificationPriority.High)
-                        {
-                            Actions = new List<NativeNotificationAction>
-                            {
-                                new NativeNotificationAction()
-                                {
-                                    Tag = "reply",
-                                    Caption = "Reply"
-                                }
-                            }
-                        },
+                        Actions =
+                        [
+                            new NativeNotificationAction("hello", "Hello"),
+                            new NativeNotificationAction("world", "world")
+                        ]
+                    },
+                    new NotificationChannel("custom", "Send Notification with Custom Actions", NotificationPriority.High),
+                    new NotificationChannel("reply", "Send Notification with Reply Action", NotificationPriority.High)
+                    {
+                        Actions = [new NativeNotificationAction("reply", "Reply")]
                     }
+                ]
             })
             .AfterSetup(builder =>
             {
-                CacheOptions.SetDefault(new CacheOptions()
+                CacheOptions.SetDefault(new CacheOptions
                 {
                     BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
                 });

@@ -1,4 +1,7 @@
-﻿using Avalonia.Media.Imaging;
+﻿using System;
+using System.Collections.Generic;
+
+using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications
 {
@@ -32,9 +35,16 @@ namespace Avalonia.Labs.Notifications
 
     public class NativeNotificationAction
     {
-        public string? Tag { get; set; }
-        public string? Caption { get; set; }
-        public Bitmap? Icon { get; set; }
+        public NativeNotificationAction(string tag, string caption, Bitmap? icon = null)
+        {
+            Tag = tag;
+            Caption = caption;
+            Icon = icon;
+        }
+
+        public string Tag { get; }
+        public string Caption { get; }
+        public Bitmap? Icon { get; }
     }
 
     public interface INativeNotificationManager

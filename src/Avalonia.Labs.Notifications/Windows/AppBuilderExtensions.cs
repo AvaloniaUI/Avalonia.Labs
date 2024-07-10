@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using System;
+using System.Collections.Generic;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace Avalonia.Labs.Notifications.Windows
 {

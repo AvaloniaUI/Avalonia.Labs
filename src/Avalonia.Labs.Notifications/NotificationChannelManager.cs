@@ -1,4 +1,6 @@
-﻿namespace Avalonia.Labs.Notifications
+﻿using System.Collections.Generic;
+
+namespace Avalonia.Labs.Notifications
 {
     public class NotificationChannelManager
     {
@@ -16,18 +18,12 @@
 
         public void DeleteChannel(string channel)
         {
-            if (_channels.TryGetValue(channel, out _))
-            {
-                _channels.Remove(channel);
-            }
+            _channels.Remove(channel, out _);
         }
 
         public NotificationChannel? GetChannel(string id)
         {
-            if (_channels.TryGetValue(id, out var channel))
-                return channel;
-
-            return null;
+            return _channels.GetValueOrDefault(id);
         }
     }
 }

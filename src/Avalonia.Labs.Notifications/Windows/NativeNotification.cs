@@ -1,4 +1,8 @@
-﻿using Avalonia.Labs.Notifications.Windows.WinRT;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
 
@@ -108,7 +112,7 @@ namespace Avalonia.Labs.Notifications.Windows
             CurrentNotification = factory.CreateToastNotification(xmlDoc);
             if (CurrentNotification.QueryInterface<IToastNotification2>() is { } toastNotification2)
             {
-                var idPtr = NativeWinRTMethods.WindowsCreateString(Id.ToString());
+                var idPtr = NativeWinRTMethods.WindowsCreateString(Id.ToString(CultureInfo.InvariantCulture));
                 toastNotification2.SetTag(idPtr);
                 NativeWinRTMethods.WindowsDeleteString(idPtr);
             }

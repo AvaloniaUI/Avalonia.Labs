@@ -96,14 +96,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
             {
                 notification.Title = "Hello Avalonia";
                 notification.Message = "Hello, this is a basic notification with custom actions. This is not supported on iOS";
-                notification.SetActions(new[]
-                {
-                    new NativeNotificationAction()
-                    {
-                        Tag = "hey",
-                        Caption = string.IsNullOrWhiteSpace(_customCaption) ? "Hey" : _customCaption,
-                    }
-                });
+                notification.SetActions([new NativeNotificationAction("hey", string.IsNullOrWhiteSpace(_customCaption) ? "Hey" : _customCaption)]);
 
                 notification.Show();
             }

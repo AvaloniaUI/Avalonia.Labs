@@ -22,7 +22,6 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications.csproj" />
-    <ProjectReference Include="..\..\src\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj" />

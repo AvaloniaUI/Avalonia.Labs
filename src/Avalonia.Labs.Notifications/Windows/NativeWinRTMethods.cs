@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Threading;
 using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows
@@ -7,19 +9,16 @@ namespace Avalonia.Labs.Notifications.Windows
     {
         [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll", CallingConvention = CallingConvention.StdCall,
             PreserveSig = false)]
-        internal static extern unsafe IntPtr WindowsCreateString(
+        internal static extern IntPtr WindowsCreateString(
             [MarshalAs(UnmanagedType.LPWStr)] string sourceString,
             int length);
 
         internal static IntPtr WindowsCreateString(string sourceString)
             => WindowsCreateString(sourceString, sourceString.Length);
 
-        [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static extern unsafe char* WindowsGetStringRawBuffer(IntPtr hstring, uint* length);
-
         [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll",
             CallingConvention = CallingConvention.StdCall, PreserveSig = false)]
-        internal static extern unsafe void WindowsDeleteString(IntPtr hString);
+        internal static extern void WindowsDeleteString(IntPtr hString);
 
         [DllImport("combase.dll", PreserveSig = false)]
         private static extern IntPtr RoActivateInstance(IntPtr activatableClassId);

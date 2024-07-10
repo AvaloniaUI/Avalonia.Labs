@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Labs.Notifications.Linux;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
     public static class AppBuilderExtensions
     {
-        public static AppBuilder WithX11AppNotifications(this AppBuilder appBuilder, X11NotificationOptions options)
+        public static AppBuilder WithDBusAppNotifications(this AppBuilder appBuilder, DBusNotificationOptions options)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return appBuilder;
 
-            var notificationManager = new LinuxNativeNotificationManager(options.AppName ?? "", options.AppIcon);
+            var notificationManager = new LinuxNativeNotificationManager();
             NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
-            if (options.Channels != null)
+            if (options.Channels is not null)
+            {
                 foreach (var channel in options.Channels)
                 {
                     notificationManager.ChannelManager.AddChannel(channel);
                 }
+            }
 
             var callback = appBuilder.AfterSetupCallback;
             callback += (a) =>
@@ -42,10 +43,8 @@ namespace Avalonia.Labs.Notifications.Linux
         }
     }
 
-    public class X11NotificationOptions
+    public class DBusNotificationOptions
     {
-        public string? AppName { get; set; }
         public IReadOnlyList<NotificationChannel>? Channels { get; set; }
-        public string? AppIcon { get; set; }
     }
 }

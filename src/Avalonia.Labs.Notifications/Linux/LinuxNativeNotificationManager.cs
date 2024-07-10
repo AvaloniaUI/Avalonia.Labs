@@ -1,172 +1,131 @@
-﻿using static Avalonia.Labs.Notifications.Linux.NativeInterop;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Tmds.DBus.Protocol;
+using Tmds.DBus.SourceGenerator;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
     internal class LinuxNativeNotificationManager : INativeNotificationManager, IDisposable
     {
-        public const string DefaultAction = "default";
-        public delegate void ActionDelegate(IntPtr notification, string action, IntPtr user_data);
-        private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
-        private string _appName;
-        private readonly string? _appIcon;
-        private bool _isInitialized;
-        private Thread? _loopThread;
-        private IntPtr _loop;
-        public ActionDelegate Callback = new ActionDelegate(Activated);
+        private readonly OrgFreedesktopPortalNotification _freedesktopPortalNotification = new(Connection.Session, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
 
-        public LinuxNativeNotificationManager(string appName, string? appIcon)
+        private bool _isAvailable;
+        private IDisposable? _signalWatcher;
+
+        /// <inheritdoc />
+        public IDictionary<uint, INativeNotification> ActiveNotifications { get; } = new Dictionary<uint, INativeNotification>();
+
+        internal NotificationChannelManager ChannelManager { get; } = new();
+
+        public async void Initialize()
         {
-            _appName = appName;
-            _appIcon = appIcon;
-            ChannelManager = new NotificationChannelManager();
+            try
+            {
+                await _freedesktopPortalNotification.GetVersionPropertyAsync();
+                _isAvailable = true;
+            }
+            catch
+            {
+                return;
+            }
+
+            _signalWatcher = await _freedesktopPortalNotification.WatchActionInvokedAsync((e, invoked) =>
+            {
+                if (e is not null)
+                    return;
+                var id = uint.Parse(invoked.Id, NumberFormatInfo.InvariantInfo);
+                var args = new NativeNotificationCompletedEventArgs
+                {
+                    NotificationId = id,
+                    IsActivated = true,
+                    ActionTag = invoked.Action
+                };
+
+                NotificationCompleted?.Invoke(this, args);
+            });
         }
 
-        public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
-
-        public IDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
-
-        internal NotificationChannelManager ChannelManager { get; set; }
-
-        public string? AppIcon => _appIcon;
-
-        public string AppName { get => _appName; set => _appName = value; }
-
+        /// <inheritdoc />
         public INativeNotification? CreateNotification(string? category)
         {
-            if (string.IsNullOrWhiteSpace(_appName) || !_isInitialized)
-            {
+            if (!_isAvailable)
                 return null;
-            }
-            var channel = ChannelManager?.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
-                ChannelManager?.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
 
-            if (channel == null)
-            {
-                return null;
-            }
+            var channel = ChannelManager.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
+                          ChannelManager.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
+
             return new LinuxNativeNotification(channel, this);
         }
 
-        internal unsafe void Initialize()
-        {
-            if (string.IsNullOrWhiteSpace(_appName) || _isInitialized)
-            {
-                return;
-            }
-
-            try
-            {
-                _isInitialized = notify_init(_appName);
-
-                if (_isInitialized && _loopThread == null)
-                {
-                    _loopThread = new Thread(() =>
-                    {
-                        _loop = g_main_loop_new(IntPtr.Zero, false);
-                        g_main_loop_run(_loop);
-                    });
-
-                    _loopThread.Start();
-                }
-            }
-            catch (Exception _)
-            {
-                _isInitialized = false;
-            }
-        }
-
-        internal void Show(LinuxNativeNotification notification)
-        {
-            if (!_isInitialized)
-            {
-                return;
-            }
-
-            if (notification != null)
-            {
-                IntPtr error = default;
-                var successfull = notify_notification_show(notification.NativeHandle, ref error);
-
-                if (!successfull)
-                {
-                    CloseNotification(notification);
-
-                    g_error_free(error);
-                }
-                else
-                {
-                    _notifications.TryAdd(notification.Id, notification);
-                }
-                notification.DeleteNativeResources();
-            }
-        }
-
+        /// <inheritdoc />
         public void CloseAll()
         {
-            foreach (var notification in _notifications)
-            {
-                CloseNotification(notification.Value as LinuxNativeNotification);
-            }
-
-            _notifications.Clear();
+            foreach (var notification in ActiveNotifications)
+                notification.Value.Close();
         }
 
+        /// <inheritdoc />
+        public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
-        internal static void CloseNotification(LinuxNativeNotification? notification)
+        internal async Task ShowNotificationAsync(LinuxNativeNotification notification)
         {
-            if (notification != null && notification.NativeHandle != default)
+            var serializedNotification = new Dictionary<string, Variant>
             {
-                IntPtr error = default;
-                notify_notification_close(notification.NativeHandle, ref error);
+                { "title", new Variant(notification.Title ?? string.Empty) },
+                { "body", new Variant(notification.Message ?? string.Empty) },
+                { "priority", new Variant(NotificationPriorityToDBusPriority(notification.Priority)) }
+            };
 
-                if (error != default)
-                    g_error_free(error);
-
-                notification.NativeHandle = default;
+            if (notification.Icon is not null)
+            {
+                using var memStream = new MemoryStream(notification.Icon.PixelSize.Width * notification.Icon.PixelSize.Height * 4);
+                notification.Icon.Save(memStream);
+                var tmp = memStream.ToArray();
+                Array<byte> iconData = new(tmp);
+                var icon = Struct.Create("bytes", Variant.FromArray(iconData));
+                serializedNotification.Add("icon", Variant.FromStruct(icon));
             }
+
+            if (notification.Actions.Count != 0)
+            {
+                var buttons = new Array<Dict<string, Variant>>(
+                    notification.Actions.Select(static action =>
+                        new Dict<string, Variant>
+                        {
+                            { "label", new Variant(action.Caption) },
+                            { "action", new Variant(action.Tag) }
+                        }));
+
+                serializedNotification.Add("buttons", Variant.FromArray(buttons));
+            }
+
+            ActiveNotifications.Add(notification.Id, notification);
+            await _freedesktopPortalNotification.AddNotificationAsync(notification.Id.ToString(NumberFormatInfo.InvariantInfo), serializedNotification);
         }
 
-
-        private static void Activated(IntPtr notification, string action, IntPtr user_data)
+        internal async Task CloseNotificationAsync(LinuxNativeNotification notification)
         {
-            var id = (uint)user_data;
-
-            if (NativeNotificationManager.Current is LinuxNativeNotificationManager manager)
-            {
-                if (manager._notifications.ContainsKey(id) && manager._notifications.Remove(id, out var nativeNotification))
-                {
-                    var eventArgs = new NativeNotificationCompletedEventArgs()
-                    {
-                        NotificationId = id,
-                        IsActivated = action == DefaultAction,
-                        ActionTag = action == DefaultAction ? null : action,
-                    };
-
-                    manager.NotificationCompleted?.Invoke(manager, eventArgs);
-
-                    manager.Close(nativeNotification as LinuxNativeNotification);
-                }
-            }
+            await _freedesktopPortalNotification.RemoveNotificationAsync(notification.Id.ToString(NumberFormatInfo.InvariantInfo));
+            ActiveNotifications.Remove(notification.Id);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
-            if (_loop != default)
-                g_main_loop_quit(_loop);
-
-            CloseAll();
-
-            _loop = default;
-            notify_uninit();
+            _signalWatcher?.Dispose();
         }
 
-        internal void Close(LinuxNativeNotification? linuxNativeNotification)
+        private static string NotificationPriorityToDBusPriority(NotificationPriority priority) => priority switch
         {
-            if (linuxNativeNotification != null)
-            {
-                CloseNotification(linuxNativeNotification);
-                _notifications.Remove(linuxNativeNotification.Id);
-            }
-        }
+            NotificationPriority.Default => "normal",
+            NotificationPriority.Low => "low",
+            NotificationPriority.High => "high",
+            NotificationPriority.Max => "urgent",
+            _ => throw new ArgumentOutOfRangeException(nameof(priority), priority, null)
+        };
     }
 }
