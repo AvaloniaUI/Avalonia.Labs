@@ -8,6 +8,9 @@
         /// <summary>
         /// Items are placed along the horizontal axis, starting from the left
         /// </summary>
+        /// <remarks>
+        /// This is the default value.
+        /// </remarks>
         Row,
         
         /// <summary>

@@ -8,6 +8,9 @@
         /// <summary>
         /// The <see cref="FlexPanel"/> is single line.
         /// </summary>
+        /// <remarks>
+        /// This is the default value.
+        /// </remarks>
         NoWrap,
         
         /// <summary>
