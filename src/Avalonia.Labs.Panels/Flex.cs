@@ -48,6 +48,7 @@ namespace Avalonia.Labs.Panels
         /// <remarks>
         /// This property is used to override the <see cref="FlexPanel.AlignItems"/> property for a specific child.
         /// When omitted, <see cref="FlexPanel.AlignItems"/> in not overridden.
+        /// Equivalent to CSS align-self property.
         /// </remarks>
         public static AlignItems? GetAlignSelf(Layoutable layoutable)
         {
@@ -65,6 +66,7 @@ namespace Avalonia.Labs.Panels
         /// <remarks>
         /// This property is used to override the <see cref="FlexPanel.AlignItems"/> property for a specific child.
         /// When omitted, <see cref="FlexPanel.AlignItems"/> in not overridden.
+        /// Equivalent to CSS align-self property.
         /// </remarks>
         public static void SetAlignSelf(Layoutable layoutable, AlignItems? value)
         {
@@ -83,6 +85,7 @@ namespace Avalonia.Labs.Panels
         /// A lower order value means the item will be positioned earlier within the container.
         /// Items with the same order value are laid out in their source document order.
         /// When omitted, it is set to 0.
+        /// Equivalent to CSS order property.
         /// </remarks>
         public static int GetOrder(Layoutable layoutable)
         {
@@ -101,6 +104,7 @@ namespace Avalonia.Labs.Panels
         /// A lower order value means the item will be positioned earlier within the container.
         /// Items with the same order value are laid out in their source document order.
         /// When omitted, it is set to 0.
+        /// Equivalent to CSS order property.
         /// </remarks>
         public static void SetOrder(Layoutable layoutable, int value)
         {
@@ -119,6 +123,7 @@ namespace Avalonia.Labs.Panels
         /// <remarks>
         /// Either automatic size, a fixed length, or a percentage of the container's size.
         /// When omitted, it is set to <see cref="FlexBasis.Auto"/>.
+        /// Equivalent to CSS flex-basis property.
         /// </remarks>
         public static FlexBasis GetBasis(Layoutable layoutable)
         {
@@ -137,6 +142,7 @@ namespace Avalonia.Labs.Panels
         /// <remarks>
         /// Either automatic size, a fixed length, or a percentage of the container's size.
         /// When omitted, it is set to <see cref="FlexBasis.Auto"/>.
+        /// Equivalent to CSS flex-basis property.
         /// </remarks>
         public static void SetBasis(Layoutable layoutable, FlexBasis value)
         {
@@ -153,6 +159,7 @@ namespace Avalonia.Labs.Panels
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 1.
+        /// Equivalent to CSS flex-shrink property.
         /// </remarks>
         public static double GetShrink(Layoutable layoutable)
         {
@@ -169,6 +176,7 @@ namespace Avalonia.Labs.Panels
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 1.
+        /// Equivalent to CSS flex-shrink property.
         /// </remarks>
         public static void SetShrink(Layoutable layoutable, double value)
         {
@@ -185,6 +193,7 @@ namespace Avalonia.Labs.Panels
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 0.
+        /// Equivalent to CSS flex-grow property.
         /// </remarks>
         public static double GetGrow(Layoutable layoutable)
         {
@@ -201,6 +210,7 @@ namespace Avalonia.Labs.Panels
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 0.
+        /// Equivalent to CSS flex-grow property.
         /// </remarks>
         public static void SetGrow(Layoutable layoutable, double value)
         {

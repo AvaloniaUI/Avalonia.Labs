@@ -95,6 +95,7 @@ namespace Avalonia.Labs.Panels
         /// determining the orientation in which child controls are laid out.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to <see cref="FlexDirection.Row"/>.
         /// Equivalent to CSS flex-direction property
         /// </remarks>
         public FlexDirection Direction
@@ -108,6 +109,7 @@ namespace Avalonia.Labs.Panels
         /// Typically used to distribute extra free space leftover after flexible lengths and margins have been resolved.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to <see cref="JustifyContent.FlexStart"/>.
         /// Equivalent to CSS justify-content property.
         /// </remarks>
         public JustifyContent JustifyContent
@@ -121,6 +123,7 @@ namespace Avalonia.Labs.Panels
         /// Similar to <see cref="JustifyContent"/>, but in the perpendicular direction.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to <see cref="AlignItems.Stretch"/>.
         /// Equivalent to CSS align-items property.
         /// </remarks>
         public AlignItems AlignItems
@@ -135,6 +138,7 @@ namespace Avalonia.Labs.Panels
         /// Useful when <see cref="Wrap"/> mode allows controls to be arranged on multiple lines. 
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to <see cref="AlignContent.Stretch"/>.
         /// Equivalent to CSS align-content property.
         /// </remarks>
         public AlignContent AlignContent
@@ -148,6 +152,7 @@ namespace Avalonia.Labs.Panels
         /// Additionally, it determines the cross-axis stacking direction for new lines.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to <see cref="FlexWrap.NoWrap"/>.
         /// Equivalent to CSS flex-wrap property.
         /// </remarks>
         public FlexWrap Wrap
@@ -161,6 +166,7 @@ namespace Avalonia.Labs.Panels
         /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to 0.
         /// Similar to CSS column-gap property.
         /// </remarks>
         public double ColumnSpacing
@@ -174,6 +180,7 @@ namespace Avalonia.Labs.Panels
         /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
+        /// When omitted, it is set to 0.
         /// Similar to CSS row-gap property.
         /// </remarks>
         public double RowSpacing
