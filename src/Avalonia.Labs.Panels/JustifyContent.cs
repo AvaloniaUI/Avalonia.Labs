@@ -2,7 +2,7 @@
 {
     
     /// <summary>
-    /// Describes the alignment of the children along the main axis of the <see cref="FlexPanel"/>.
+    /// Describes the main-axis alignment of items inside a <see cref="FlexPanel"/> line.
     /// </summary>
     public enum JustifyContent
     {
@@ -37,7 +37,7 @@
         Center,
         
         /// <summary>
-        /// Child items are evenly distributed in the line.
+        /// Child items are evenly distributed in the line, with no space on either end.
         /// </summary>
         /// <remarks>
         /// If the leftover free-space is negative or there is only a single child item on the line,
@@ -60,7 +60,7 @@
         SpaceAround,
         
         /// <summary>
-        /// Child items are evenly distributed in the line, with equal-size spaces between each child item and with the start/end of the line.
+        /// Child items are evenly distributed in the line, with equal-size spaces between each item and on either end.
         /// </summary>
         SpaceEvenly
     }
