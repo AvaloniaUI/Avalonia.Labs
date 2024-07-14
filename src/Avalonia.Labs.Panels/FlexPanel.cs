@@ -9,8 +9,8 @@ namespace Avalonia.Labs.Panels
 {
 
     /// <summary>
-    /// A panel that arranges its child controls using CSS FlexBox principles.
-    /// It organizes children one or more lines along a main-axis (either row or column)
+    /// A panel that arranges child controls using CSS FlexBox principles.
+    /// It organizes child items in one or more lines along a main-axis (either row or column)
     /// and provides advanced control over their sizing and layout.
     /// </summary>
     /// <remarks>
@@ -105,7 +105,7 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the alignment of child controls along the main-axis of the current line of the <see cref="FlexPanel"/>.
+        /// Gets or sets the main-axis alignment of child items inside a line of the <see cref="FlexPanel"/>.
         /// Typically used to distribute extra free space leftover after flexible lengths and margins have been resolved.
         /// </summary>
         /// <remarks>
@@ -119,7 +119,7 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the default alignment for all the child controls along the cross-axis of the current line.
+        /// Gets or sets the cross-axis alignment of all child items inside a line of the <see cref="FlexPanel"/>.
         /// Similar to <see cref="JustifyContent"/>, but in the perpendicular direction.
         /// </summary>
         /// <remarks>
@@ -133,9 +133,10 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the alignment of lines in the <see cref="FlexPanel"/> when there is extra space in the cross-axis. 
+        /// Gets or sets the cross-axis alignment of lines in the <see cref="FlexPanel"/> when there is extra space. 
         /// Similar to <see cref="AlignItems"/>, but for entire lines.
-        /// Useful when <see cref="Wrap"/> mode allows controls to be arranged on multiple lines. 
+        /// <see cref="FlexPanel.Wrap"/> property set to <see cref="FlexWrap.Wrap"/> mode
+        /// allows controls to be arranged on multiple lines.
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to <see cref="AlignContent.Stretch"/>.
@@ -162,7 +163,7 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the minimum horizontal spacing between child controls or lines,
+        /// Gets or sets the minimum horizontal spacing between child items or lines,
         /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
@@ -176,7 +177,7 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the minimum vertical spacing between child controls or lines,
+        /// Gets or sets the minimum vertical spacing between child items or lines,
         /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>

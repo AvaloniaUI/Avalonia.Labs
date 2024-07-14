@@ -25,13 +25,15 @@ namespace Avalonia.Labs.Panels
             AvaloniaProperty.RegisterAttached<Layoutable, FlexBasis>("Basis", typeof(Flex), FlexBasis.Auto);
 
         /// <summary>
-        /// Defines an attached property to control the factor by which a specific child can shrink along the main-axis in a flex layout.
+        /// Defines an attached property to control the factor by which a specific child can shrink
+        /// along the main-axis in a flex layout.
         /// </summary>
         public static readonly AttachedProperty<double> ShrinkProperty =
             AvaloniaProperty.RegisterAttached<Layoutable, double>("Shrink", typeof(Flex), 1.0, validate: v => v >= 0.0);
 
         /// <summary>
-        /// Defines an attached property to control the factor by which a specific child can grow along the main-axis in a flex layout.
+        /// Defines an attached property to control the factor by which a specific child can grow
+        /// along the main-axis in a flex layout.
         /// </summary>
         public static readonly AttachedProperty<double> GrowProperty =
             AvaloniaProperty.RegisterAttached<Layoutable, double>("Grow", typeof(Flex), 0.0, validate: v => v >= 0.0);
@@ -155,7 +157,8 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets the factor by which an item can shrink along the main-axis, relative to other items in a <see cref="FlexPanel"/>.
+        /// Gets the factor by which an item can shrink along the main-axis,
+        /// relative to other items in a <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 1.
@@ -172,7 +175,8 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Sets the factor by which an item can shrink along the main-axis, relative to other items in a <see cref="FlexPanel"/>.
+        /// Sets the factor by which an item can shrink along the main-axis,
+        /// relative to other items in a <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 1.
@@ -189,7 +193,8 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets the factor by which an item can grow along the main-axis, relative to other items in a <see cref="FlexPanel"/>.
+        /// Gets the factor by which an item can grow along the main-axis,
+        /// relative to other items in a <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 0.
@@ -206,7 +211,8 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Sets the factor by which an item can grow along the main-axis, relative to other items in a <see cref="FlexPanel"/>.
+        /// Sets the factor by which an item can grow along the main-axis,
+        /// relative to other items in a <see cref="FlexPanel"/>.
         /// </summary>
         /// <remarks>
         /// When omitted, it is set to 0.

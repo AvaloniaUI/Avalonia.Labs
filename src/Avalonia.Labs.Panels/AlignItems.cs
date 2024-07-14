@@ -22,7 +22,8 @@ namespace Avalonia.Labs.Panels
         /// Items are aligned to the cross-axis center of the line.
         /// </summary>
         /// <remarks>
-        /// If the cross size of the line is less than that of the child item, it will overflow equally in both directions.
+        /// If the cross size of the line is less than that of the child item,
+        /// it will overflow equally in both directions.
         /// </remarks>
         Center,
         
