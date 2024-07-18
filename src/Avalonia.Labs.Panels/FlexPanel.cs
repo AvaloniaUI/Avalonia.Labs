@@ -7,6 +7,15 @@ using Avalonia.Layout;
 
 namespace Avalonia.Labs.Panels
 {
+
+    /// <summary>
+    /// A panel that arranges child controls using CSS FlexBox principles.
+    /// It organizes child items in one or more lines along a main-axis (either row or column)
+    /// and provides advanced control over their sizing and layout.
+    /// </summary>
+    /// <remarks>
+    /// See CSS FlexBox specification: https://www.w3.org/TR/css-flexbox-1
+    /// </remarks>
     public sealed class FlexPanel : Panel
     {
         private static readonly Func<Layoutable, int> s_getOrder = x => x is { } y ? Flex.GetOrder(y) : 0;
@@ -82,8 +91,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the flex direction
+        /// Gets or sets the direction of the <see cref="FlexPanel"/>'s main-axis,
+        /// determining the orientation in which child controls are laid out.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to <see cref="FlexDirection.Row"/>.
+        /// Equivalent to CSS flex-direction property
+        /// </remarks>
         public FlexDirection Direction
         {
             get => GetValue(DirectionProperty);
@@ -91,8 +105,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the flex justify content mode
+        /// Gets or sets the main-axis alignment of child items inside a line of the <see cref="FlexPanel"/>.
+        /// Typically used to distribute extra free space leftover after flexible lengths and margins have been resolved.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to <see cref="JustifyContent.FlexStart"/>.
+        /// Equivalent to CSS justify-content property.
+        /// </remarks>
         public JustifyContent JustifyContent
         {
             get => GetValue(JustifyContentProperty);
@@ -100,8 +119,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the flex align items mode
+        /// Gets or sets the cross-axis alignment of all child items inside a line of the <see cref="FlexPanel"/>.
+        /// Similar to <see cref="JustifyContent"/>, but in the perpendicular direction.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to <see cref="AlignItems.Stretch"/>.
+        /// Equivalent to CSS align-items property.
+        /// </remarks>
         public AlignItems AlignItems
         {
             get => GetValue(AlignItemsProperty);
@@ -109,8 +133,15 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the flex align content mode
+        /// Gets or sets the cross-axis alignment of lines in the <see cref="FlexPanel"/> when there is extra space. 
+        /// Similar to <see cref="AlignItems"/>, but for entire lines.
+        /// <see cref="FlexPanel.Wrap"/> property set to <see cref="FlexWrap.Wrap"/> mode
+        /// allows controls to be arranged on multiple lines.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to <see cref="AlignContent.Stretch"/>.
+        /// Equivalent to CSS align-content property.
+        /// </remarks>
         public AlignContent AlignContent
         {
             get => GetValue(AlignContentProperty);
@@ -118,8 +149,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the flex wrap mode
+        /// Gets or sets the wrap mode, controlling whether the <see cref="FlexPanel"/> is single-line or multi-line.
+        /// Additionally, it determines the cross-axis stacking direction for new lines.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to <see cref="FlexWrap.NoWrap"/>.
+        /// Equivalent to CSS flex-wrap property.
+        /// </remarks>
         public FlexWrap Wrap
         {
             get => GetValue(WrapProperty);
@@ -127,8 +163,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the column spacing
+        /// Gets or sets the minimum horizontal spacing between child items or lines,
+        /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to 0.
+        /// Similar to CSS column-gap property.
+        /// </remarks>
         public double ColumnSpacing
         {
             get => GetValue(ColumnSpacingProperty);
@@ -136,8 +177,13 @@ namespace Avalonia.Labs.Panels
         }
 
         /// <summary>
-        /// Gets or sets the row spacing
+        /// Gets or sets the minimum vertical spacing between child items or lines,
+        /// depending on main-axis direction of the <see cref="FlexPanel"/>.
         /// </summary>
+        /// <remarks>
+        /// When omitted, it is set to 0.
+        /// Similar to CSS row-gap property.
+        /// </remarks>
         public double RowSpacing
         {
             get => GetValue(RowSpacingProperty);
