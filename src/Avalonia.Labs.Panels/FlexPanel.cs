@@ -4,6 +4,7 @@ using System.Linq;
 
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media.TextFormatting;
 
 namespace Avalonia.Labs.Panels
 {
@@ -194,6 +195,7 @@ namespace Avalonia.Labs.Panels
         protected override Size MeasureOverride(Size availableSize)
         {
             var children = (IReadOnlyList<Layoutable>)Children;
+            children = children.Where(s_isVisible).OrderBy(s_getOrder).ToArray();
 
             var isColumn = Direction is FlexDirection.Column or FlexDirection.ColumnReverse;
 
@@ -204,30 +206,10 @@ namespace Avalonia.Labs.Panels
             var (childIndex, firstChildIndex, itemIndex, lineIndex) = (0, 0, 0, 0);
 
             var lines = new List<FlexLine>();
-            children = children.Where(s_isVisible).OrderBy(s_getOrder).ToArray();
 
             foreach (var element in children)
             {
-                var basis = Flex.GetBasis(element);
-                var flexConstraint = basis.Kind switch
-                {
-                    FlexBasisKind.Auto => max.U,
-                    FlexBasisKind.Absolute => basis.Value,
-                    FlexBasisKind.Relative => max.U * basis.Value / 100,
-                    _ => throw new InvalidOperationException()
-                };
-                element.Measure(Uv.ToSize(max.WithU(flexConstraint), isColumn));
-
-                var size = Uv.FromSize(element.DesiredSize, isColumn);
-                var flexLength = basis.Kind switch
-                {
-                    FlexBasisKind.Auto => size.U,
-                    FlexBasisKind.Absolute or FlexBasisKind.Relative => Math.Max(size.U, flexConstraint),
-                    _ => throw new InvalidOperationException()
-                };
-                size = size.WithU(flexLength);
-                Flex.SetBaseLength(element, flexLength);
-                Flex.SetCurrentLength(element, flexLength);
+                var size = MeasureChild(element, max, isColumn);
 
                 if (Wrap != FlexWrap.NoWrap && lineU + size.U + itemIndex * spacing.U > max.U)
                 {
@@ -401,6 +383,33 @@ namespace Avalonia.Labs.Panels
             }
 
             return finalSize;
+        }
+        
+        private static Uv MeasureChild(Layoutable element, Uv max, bool isColumn)
+        {
+            var basis = Flex.GetBasis(element);
+            var flexConstraint = basis.Kind switch
+            {
+                FlexBasisKind.Auto => max.U,
+                FlexBasisKind.Absolute => basis.Value,
+                FlexBasisKind.Relative => max.U * basis.Value / 100,
+                _ => throw new InvalidOperationException("Unsupported FlexBasisKind encountered.")
+            };
+            element.Measure(Uv.ToSize(max.WithU(flexConstraint), isColumn));
+
+            var size = Uv.FromSize(element.DesiredSize, isColumn);
+            
+            var flexLength = basis.Kind switch
+            {
+                FlexBasisKind.Auto => size.U,
+                FlexBasisKind.Absolute or FlexBasisKind.Relative => Math.Max(size.U, flexConstraint),
+                _ => throw new InvalidOperationException()
+            };
+            size = size.WithU(flexLength);
+            
+            Flex.SetBaseLength(element, flexLength);
+            Flex.SetCurrentLength(element, flexLength);
+            return size;
         }
 
         private static (int ItemsCount, double TotalSpacingU, double TotalU, double FreeU) GetLineMeasureU(
