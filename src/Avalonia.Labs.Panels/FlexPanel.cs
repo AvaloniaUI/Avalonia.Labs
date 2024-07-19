@@ -243,6 +243,7 @@ namespace Avalonia.Labs.Panels
             {
                 var (itemsCount, totalSpacingU, totalU, freeU) = GetLineMeasureU(flexLine, max.U, spacing.U);
                 var (lineMult, autoMargins, remainingFreeU) = GetLineMultInfo(flexLine, freeU);
+                
                 if (lineMult != 0.0 && remainingFreeU != 0.0)
                 {
                     foreach (var element in state.GetLineItems(flexLine))
