@@ -284,13 +284,7 @@ namespace Avalonia.Labs.Panels
             var totalV = totalLineV + totalSpacingV;
             var freeV = panelSize.V - totalV;
 
-            var alignContent = freeV > 0.0 ? AlignContent : AlignContent switch
-            {
-                AlignContent.FlexStart or AlignContent.Stretch or AlignContent.SpaceBetween => AlignContent.FlexStart,
-                AlignContent.Center or AlignContent.SpaceAround or AlignContent.SpaceEvenly => AlignContent.Center,
-                AlignContent.FlexEnd => AlignContent.FlexEnd,
-                _ => throw new InvalidOperationException()
-            };
+            var alignContent = DetermineAlignContent(AlignContent, freeV, linesCount);
 
             var (spacingV, v) = alignContent switch
             {
@@ -382,7 +376,29 @@ namespace Avalonia.Labs.Panels
 
             return finalSize;
         }
-        
+
+        private static AlignContent DetermineAlignContent(AlignContent currentAlignContent, double freeV, int linesCount)
+        {
+            // Determine AlignContent based on available space and line count
+            return currentAlignContent switch
+            {
+                // If there's free vertical space, handle distribution based on the content alignment
+                AlignContent.Stretch when freeV > 0.0 => AlignContent.Stretch,
+                AlignContent.SpaceBetween when freeV > 0.0 && linesCount > 1 => AlignContent.SpaceBetween,
+                AlignContent.SpaceAround when freeV > 0.0 && linesCount > 0 => AlignContent.SpaceAround,
+                AlignContent.SpaceEvenly when freeV > 0.0 && linesCount > 0 => AlignContent.SpaceEvenly,
+                
+                // Default alignments when there's no free space or not enough lines
+                AlignContent.Stretch => AlignContent.FlexStart,
+                AlignContent.SpaceBetween => AlignContent.FlexStart,
+                AlignContent.SpaceAround => AlignContent.Center,
+                AlignContent.SpaceEvenly => AlignContent.Center,
+                AlignContent.FlexStart or AlignContent.Center or AlignContent.FlexEnd => currentAlignContent,
+                
+                _ => throw new InvalidOperationException($"Unsupported AlignContent value: {currentAlignContent}")
+            };
+        }
+
         private static Uv MeasureChild(Layoutable element, Uv max, bool isColumn)
         {
             var basis = Flex.GetBasis(element);
