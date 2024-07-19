@@ -202,53 +202,50 @@ namespace Avalonia.Labs.Panels
             var max = Uv.FromSize(availableSize, isColumn);
             var spacing = Uv.FromSize(ColumnSpacing, RowSpacing, isColumn);
 
-            var (lineU, lineV, lineShrink, lineGrow, lineAutoMargins) = (0.0, 0.0, 0.0, 0.0, 0);
-            var (childIndex, firstChildIndex, itemIndex, lineIndex) = (0, 0, 0, 0);
+            LineData lineData = default;
+            var (childIndex, firstChildIndex, itemIndex) = (0, 0, 0);
 
-            var lines = new List<FlexLine>();
+            var flexLines = new List<FlexLine>();
 
             foreach (var element in children)
             {
                 var size = MeasureChild(element, max, isColumn);
 
-                if (Wrap != FlexWrap.NoWrap && lineU + size.U + itemIndex * spacing.U > max.U)
+                if (Wrap != FlexWrap.NoWrap && lineData.U + size.U + itemIndex * spacing.U > max.U)
                 {
-                    lines.Add(new FlexLine(firstChildIndex, childIndex - 1,
-                        lineU, lineV, lineShrink, lineGrow, lineAutoMargins));
-                    (lineU, lineV, lineShrink, lineGrow, lineAutoMargins) = (0.0, 0.0, 0.0, 0.0, 0);
+                    flexLines.Add(new FlexLine(firstChildIndex, childIndex - 1, lineData));
+                    lineData = default;
                     firstChildIndex = childIndex;
                     itemIndex = 0;
-                    lineIndex++;
                 }
 
-                lineU += size.U;
-                lineV = Math.Max(lineV, size.V);
-                lineShrink += Flex.GetShrink(element);
-                lineGrow += Flex.GetGrow(element);
-                lineAutoMargins += GetItemAutoMargins(element, isColumn);
+                lineData.U += size.U;
+                lineData.V = Math.Max(lineData.V, size.V);
+                lineData.Shrink += Flex.GetShrink(element);
+                lineData.Grow += Flex.GetGrow(element);
+                lineData.AutoMargins += GetItemAutoMargins(element, isColumn);
                 itemIndex++;
                 childIndex++;
             }
 
             if (itemIndex != 0)
             {
-                lines.Add(new FlexLine(firstChildIndex, firstChildIndex + itemIndex - 1,
-                    lineU, lineV, lineShrink, lineGrow, lineAutoMargins));
+                flexLines.Add(new FlexLine(firstChildIndex, firstChildIndex + itemIndex - 1, lineData));
             }
 
-            var state = new FlexLayoutState(children, lines, Wrap);
+            var state = new FlexLayoutState(children, flexLines, Wrap);
 
-            var totalSpacingV = (lines.Count - 1) * spacing.V;
-            var panelSizeU = lines.Count > 0 ? lines.Max(line => line.U + (line.Count - 1) * spacing.U) : 0.0;
+            var totalSpacingV = (flexLines.Count - 1) * spacing.V;
+            var panelSizeU = flexLines.Count > 0 ? flexLines.Max(flexLine => flexLine.U + (flexLine.Count - 1) * spacing.U) : 0.0;
 
-            // Reizing along main axis using grow and shrink factors can affect cross axis, so remeasure affected items and lines.
-            foreach (var line in lines)
+            // Resizing along main axis using grow and shrink factors can affect cross axis, so remeasure affected items and lines.
+            foreach (var flexLine in flexLines)
             {
-                var (itemsCount, totalSpacingU, totalU, freeU) = GetLineMeasureU(line, max.U, spacing.U);
-                var (lineMult, autoMargins, remainingFreeU) = GetLineMultInfo(line, freeU);
+                var (itemsCount, totalSpacingU, totalU, freeU) = GetLineMeasureU(flexLine, max.U, spacing.U);
+                var (lineMult, autoMargins, remainingFreeU) = GetLineMultInfo(flexLine, freeU);
                 if (lineMult != 0.0 && remainingFreeU != 0.0)
                 {
-                    foreach (var element in state.GetLineItems(line))
+                    foreach (var element in state.GetLineItems(flexLine))
                     {
                         var baseLength = Flex.GetBaseLength(element);
                         var mult = GetItemMult(element, freeU);
@@ -259,13 +256,13 @@ namespace Avalonia.Labs.Panels
                         }
                     }
 
-                    line.V = state.GetLineItems(line).Max(i => Uv.FromSize(i.DesiredSize, isColumn).V);
+                    flexLine.V = state.GetLineItems(flexLine).Max(i => Uv.FromSize(i.DesiredSize, isColumn).V);
                 }
             }
 
             _state = state;
-            var totalLineV = lines.Sum(l => l.V);
-            var panelSize = lines.Count == 0 ? default : new Uv(panelSizeU, totalLineV + totalSpacingV);
+            var totalLineV = flexLines.Sum(l => l.V);
+            var panelSize = flexLines.Count == 0 ? default : new Uv(panelSizeU, totalLineV + totalSpacingV);
             return Uv.ToSize(panelSize, isColumn);
         }
 
@@ -490,17 +487,30 @@ namespace Avalonia.Labs.Panels
             }
         }
 
+        private struct LineData
+        {
+            public double U { get; set; }
+
+            public double V { get; set; }
+
+            public double Shrink { get; set; }
+
+            public double Grow { get; set; }
+
+            public int AutoMargins { get; set; }
+        }
+
         private class FlexLine
         {
-            public FlexLine(int first, int last, double u, double v, double shrink, double grow, int autoMargins)
+            public FlexLine(int first, int last, LineData l)
             {
                 First = first;
                 Last = last;
-                U = u;
-                V = v;
-                Shrink = shrink;
-                Grow = grow;
-                AutoMargins = autoMargins;
+                U = l.U;
+                V = l.V;
+                Shrink = l.Shrink;
+                Grow = l.Grow;
+                AutoMargins = l.AutoMargins;
             }
 
             /// <summary>First item index.</summary>
