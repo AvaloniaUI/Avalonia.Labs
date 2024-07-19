@@ -318,13 +318,13 @@ namespace Avalonia.Labs.Panels
                 AlignContent.FlexEnd => (spacing.V, freeV),
                 AlignContent.Center => (spacing.V, freeV / 2),
                 AlignContent.Stretch => (spacing.V, 0.0),
-                AlignContent.SpaceBetween => (spacing.V + freeV / (linesCount - 1), 0.0),
-                AlignContent.SpaceAround => (spacing.V + freeV / linesCount, freeV / linesCount / 2),
+                AlignContent.SpaceBetween => linesCount > 1 ? (spacing.V + freeV / (linesCount - 1), 0.0) : (spacing.V, 0.0),
+                AlignContent.SpaceAround => linesCount > 0 ? (spacing.V + freeV / linesCount, freeV / linesCount / 2) : (spacing.V, freeV / 2),
                 AlignContent.SpaceEvenly => (spacing.V + freeV / (linesCount + 1), freeV / (linesCount + 1)),
                 _ => throw new InvalidOperationException()
             };
 
-            var scaleV = alignContent == AlignContent.Stretch ? (panelSize.V - totalSpacingV) / totalLineV : 1.0;
+            var scaleV = alignContent == AlignContent.Stretch && totalLineV != 0 ? (panelSize.V - totalSpacingV) / totalLineV : 1.0;
 
             foreach (var line in state.Lines)
             {
@@ -370,9 +370,9 @@ namespace Avalonia.Labs.Panels
                     JustifyContent.FlexStart => (spacing.U, 0.0),
                     JustifyContent.FlexEnd => (spacing.U, remainingFreeU),
                     JustifyContent.Center => (spacing.U, remainingFreeU / 2),
-                    JustifyContent.SpaceBetween => (spacing.U + remainingFreeU / (itemsCount - 1), 0.0),
-                    JustifyContent.SpaceAround => (spacing.U + remainingFreeU / itemsCount, remainingFreeU / itemsCount / 2),
-                    JustifyContent.SpaceEvenly => (spacing.U + remainingFreeU / (itemsCount + 1), remainingFreeU / (itemsCount + 1)),
+                    JustifyContent.SpaceBetween => itemsCount > 1 ? (spacing.U + remainingFreeU / (itemsCount - 1), 0.0) : (spacing.U, 0.0),
+                    JustifyContent.SpaceAround => itemsCount > 0 ? (spacing.U + remainingFreeU / itemsCount, remainingFreeU / itemsCount / 2) : (spacing.U, remainingFreeU / 2),
+                    JustifyContent.SpaceEvenly => itemsCount > 0 ? (spacing.U + remainingFreeU / (itemsCount + 1), remainingFreeU / (itemsCount + 1)) : (spacing.U, remainingFreeU / 2),
                     _ => throw new InvalidOperationException()
                 };
 
