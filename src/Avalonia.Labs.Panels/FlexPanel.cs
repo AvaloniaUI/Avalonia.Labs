@@ -286,7 +286,7 @@ namespace Avalonia.Labs.Panels
 
             var alignContent = DetermineAlignContent(AlignContent, freeV, linesCount);
 
-            var (v, spacingV) = DetermineCrossAxisPositionAndSpacing(alignContent, spacing, freeV, linesCount);
+            var (v, spacingV) = GetCrossAxisPosAndSpacing(alignContent, spacing, freeV, linesCount);
 
             var scaleV = alignContent == AlignContent.Stretch && totalLineV != 0 ? (panelSize.V - totalSpacingV) / totalLineV : 1.0;
 
@@ -329,16 +329,7 @@ namespace Avalonia.Labs.Panels
                 }
                 remainingFreeU = currentFreeU;
 
-                var (spacingU, u) = line.Grow > 0 ? (spacing.U, 0.0) : JustifyContent switch
-                {
-                    JustifyContent.FlexStart => (spacing.U, 0.0),
-                    JustifyContent.FlexEnd => (spacing.U, remainingFreeU),
-                    JustifyContent.Center => (spacing.U, remainingFreeU / 2),
-                    JustifyContent.SpaceBetween => itemsCount > 1 ? (spacing.U + remainingFreeU / (itemsCount - 1), 0.0) : (spacing.U, 0.0),
-                    JustifyContent.SpaceAround => itemsCount > 0 ? (spacing.U + remainingFreeU / itemsCount, remainingFreeU / itemsCount / 2) : (spacing.U, remainingFreeU / 2),
-                    JustifyContent.SpaceEvenly => itemsCount > 0 ? (spacing.U + remainingFreeU / (itemsCount + 1), remainingFreeU / (itemsCount + 1)) : (spacing.U, remainingFreeU / 2),
-                    _ => throw new InvalidOperationException()
-                };
+                var (u, spacingU) = GetMainAxisPosAndSpacing(JustifyContent, line, spacing, remainingFreeU, itemsCount);
 
                 foreach (var element in state.GetLineItems(line))
                 {
@@ -366,7 +357,7 @@ namespace Avalonia.Labs.Panels
 
             return finalSize;
         }
-        
+
         private static Uv MeasureChild(Layoutable element, Uv max, bool isColumn)
         {
             var basis = Flex.GetBasis(element);
@@ -416,7 +407,8 @@ namespace Avalonia.Labs.Panels
             };
         }
         
-        private static (double v, double spacingV) DetermineCrossAxisPositionAndSpacing(AlignContent alignContent, Uv spacing, double freeV, int linesCount)
+        private static (double v, double spacingV) GetCrossAxisPosAndSpacing(AlignContent alignContent, Uv spacing, 
+            double freeV, int linesCount)
         {
             return alignContent switch
             {
@@ -424,13 +416,38 @@ namespace Avalonia.Labs.Panels
                 AlignContent.FlexEnd => (freeV, spacing.V),
                 AlignContent.Center => (freeV / 2, spacing.V),
                 AlignContent.Stretch => (0.0, spacing.V),
+                
                 AlignContent.SpaceBetween when linesCount > 1 => (0.0, spacing.V + freeV / (linesCount - 1)),
                 AlignContent.SpaceBetween => (0.0, spacing.V),
+                
                 AlignContent.SpaceAround when linesCount > 0 =>  (freeV / linesCount / 2, spacing.V + freeV / linesCount),
                 AlignContent.SpaceAround => (freeV / 2, spacing.V),
+                
                 AlignContent.SpaceEvenly => (freeV / (linesCount + 1), spacing.V + freeV / (linesCount + 1)),
                 
                 _ => throw new InvalidOperationException($"Unsupported AlignContent value: {alignContent}")
+            };
+        }
+        
+        private static (double u, double spacingU) GetMainAxisPosAndSpacing(JustifyContent justifyContent, FlexLine line, 
+            Uv spacing, double remainingFreeU, int itemsCount)
+        {
+            return line.Grow > 0 ? (0.0, spacing.U) : justifyContent switch
+            {
+                JustifyContent.FlexStart => (0.0, spacing.U),
+                JustifyContent.FlexEnd => (remainingFreeU, spacing.U),
+                JustifyContent.Center => (remainingFreeU / 2, spacing.U),
+                
+                JustifyContent.SpaceBetween when itemsCount > 1 => (0.0, spacing.U + remainingFreeU / (itemsCount - 1)),
+                JustifyContent.SpaceBetween => (0.0, spacing.U),
+                
+                JustifyContent.SpaceAround when itemsCount > 0 => (remainingFreeU / itemsCount / 2, spacing.U + remainingFreeU / itemsCount),
+                JustifyContent.SpaceAround => (remainingFreeU / 2, spacing.U),
+                
+                JustifyContent.SpaceEvenly when itemsCount > 0 =>  (remainingFreeU / (itemsCount + 1), spacing.U + remainingFreeU / (itemsCount + 1)), 
+                JustifyContent.SpaceEvenly => (remainingFreeU / 2, spacing.U),
+                
+                _ => throw new InvalidOperationException($"Unsupported JustifyContent value: {justifyContent}")
             };
         }
 
