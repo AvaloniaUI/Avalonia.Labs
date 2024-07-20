@@ -4,7 +4,6 @@ using System.Linq;
 
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Avalonia.Media.TextFormatting;
 
 namespace Avalonia.Labs.Panels
 {
