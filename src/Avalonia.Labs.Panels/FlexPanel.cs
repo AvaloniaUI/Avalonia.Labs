@@ -286,17 +286,7 @@ namespace Avalonia.Labs.Panels
 
             var alignContent = DetermineAlignContent(AlignContent, freeV, linesCount);
 
-            var (spacingV, v) = alignContent switch
-            {
-                AlignContent.FlexStart => (spacing.V, 0.0),
-                AlignContent.FlexEnd => (spacing.V, freeV),
-                AlignContent.Center => (spacing.V, freeV / 2),
-                AlignContent.Stretch => (spacing.V, 0.0),
-                AlignContent.SpaceBetween => linesCount > 1 ? (spacing.V + freeV / (linesCount - 1), 0.0) : (spacing.V, 0.0),
-                AlignContent.SpaceAround => linesCount > 0 ? (spacing.V + freeV / linesCount, freeV / linesCount / 2) : (spacing.V, freeV / 2),
-                AlignContent.SpaceEvenly => (spacing.V + freeV / (linesCount + 1), freeV / (linesCount + 1)),
-                _ => throw new InvalidOperationException()
-            };
+            var (v, spacingV) = DetermineCrossAxisPositionAndSpacing(alignContent, spacing, freeV, linesCount);
 
             var scaleV = alignContent == AlignContent.Stretch && totalLineV != 0 ? (panelSize.V - totalSpacingV) / totalLineV : 1.0;
 
@@ -396,6 +386,24 @@ namespace Avalonia.Labs.Panels
                 AlignContent.FlexStart or AlignContent.Center or AlignContent.FlexEnd => currentAlignContent,
                 
                 _ => throw new InvalidOperationException($"Unsupported AlignContent value: {currentAlignContent}")
+            };
+        }
+        
+        private static (double v, double spacingV) DetermineCrossAxisPositionAndSpacing(AlignContent alignContent, Uv spacing, double freeV, int linesCount)
+        {
+            return alignContent switch
+            {
+                AlignContent.FlexStart => (0.0, spacing.V),
+                AlignContent.FlexEnd => (freeV, spacing.V),
+                AlignContent.Center => (freeV / 2, spacing.V),
+                AlignContent.Stretch => (0.0, spacing.V),
+                AlignContent.SpaceBetween when linesCount > 1 => (0.0, spacing.V + freeV / (linesCount - 1)),
+                AlignContent.SpaceBetween => (0.0, spacing.V),
+                AlignContent.SpaceAround when linesCount > 0 =>  (freeV / linesCount / 2, spacing.V + freeV / linesCount),
+                AlignContent.SpaceAround => (freeV / 2, spacing.V),
+                AlignContent.SpaceEvenly => (freeV / (linesCount + 1), spacing.V + freeV / (linesCount + 1)),
+                
+                _ => throw new InvalidOperationException()
             };
         }
 
