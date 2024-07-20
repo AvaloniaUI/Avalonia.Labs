@@ -366,6 +366,33 @@ namespace Avalonia.Labs.Panels
 
             return finalSize;
         }
+        
+        private static Uv MeasureChild(Layoutable element, Uv max, bool isColumn)
+        {
+            var basis = Flex.GetBasis(element);
+            var flexConstraint = basis.Kind switch
+            {
+                FlexBasisKind.Auto => max.U,
+                FlexBasisKind.Absolute => basis.Value,
+                FlexBasisKind.Relative => max.U * basis.Value / 100,
+                _ => throw new InvalidOperationException($"Unsupported FlexBasisKind value: {basis.Kind}")
+            };
+            element.Measure(Uv.ToSize(max.WithU(flexConstraint), isColumn));
+
+            var size = Uv.FromSize(element.DesiredSize, isColumn);
+            
+            var flexLength = basis.Kind switch
+            {
+                FlexBasisKind.Auto => size.U,
+                FlexBasisKind.Absolute or FlexBasisKind.Relative => Math.Max(size.U, flexConstraint),
+                _ => throw new InvalidOperationException()
+            };
+            size = size.WithU(flexLength);
+            
+            Flex.SetBaseLength(element, flexLength);
+            Flex.SetCurrentLength(element, flexLength);
+            return size;
+        }
 
         private static AlignContent DetermineAlignContent(AlignContent currentAlignContent, double freeV, int linesCount)
         {
@@ -403,35 +430,8 @@ namespace Avalonia.Labs.Panels
                 AlignContent.SpaceAround => (freeV / 2, spacing.V),
                 AlignContent.SpaceEvenly => (freeV / (linesCount + 1), spacing.V + freeV / (linesCount + 1)),
                 
-                _ => throw new InvalidOperationException()
+                _ => throw new InvalidOperationException($"Unsupported AlignContent value: {alignContent}")
             };
-        }
-
-        private static Uv MeasureChild(Layoutable element, Uv max, bool isColumn)
-        {
-            var basis = Flex.GetBasis(element);
-            var flexConstraint = basis.Kind switch
-            {
-                FlexBasisKind.Auto => max.U,
-                FlexBasisKind.Absolute => basis.Value,
-                FlexBasisKind.Relative => max.U * basis.Value / 100,
-                _ => throw new InvalidOperationException("Unsupported FlexBasisKind encountered.")
-            };
-            element.Measure(Uv.ToSize(max.WithU(flexConstraint), isColumn));
-
-            var size = Uv.FromSize(element.DesiredSize, isColumn);
-            
-            var flexLength = basis.Kind switch
-            {
-                FlexBasisKind.Auto => size.U,
-                FlexBasisKind.Absolute or FlexBasisKind.Relative => Math.Max(size.U, flexConstraint),
-                _ => throw new InvalidOperationException()
-            };
-            size = size.WithU(flexLength);
-            
-            Flex.SetBaseLength(element, flexLength);
-            Flex.SetCurrentLength(element, flexLength);
-            return size;
         }
 
         private static (int ItemsCount, double TotalSpacingU, double TotalU, double FreeU) GetLineMeasureU(
