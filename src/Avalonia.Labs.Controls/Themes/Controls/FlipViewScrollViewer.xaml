@@ -1,0 +1,26 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="using:Avalonia.Labs.Controls"
+                    x:ClassModifier="internal">
+
+  <ControlTheme x:Key="{x:Type ui:FlipViewScrollViewer}" TargetType="ui:FlipViewScrollViewer">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Template">
+      <ControlTemplate>
+       <ScrollContentPresenter Name="PART_ContentPresenter"
+                               Background="{TemplateBinding Background}"
+                               HorizontalSnapPointsType="{TemplateBinding HorizontalSnapPointsType}"
+                               VerticalSnapPointsType="{TemplateBinding VerticalSnapPointsType}"
+                               HorizontalSnapPointsAlignment="{TemplateBinding HorizontalSnapPointsAlignment}"
+                               VerticalSnapPointsAlignment="{TemplateBinding VerticalSnapPointsAlignment}"
+                               ScrollViewer.IsScrollInertiaEnabled="{TemplateBinding (ScrollViewer.IsScrollInertiaEnabled)}"
+                               Padding="{TemplateBinding Padding}">
+         <ScrollContentPresenter.GestureRecognizers>
+            <ui:FlipViewScrollGestureRecognizer CanHorizontallyScroll="{Binding CanHorizontallyScroll, ElementName=PART_ContentPresenter}"
+                                                CanVerticallyScroll="{Binding CanVerticallyScroll, ElementName=PART_ContentPresenter}" />
+          </ScrollContentPresenter.GestureRecognizers>
+       </ScrollContentPresenter>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>
