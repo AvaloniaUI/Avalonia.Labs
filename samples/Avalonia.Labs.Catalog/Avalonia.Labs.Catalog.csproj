@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj" />
@@ -30,6 +31,10 @@
   <ItemGroup>
     <Compile Update="Views\BadgesView.axaml.cs">
       <DependentUpon>BadgesView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\GifView.axaml.cs">
+      <DependentUpon>GifView.axaml</DependentUpon>
+      <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
