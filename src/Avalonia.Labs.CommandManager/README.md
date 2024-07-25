@@ -1,6 +1,6 @@
 # Avalonia.Labs.CommandManager
 
-Experimenta implemtation of RoutedCommand like WPF.
+Experimental WPF-like implementation of RoutedCommand.
 
 the currently supported flow is this:
 
