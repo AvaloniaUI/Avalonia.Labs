@@ -22,21 +22,21 @@ namespace Avalonia.Labs.Gif.Decoding;
 
 internal sealed class GifDecoder : IDisposable
 {
-    private static readonly ReadOnlyMemory<byte> G87AMagic
+    private static readonly ReadOnlyMemory<byte> s_g87AMagic
         = "GIF87a"u8.ToArray().AsMemory();
 
-    private static readonly ReadOnlyMemory<byte> G89AMagic
+    private static readonly ReadOnlyMemory<byte> s_g89AMagic
         = "GIF89a"u8.ToArray().AsMemory();
 
-    private static readonly ReadOnlyMemory<byte> NetscapeMagic
+    private static readonly ReadOnlyMemory<byte> s_netscapeMagic
         = "NETSCAPE2.0"u8.ToArray().AsMemory();
 
-    private static readonly TimeSpan FrameDelayThreshold = TimeSpan.FromMilliseconds(10);
-    private static readonly TimeSpan FrameDelayDefault = TimeSpan.FromMilliseconds(100);
-    private static readonly GifColor TransparentColor = new(0, 0, 0, 0);
-    private static readonly int MaxTempBuf = 768;
-    private static readonly int MaxStackSize = 4096;
-    private static readonly int MaxBits = 4097;
+    private static readonly TimeSpan s_frameDelayThreshold = TimeSpan.FromMilliseconds(10);
+    private static readonly TimeSpan s_frameDelayDefault = TimeSpan.FromMilliseconds(100);
+    private static readonly GifColor s_transparentColor = new(0, 0, 0, 0);
+    private const int MaxTempBuf = 768;
+    private const int MaxStackSize = 4096;
+    private const int MaxBits = 4097;
 
     private readonly Stream _fileStream;
     private readonly CancellationToken _currentCtsToken;
@@ -59,237 +59,234 @@ internal sealed class GifDecoder : IDisposable
 
     public GifHeader? Header { get; private set; }
 
-    internal readonly List<GifFrame> Frames = new();
+    internal readonly List<GifFrame> _frames = new();
 
     public PixelSize Size => new(Header?.Dimensions.Width ?? 0, Header?.Dimensions.Height ?? 0);
 
     public GifDecoder(Stream fileStream, CancellationToken currentCtsToken)
     {
-            _fileStream = fileStream;
-            _currentCtsToken = currentCtsToken;
+        _fileStream = fileStream;
+        _currentCtsToken = currentCtsToken;
 
-            ProcessHeaderData();
-            ProcessFrameData();
+        ProcessHeaderData();
+        ProcessFrameData();
 
-            if (Header != null)
-                Header.IterationCount = Header.Iterations switch
-                {
-                    -1 => new GifRepeatBehavior { Count = 1 },
-                    0 => new GifRepeatBehavior { LoopForever = true },
-                    > 0 => new GifRepeatBehavior { Count = Header.Iterations },
-                    _ => Header.IterationCount
-                };
+        if (Header != null)
+            Header.IterationCount = Header.Iterations switch
+            {
+                -1 => new GifRepeatBehavior { Count = 1 },
+                0 => new GifRepeatBehavior { LoopForever = true },
+                > 0 => new GifRepeatBehavior { Count = Header.Iterations },
+                _ => Header.IterationCount
+            };
 
-            var pixelCount = _gifDimensions.TotalPixels;
+        var pixelCount = _gifDimensions.TotalPixels;
 
-            _hasFrameBackups = Frames
-                .Any(f => f.FrameDisposalMethod == FrameDisposal.Restore);
+        _hasFrameBackups = _frames
+            .Any(f => f.FrameDisposalMethod == FrameDisposal.Restore);
 
-            _bitmapBackBuffer = new GifColor[pixelCount];
-            _indexBuf = new byte[pixelCount];
+        _bitmapBackBuffer = new GifColor[pixelCount];
+        _indexBuf = new byte[pixelCount];
 
-            if (_hasFrameBackups)
-                _backupFrameIndexBuf = new byte[pixelCount];
+        if (_hasFrameBackups)
+            _backupFrameIndexBuf = new byte[pixelCount];
 
-            _prefixBuf = new short[MaxStackSize];
-            _suffixBuf = new byte[MaxStackSize];
-            _pixelStack = new byte[MaxStackSize + 1];
+        _prefixBuf = new short[MaxStackSize];
+        _suffixBuf = new byte[MaxStackSize];
+        _pixelStack = new byte[MaxStackSize + 1];
 
-            _backBufferBytes = pixelCount * Marshal.SizeOf(typeof(GifColor));
-        }
+        _backBufferBytes = pixelCount * Marshal.SizeOf(typeof(GifColor));
+    }
 
     public void Dispose()
     {
-            Frames.Clear();
+        _frames.Clear();
 
-            _bitmapBackBuffer = null;
-            _prefixBuf = null;
-            _suffixBuf = null;
-            _pixelStack = null;
-            _indexBuf = null;
-            _backupFrameIndexBuf = null;
-        }
+        _bitmapBackBuffer = null;
+        _prefixBuf = null;
+        _suffixBuf = null;
+        _pixelStack = null;
+        _indexBuf = null;
+        _backupFrameIndexBuf = null;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int PixCoord(int x, int y) => x + y * _gifDimensions.Width;
+    private int PixelCoordinate(int x, int y) => x + y * _gifDimensions.Width;
 
-    static readonly (int Start, int Step)[] Pass =
-        {
-            (0, 8),
-            (4, 8),
-            (2, 4),
-            (1, 2)
-        };
+    private static readonly (int Start, int Step)[] s_pass = [(0, 8), (4, 8), (2, 4), (1, 2)];
 
     private void ClearImage()
     {
-            if (_bitmapBackBuffer != null)
-                Array.Fill(_bitmapBackBuffer, TransparentColor);
+        if (_bitmapBackBuffer != null)
+            Array.Fill(_bitmapBackBuffer, s_transparentColor);
 
-            _prevFrame = -1;
-            _backupFrame = -1;
-        }
+        _prevFrame = -1;
+        _backupFrame = -1;
+    }
 
     public void RenderFrame(int fIndex, WriteableBitmap? writeableBitmap, bool forceClear = false)
     {
-            if (_currentCtsToken.IsCancellationRequested)
-                return;
+        if (_currentCtsToken.IsCancellationRequested)
+            return;
 
-            if (fIndex < 0 | fIndex >= Frames.Count)
-                return;
+        if (fIndex < 0 | fIndex >= _frames.Count)
+            return;
 
-            if (_prevFrame == fIndex)
-                return;
+        if (_prevFrame == fIndex)
+            return;
 
-            if (fIndex == 0 || forceClear || fIndex < _prevFrame)
-                ClearImage();
+        if (fIndex == 0 || forceClear || fIndex < _prevFrame)
+            ClearImage();
 
-            DisposePreviousFrame();
+        DisposePreviousFrame();
 
-            _prevFrame++;
+        _prevFrame++;
 
-            // render intermediate frame
-            for (int idx = _prevFrame; idx < fIndex; ++idx)
+        // render intermediate frame
+        for (int idx = _prevFrame; idx < fIndex; ++idx)
+        {
+            var prevFrame = _frames[idx];
+
+            if (prevFrame.FrameDisposalMethod == FrameDisposal.Restore)
+                continue;
+
+            if (prevFrame.FrameDisposalMethod == FrameDisposal.Background)
             {
-                var prevFrame = Frames[idx];
-
-                if (prevFrame.FrameDisposalMethod == FrameDisposal.Restore)
-                    continue;
-
-                if (prevFrame.FrameDisposalMethod == FrameDisposal.Background)
-                {
-                    ClearArea(prevFrame.Dimensions);
-                    continue;
-                }
-
-                RenderFrameAt(idx, writeableBitmap);
+                ClearArea(prevFrame.Dimensions);
+                continue;
             }
 
-            RenderFrameAt(fIndex, writeableBitmap);
+            RenderFrameAt(idx, writeableBitmap);
         }
+
+        RenderFrameAt(fIndex, writeableBitmap);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RenderFrameAt(int idx, WriteableBitmap? writeableBitmap)
     {
-            var tmpB = ArrayPool<byte>.Shared.Rent(MaxTempBuf);
+        if(writeableBitmap is null)
+            return;
 
-            var curFrame = Frames[idx];
-            DecompressFrameToIndexBuffer(curFrame, _indexBuf, tmpB);
+        var tmpB = ArrayPool<byte>.Shared.Rent(MaxTempBuf);
 
-            if (_hasFrameBackups & curFrame.ShouldBackup
-                && _indexBuf != null && _backupFrameIndexBuf != null)
-            {
-                Buffer.BlockCopy(_indexBuf, 0,
-                    _backupFrameIndexBuf, 0,
-                    curFrame.Dimensions.TotalPixels);
-                _backupFrame = idx;
-            }
+        var curFrame = _frames[idx];
+        DecompressFrameToIndexBuffer(curFrame, _indexBuf, tmpB);
 
-            DrawFrame(curFrame, _indexBuf);
-
-            _prevFrame = idx;
-            _hasNewFrame = true;
-
-            using var lockedBitmap = writeableBitmap.Lock();
-            WriteBackBufToFb(lockedBitmap.Address);
-
-            ArrayPool<byte>.Shared.Return(tmpB);
+        if (_hasFrameBackups & curFrame.ShouldBackup
+            && _indexBuf != null && _backupFrameIndexBuf != null)
+        {
+            Buffer.BlockCopy(_indexBuf, 0,
+                _backupFrameIndexBuf, 0,
+                curFrame.Dimensions.TotalPixels);
+            _backupFrame = idx;
         }
+
+        DrawFrame(curFrame, _indexBuf);
+
+        _prevFrame = idx;
+        _hasNewFrame = true;
+
+        using var lockedBitmap = writeableBitmap.Lock();
+        WriteBackBufToFb(lockedBitmap.Address);
+
+        ArrayPool<byte>.Shared.Return(tmpB);
+    }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DrawFrame(GifFrame curFrame, Memory<byte> frameIndexSpan)
     {
-            var activeColorTable =
-                curFrame.IsLocalColorTableUsed ? curFrame.LocalColorTable : Header?.GlobalColorTable;
+        var activeColorTable =
+            curFrame.IsLocalColorTableUsed ? curFrame.LocalColorTable : Header?.GlobalColorTable;
 
-            var cX = curFrame.Dimensions.X;
-            var cY = curFrame.Dimensions.Y;
-            var cH = curFrame.Dimensions.Height;
-            var cW = curFrame.Dimensions.Width;
-            var tC = curFrame.TransparentColorIndex;
-            var hT = curFrame.HasTransparency;
+        var cX = curFrame.Dimensions.X;
+        var cY = curFrame.Dimensions.Y;
+        var cH = curFrame.Dimensions.Height;
+        var cW = curFrame.Dimensions.Width;
+        var tC = curFrame.TransparentColorIndex;
+        var hT = curFrame.HasTransparency;
 
-            if (curFrame.IsInterlaced)
+        if (curFrame.IsInterlaced)
+        {
+            int curSrcRow = 0;
+            for (var i = 0; i < 4; i++)
             {
-                int curSrcRow = 0;
-                for (var i = 0; i < 4; i++)
+                var curPass = s_pass[i];
+                var y = curPass.Start;
+                while (y < cH)
                 {
-                    var curPass = Pass[i];
-                    var y = curPass.Start;
-                    while (y < cH)
-                    {
-                        DrawRow(curSrcRow++, y);
-                        y += curPass.Step;
-                    }
-                }
-            }
-            else
-            {
-                for (var i = 0; i < cH; i++)
-                    DrawRow(i, i);
-            }
-
-            return;
-
-            void DrawRow(int srcRow, int destRow)
-            {
-                // Get the starting point of the current row on frame's index stream.
-                var indexOffset = srcRow * cW;
-
-                // Get the target backbuffer offset from the frames coords.
-                var targetOffset = PixCoord(cX, destRow + cY);
-                if (_bitmapBackBuffer == null) return;
-                var len = _bitmapBackBuffer.Length;
-
-                for (var i = 0; i < cW; i++)
-                {
-                    var indexColor = frameIndexSpan.Span[indexOffset + i];
-
-                    if (activeColorTable == null || targetOffset >= len ||
-                        indexColor > activeColorTable.Length) return;
-
-                    if (!(hT & indexColor == tC))
-                        _bitmapBackBuffer[targetOffset] = activeColorTable[indexColor];
-
-                    targetOffset++;
+                    DrawRow(curSrcRow++, y);
+                    y += curPass.Step;
                 }
             }
         }
+        else
+        {
+            for (var i = 0; i < cH; i++)
+                DrawRow(i, i);
+        }
+
+        return;
+
+        void DrawRow(int srcRow, int destRow)
+        {
+            // Get the starting point of the current row on frame's index stream.
+            var indexOffset = srcRow * cW;
+
+            // Get the target back buffer offset from the frames coords.
+            var targetOffset = PixelCoordinate(cX, destRow + cY);
+            if (_bitmapBackBuffer == null) return;
+            var len = _bitmapBackBuffer.Length;
+
+            for (var i = 0; i < cW; i++)
+            {
+                var indexColor = frameIndexSpan.Span[indexOffset + i];
+
+                if (activeColorTable == null || targetOffset >= len ||
+                    indexColor > activeColorTable.Length) return;
+
+                if (!(hT & indexColor == tC))
+                    _bitmapBackBuffer[targetOffset] = activeColorTable[indexColor];
+
+                targetOffset++;
+            }
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DisposePreviousFrame()
     {
-            if (_prevFrame == -1)
-                return;
+        if (_prevFrame == -1)
+            return;
 
-            var prevFrame = Frames[_prevFrame];
+        var prevFrame = _frames[_prevFrame];
 
-            switch (prevFrame.FrameDisposalMethod)
-            {
-                case FrameDisposal.Background:
+        switch (prevFrame.FrameDisposalMethod)
+        {
+            case FrameDisposal.Background:
+                ClearArea(prevFrame.Dimensions);
+                break;
+            case FrameDisposal.Restore:
+                if (_hasFrameBackups && _backupFrame != -1)
+                    DrawFrame(_frames[_backupFrame], _backupFrameIndexBuf);
+                else
                     ClearArea(prevFrame.Dimensions);
-                    break;
-                case FrameDisposal.Restore:
-                    if (_hasFrameBackups && _backupFrame != -1)
-                        DrawFrame(Frames[_backupFrame], _backupFrameIndexBuf);
-                    else
-                        ClearArea(prevFrame.Dimensions);
-                    break;
-            }
+                break;
         }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ClearArea(GifRect area)
     {
-            if(_bitmapBackBuffer is null) return;
-            
-            for (var y = 0; y < area.Height; y++)
-            {
-                var targetOffset = PixCoord(area.X, y + area.Y);
-                for (var x = 0; x < area.Width; x++)
-                    _bitmapBackBuffer[targetOffset + x] = TransparentColor;
-            }
+        if (_bitmapBackBuffer is null) return;
+
+        for (var y = 0; y < area.Height; y++)
+        {
+            var targetOffset = PixelCoordinate(area.X, y + area.Y);
+            for (var x = 0; x < area.Width; x++)
+                _bitmapBackBuffer[targetOffset + x] = s_transparentColor;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -451,11 +448,11 @@ internal sealed class GifDecoder : IDisposable
 
         var _ = str.Read(tmpB, 0, 6);
 
-        if (!tempBuf[..3].SequenceEqual(G87AMagic[..3].Span))
+        if (!tempBuf[..3].SequenceEqual(s_g87AMagic[..3].Span))
             throw new InvalidGifStreamException("Not a GIF stream.");
 
-        if (!(tempBuf[..6].SequenceEqual(G87AMagic.Span) |
-              tempBuf[..6].SequenceEqual(G89AMagic.Span)))
+        if (!(tempBuf[..6].SequenceEqual(s_g87AMagic.Span) |
+              tempBuf[..6].SequenceEqual(s_g89AMagic.Span)))
             throw new InvalidGifStreamException("Unsupported GIF Version: " +
                                                 Encoding.ASCII.GetString(tempBuf[..6].ToArray()));
 
@@ -465,7 +462,7 @@ internal sealed class GifDecoder : IDisposable
         {
             Dimensions = _gifDimensions,
             GlobalColorTable =
-                _gctUsed ? ProcessColorTable(ref str, tmpB, _gctSize) : Array.Empty<GifColor>(),
+                _gctUsed ? ProcessColorTable(ref str, tmpB, _gctSize) : [],
             HeaderSize = _fileStream.Position
         };
 
@@ -528,7 +525,7 @@ internal sealed class GifDecoder : IDisposable
         var terminate = false;
         var curFrame = 0;
 
-        Frames.Add(new GifFrame());
+        _frames.Add(new GifFrame());
 
         do
         {
@@ -549,7 +546,7 @@ internal sealed class GifDecoder : IDisposable
                     break;
 
                 case BlockTypes.Trailer:
-                    Frames.RemoveAt(Frames.Count - 1);
+                    _frames.RemoveAt(_frames.Count - 1);
                     terminate = true;
                     break;
 
@@ -572,7 +569,7 @@ internal sealed class GifDecoder : IDisposable
     private void ProcessImageDescriptor(ref int curFrame, byte[] tempBuf)
     {
         var str = _fileStream;
-        var currentFrame = Frames[curFrame];
+        var currentFrame = _frames[curFrame];
 
         // Parse frame dimensions.
         var frameX = str.ReadUShortS(tempBuf);
@@ -599,7 +596,7 @@ internal sealed class GifDecoder : IDisposable
         currentFrame.LzwStreamPosition = str.Position;
 
         curFrame += 1;
-        Frames.Add(new GifFrame());
+        _frames.Add(new GifFrame());
     }
 
     /// <summary>
@@ -614,7 +611,7 @@ internal sealed class GifDecoder : IDisposable
             case ExtensionType.GraphicsControl:
 
                 _fileStream.ReadBlock(tempBuf);
-                var currentFrame = Frames[curFrame];
+                var currentFrame = _frames[curFrame];
                 var packed = tempBuf[0];
 
                 currentFrame.FrameDisposalMethod = (FrameDisposal)((packed & 0x1c) >> 2);
@@ -628,8 +625,8 @@ internal sealed class GifDecoder : IDisposable
                 currentFrame.FrameDelay =
                     TimeSpan.FromMilliseconds(SpanToShort(tempBuf.AsSpan(1)) * 10);
 
-                if (currentFrame.FrameDelay <= FrameDelayThreshold)
-                    currentFrame.FrameDelay = FrameDelayDefault;
+                if (currentFrame.FrameDelay <= s_frameDelayThreshold)
+                    currentFrame.FrameDelay = s_frameDelayDefault;
 
                 currentFrame.TransparentColorIndex = tempBuf[3];
                 break;
@@ -637,9 +634,9 @@ internal sealed class GifDecoder : IDisposable
             case ExtensionType.Application:
                 var blockLen = _fileStream.ReadBlock(tempBuf);
                 var _ = tempBuf.AsSpan(0, blockLen);
-                var blockHeader = tempBuf.AsSpan(0, NetscapeMagic.Length);
+                var blockHeader = tempBuf.AsSpan(0, s_netscapeMagic.Length);
 
-                if (blockHeader.SequenceEqual(NetscapeMagic.Span))
+                if (blockHeader.SequenceEqual(s_netscapeMagic.Span))
                 {
                     var count = 1;
 
@@ -648,7 +645,7 @@ internal sealed class GifDecoder : IDisposable
 
                     var iterationCount = SpanToShort(tempBuf.AsSpan(1));
 
-                    if (Header != null) 
+                    if (Header != null)
                         Header.Iterations = iterationCount;
                 }
                 else

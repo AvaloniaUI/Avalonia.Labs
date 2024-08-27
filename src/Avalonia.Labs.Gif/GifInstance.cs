@@ -61,7 +61,7 @@ internal class GifInstance : IDisposable
 
         _totalTime = TimeSpan.Zero;
 
-        _frameTimes = _gifDecoder.Frames.Select(frame =>
+        _frameTimes = _gifDecoder._frames.Select(frame =>
         {
             _totalTime = _totalTime.Add(frame.FrameDelay);
             return _totalTime;
