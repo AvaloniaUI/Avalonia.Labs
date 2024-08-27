@@ -130,7 +130,7 @@ internal sealed class GifDecoder : IDisposable
             _backupFrame = -1;
         }
 
-    public void RenderFrame(int fIndex, WriteableBitmap writeableBitmap, bool forceClear = false)
+    public void RenderFrame(int fIndex, WriteableBitmap? writeableBitmap, bool forceClear = false)
     {
             if (_currentCtsToken.IsCancellationRequested)
                 return;
@@ -169,7 +169,7 @@ internal sealed class GifDecoder : IDisposable
         }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void RenderFrameAt(int idx, WriteableBitmap writeableBitmap)
+    private void RenderFrameAt(int idx, WriteableBitmap? writeableBitmap)
     {
             var tmpB = ArrayPool<byte>.Shared.Rent(MaxTempBuf);
 

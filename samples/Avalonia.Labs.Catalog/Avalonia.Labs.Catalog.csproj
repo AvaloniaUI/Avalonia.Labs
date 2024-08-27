@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Panels\Avalonia.Labs.Panels.csproj" />

@@ -13,15 +13,14 @@ namespace Avalonia.Labs.Gif;
 internal class GifInstance : IDisposable
 {
     public IterationCount IterationCount { get; set; }
-    public bool AutoStart { get; private set; } = true;
     private readonly GifDecoder _gifDecoder;
-    private readonly WriteableBitmap _targetBitmap;
+    private readonly WriteableBitmap? _targetBitmap;
     private TimeSpan _totalTime;
-    private readonly List<TimeSpan> _frameTimes;
+    private readonly List<TimeSpan>? _frameTimes;
     private uint _iterationCount;
     private int _currentFrameIndex;
 
-    public CancellationTokenSource CurrentCts { get; }
+    private CancellationTokenSource CurrentCts { get; }
 
     internal GifInstance(object newValue) : this(newValue switch
     {
@@ -98,10 +97,10 @@ internal class GifInstance : IDisposable
         return assetLocator;
     }
 
-    public int GifFrameCount => _frameTimes.Count;
+    public int? GifFrameCount => _frameTimes?.Count;
 
     public PixelSize GifPixelSize { get; }
-    public bool IsDisposed { get; set; }
+    public bool IsDisposed { get; private set; }
 
     public void Dispose()
     {
@@ -111,7 +110,7 @@ internal class GifInstance : IDisposable
 
         IsDisposed = true;
         CurrentCts.Cancel();
-        _targetBitmap.Dispose();
+        _targetBitmap?.Dispose();
     }
 
     public WriteableBitmap? ProcessFrameTime(TimeSpan elapsed)
@@ -125,13 +124,17 @@ internal class GifInstance : IDisposable
         {
             return null;
         }
-            
+
+        if (_frameTimes is null)
+            return null;
+
         var totalTicks = _totalTime.Ticks;
 
         if (totalTicks == 0)
         {
             return ProcessFrameIndex(0);
         }
+
 
         var elapsedTicks = elapsed.Ticks;
         var timeModulus = TimeSpan.FromTicks(elapsedTicks % totalTicks);
@@ -147,7 +150,7 @@ internal class GifInstance : IDisposable
         return ProcessFrameIndex(currentFrame);
     }
 
-    internal WriteableBitmap ProcessFrameIndex(int frameIndex)
+    private WriteableBitmap? ProcessFrameIndex(int frameIndex)
     {
         _gifDecoder.RenderFrame(frameIndex, _targetBitmap);
         _currentFrameIndex = frameIndex;
@@ -155,6 +158,3 @@ internal class GifInstance : IDisposable
         return _targetBitmap;
     }
 }
-
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-public sealed class CanBeNullAttribute : Attribute { }

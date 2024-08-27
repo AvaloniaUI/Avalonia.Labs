@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Labs.Panels", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Labs.ExpressionBuilder", "src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj", "{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Labs.Gif", "Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj", "{CDFE88D8-8B7C-4701-A49E-4ED381DCD2CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Labs.Gif", "src\Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj", "{40744B3E-E86A-4912-8E2C-71690E50FC63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -109,10 +109,10 @@ Global
 		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDB6DA31-A37D-4E1B-9C1D-50B6178AB49C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDFE88D8-8B7C-4701-A49E-4ED381DCD2CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDFE88D8-8B7C-4701-A49E-4ED381DCD2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDFE88D8-8B7C-4701-A49E-4ED381DCD2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDFE88D8-8B7C-4701-A49E-4ED381DCD2CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40744B3E-E86A-4912-8E2C-71690E50FC63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40744B3E-E86A-4912-8E2C-71690E50FC63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40744B3E-E86A-4912-8E2C-71690E50FC63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40744B3E-E86A-4912-8E2C-71690E50FC63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
