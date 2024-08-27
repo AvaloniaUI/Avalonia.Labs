@@ -95,7 +95,7 @@
                   Content="Checkerboard" />
       </WrapPanel>
 
-      <gif:GifImage SourceUri="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
+      <gif:GifImage Source="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
                     Stretch="{Binding SelectedStretch}"
                     IterationCount="{Binding IterationCount}"
                     StretchDirection="Both" />

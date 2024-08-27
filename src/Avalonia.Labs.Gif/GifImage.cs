@@ -9,34 +9,53 @@ using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Gif;
 
+/// <summary>
+/// An Avalonia control that allows GIF playback. 
+/// </summary>
 public class GifImage : Control
 {
-    public static readonly StyledProperty<Uri> SourceUriProperty =
-        AvaloniaProperty.Register<GifImage, Uri>("SourceUri");
+    /// <summary>
+    /// Defines the <see cref="Source"/> property.
+    /// </summary>
+    public static readonly StyledProperty<Uri> SourceProperty =
+        AvaloniaProperty.Register<GifImage, Uri>(nameof(Source));
 
+    /// <summary>
+    /// Defines the <see cref="SourceStream"/> property.
+    /// </summary>
     public static readonly StyledProperty<Stream> SourceStreamProperty =
-        AvaloniaProperty.Register<GifImage, Stream>("SourceStream");
+        AvaloniaProperty.Register<GifImage, Stream>(nameof(SourceStream));
 
+    /// <summary>
+    /// Defines the <see cref="IterationCount"/> property.
+    /// </summary>
     public static readonly StyledProperty<IterationCount> IterationCountProperty =
-        AvaloniaProperty.Register<GifImage, IterationCount>("IterationCount", IterationCount.Infinite);
+        AvaloniaProperty.Register<GifImage, IterationCount>(nameof(IterationCount), IterationCount.Infinite);
+
+    /// <summary>
+    /// Defines the <see cref="StretchDirection"/> property.
+    /// </summary>
+    public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
+        AvaloniaProperty.Register<GifImage, StretchDirection>(nameof(StretchDirection));
+
+    /// <summary>
+    /// Defines the <see cref="Stretch"/> property.
+    /// </summary>
+    public static readonly StyledProperty<Stretch> StretchProperty =
+        AvaloniaProperty.Register<GifImage, Stretch>(nameof(Stretch));
 
     private GifInstance? _gifInstance;
-
-    public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
-        AvaloniaProperty.Register<GifImage, StretchDirection>("StretchDirection");
-
-    public static readonly StyledProperty<Stretch> StretchProperty =
-        AvaloniaProperty.Register<GifImage, Stretch>("Stretch");
-
+    
     private CompositionCustomVisual? _customVisual;
 
     private object? _initialSource;
 
+    /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         switch (change.Property.Name)
         {
-            case nameof(SourceUri):
+            case nameof(Source):
             case nameof(SourceStream):
                 SourceChanged(change);
                 break;
@@ -57,34 +76,50 @@ public class GifImage : Control
         base.OnPropertyChanged(change);
     }
 
-    public Uri SourceUri
+    /// <summary>
+    /// Gets or sets the uri pointing to the GIF image resource
+    /// </summary>
+    public Uri Source
     {
-        get => GetValue(SourceUriProperty);
-        set => SetValue(SourceUriProperty, value);
+        get => GetValue(SourceProperty);
+        set => SetValue(SourceProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the stream pointing to the GIF image resource
+    /// </summary>
     public Stream SourceStream
     {
         get => GetValue(SourceStreamProperty);
         set => SetValue(SourceStreamProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets the amount in which the GIF image loops.
+    /// </summary>
     public IterationCount IterationCount
     {
         get => GetValue(IterationCountProperty);
         set => SetValue(IterationCountProperty, value);
     }
 
-    public StretchDirection StretchDirection
-    {
-        get => GetValue(StretchDirectionProperty);
-        set => SetValue(StretchDirectionProperty, value);
-    }
 
+    /// <summary>
+    /// Gets or sets a value controlling how the image will be stretched.
+    /// </summary>
     public Stretch Stretch
     {
         get => GetValue(StretchProperty);
         set => SetValue(StretchProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets a value controlling in what direction the image will be stretched.
+    /// </summary>
+    public StretchDirection StretchDirection
+    {
+        get => GetValue(StretchDirectionProperty);
+        set => SetValue(StretchDirectionProperty, value);
     }
 
     private static void IterationCountChanged(AvaloniaPropertyChangedEventArgs e)
@@ -96,6 +131,7 @@ public class GifImage : Control
         image.IterationCount = iterationCount;
     }
 
+    /// <inheritdoc />
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         var compositor = ElementComposition.GetElementVisual(this)?.Compositor;
@@ -115,6 +151,7 @@ public class GifImage : Control
         base.OnAttachedToVisualTree(e);
     }
 
+    /// <inheritdoc />
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         var compositor = ElementComposition.GetElementVisual(this)?.Compositor;
@@ -149,11 +186,7 @@ public class GifImage : Control
         _customVisual.Offset = new Vector3((float)destRect.Position.X, (float)destRect.Position.Y, 0);
     }
 
-    /// <summary>
-    /// Measures the control.
-    /// </summary>
-    /// <param name="availableSize">The available size.</param>
-    /// <returns>The desired size of the control.</returns>
+    /// <inheritdoc/>
     protected override Size MeasureOverride(Size availableSize)
     {
         var result = new Size();
@@ -176,7 +209,6 @@ public class GifImage : Control
         var result = Stretch.CalculateSize(finalSize, sourceSize);
         return result;
     }
-
 
     private void SourceChanged(AvaloniaPropertyChangedEventArgs e)
     {
