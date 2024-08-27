@@ -10,7 +10,7 @@ using Avalonia.Platform;
 
 namespace Avalonia.Labs.Gif;
 
-public class GifInstance : IDisposable
+internal class GifInstance : IDisposable
 {
     public IterationCount IterationCount { get; set; }
     public bool AutoStart { get; private set; } = true;
@@ -38,7 +38,7 @@ public class GifInstance : IDisposable
     public GifInstance(Uri uri) : this(GetStreamFromUri(uri))
     { }
 
-    public GifInstance(Stream currentStream)
+    private GifInstance(Stream currentStream)
     {
         if (!currentStream.CanSeek)
             throw new InvalidDataException("The provided stream is not seekable.");
@@ -51,6 +51,10 @@ public class GifInstance : IDisposable
         CurrentCts = new CancellationTokenSource();
 
         _gifDecoder = new GifDecoder(currentStream, CurrentCts.Token);
+        
+        if(_gifDecoder.Header is null) 
+            return;
+        
         var pixSize = new PixelSize(_gifDecoder.Header.Dimensions.Width, _gifDecoder.Header.Dimensions.Height);
 
         _targetBitmap = new WriteableBitmap(pixSize, new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
@@ -110,7 +114,6 @@ public class GifInstance : IDisposable
         _targetBitmap.Dispose();
     }
 
-    [CanBeNull]
     public WriteableBitmap? ProcessFrameTime(TimeSpan elapsed)
     {
         if (!IterationCount.IsInfinite && _iterationCount > IterationCount.Value)

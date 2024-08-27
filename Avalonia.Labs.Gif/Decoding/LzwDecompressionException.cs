@@ -6,6 +6,4 @@ using System;
 namespace Avalonia.Labs.Gif.Decoding;
 
 [Serializable]
-public class LzwDecompressionException : Exception
-{ 
-}
+internal class LzwDecompressionException : Exception { }

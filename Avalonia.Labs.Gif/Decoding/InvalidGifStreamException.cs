@@ -6,9 +6,4 @@ using System;
 namespace Avalonia.Labs.Gif.Decoding;
 
 [Serializable]
-public class InvalidGifStreamException : Exception
-{
-    public InvalidGifStreamException(string message) : base(message)
-    {
-    }
-}
+internal sealed class InvalidGifStreamException(string message) : Exception(message);

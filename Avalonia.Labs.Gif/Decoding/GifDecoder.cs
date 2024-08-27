@@ -20,7 +20,7 @@ using static Avalonia.Labs.Gif.Extensions.StreamExtensions;
 
 namespace Avalonia.Labs.Gif.Decoding;
 
-public sealed class GifDecoder : IDisposable
+internal sealed class GifDecoder : IDisposable
 {
     private static readonly ReadOnlyMemory<byte> G87AMagic
         = "GIF87a"u8.ToArray().AsMemory();
@@ -59,7 +59,7 @@ public sealed class GifDecoder : IDisposable
 
     public GifHeader? Header { get; private set; }
 
-    public readonly List<GifFrame> Frames = new();
+    internal readonly List<GifFrame> Frames = new();
 
     public PixelSize Size => new(Header?.Dimensions.Width ?? 0, Header?.Dimensions.Height ?? 0);
 

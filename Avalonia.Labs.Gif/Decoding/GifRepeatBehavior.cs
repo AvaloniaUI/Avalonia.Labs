@@ -1,6 +1,6 @@
 ﻿namespace Avalonia.Labs.Gif.Decoding;
 
-public class GifRepeatBehavior
+internal class GifRepeatBehavior
 {
     public bool LoopForever { get; set; }
     public int? Count { get; set; }

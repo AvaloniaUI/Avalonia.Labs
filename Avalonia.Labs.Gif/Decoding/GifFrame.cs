@@ -2,7 +2,7 @@ using System;
 
 namespace Avalonia.Labs.Gif.Decoding;
 
-public class GifFrame
+internal class GifFrame
 {
     public bool HasTransparency, IsInterlaced, IsLocalColorTableUsed;
     public byte TransparentColorIndex;

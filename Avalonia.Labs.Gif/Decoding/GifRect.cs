@@ -1,6 +1,6 @@
 namespace Avalonia.Labs.Gif.Decoding;
 
-public readonly struct GifRect
+internal readonly struct GifRect
 {
     public int X { get; }
     public int Y { get; }

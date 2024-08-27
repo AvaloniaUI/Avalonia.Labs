@@ -3,7 +3,7 @@
 
 namespace Avalonia.Labs.Gif.Decoding;
 
-public class GifHeader
+internal class GifHeader
 {
     public long HeaderSize;
     internal int Iterations = -1;

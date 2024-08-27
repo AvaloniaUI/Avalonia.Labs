@@ -1,11 +1,10 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Avalonia.Labs.Gif.Decoding;
 
 namespace Avalonia.Labs.Gif.Extensions;
 
-[DebuggerStepThrough]
 internal static class StreamExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

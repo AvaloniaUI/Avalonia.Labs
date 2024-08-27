@@ -1,6 +1,6 @@
 namespace Avalonia.Labs.Gif.Decoding;
 
-public enum FrameDisposal
+internal enum FrameDisposal
 {
     Unknown = 0,
     Leave = 1,

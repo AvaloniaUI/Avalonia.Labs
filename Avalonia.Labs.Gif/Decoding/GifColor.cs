@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Avalonia.Labs.Gif.Decoding;
 
 [StructLayout(LayoutKind.Explicit)]
-public readonly struct GifColor
+internal readonly struct GifColor
 {
     [FieldOffset(3)]
     public readonly byte A;
@@ -31,5 +31,5 @@ public readonly struct GifColor
             R = r;
             G = g;
             B = b;
-        }
+    }
 }
