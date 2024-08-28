@@ -1,30 +1,27 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using System.Threading;
 using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Labs.Gif.Decoding;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
-using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Gif;
 
-/// <summary>
-/// An Avalonia control that allows GIF playback. 
-/// </summary>
-public class GifImage : Control
+public class GifImage : UserControl
 {
+    private CompositionCustomVisual? _customVisual;
+
+    private double _gifWidth, _gifHeight;
+
     /// <summary>
     /// Defines the <see cref="Source"/> property.
     /// </summary>
     public static readonly StyledProperty<Uri> SourceProperty =
         AvaloniaProperty.Register<GifImage, Uri>(nameof(Source));
-
-    /// <summary>
-    /// Defines the <see cref="SourceStream"/> property.
-    /// </summary>
-    public static readonly StyledProperty<Stream> SourceStreamProperty =
-        AvaloniaProperty.Register<GifImage, Stream>(nameof(SourceStream));
 
     /// <summary>
     /// Defines the <see cref="IterationCount"/> property.
@@ -44,38 +41,6 @@ public class GifImage : Control
     public static readonly StyledProperty<Stretch> StretchProperty =
         AvaloniaProperty.Register<GifImage, Stretch>(nameof(Stretch));
 
-    private GifInstance? _gifInstance;
-    
-    private CompositionCustomVisual? _customVisual;
-
-    private object? _initialSource;
-
-    /// <inheritdoc />
-    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-    {
-        switch (change.Property.Name)
-        {
-            case nameof(Source):
-            case nameof(SourceStream):
-                SourceChanged(change);
-                break;
-            case nameof(Stretch):
-            case nameof(StretchDirection):
-                InvalidateArrange();
-                InvalidateMeasure();
-                Update();
-                break;
-            case nameof(IterationCount):
-                IterationCountChanged(change);
-                break;
-            case nameof(Bounds):
-                Update();
-                break;
-        }
-
-        base.OnPropertyChanged(change);
-    }
-
     /// <summary>
     /// Gets or sets the uri pointing to the GIF image resource
     /// </summary>
@@ -84,25 +49,6 @@ public class GifImage : Control
         get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
     }
-
-    /// <summary>
-    /// Gets or sets the stream pointing to the GIF image resource
-    /// </summary>
-    public Stream SourceStream
-    {
-        get => GetValue(SourceStreamProperty);
-        set => SetValue(SourceStreamProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the amount in which the GIF image loops.
-    /// </summary>
-    public IterationCount IterationCount
-    {
-        get => GetValue(IterationCountProperty);
-        set => SetValue(IterationCountProperty, value);
-    }
-
 
     /// <summary>
     /// Gets or sets a value controlling how the image will be stretched.
@@ -122,120 +68,150 @@ public class GifImage : Control
         set => SetValue(StretchDirectionProperty, value);
     }
 
-    private static void IterationCountChanged(AvaloniaPropertyChangedEventArgs e)
+    /// <summary>
+    /// Gets or sets the amount in which the GIF image loops.
+    /// </summary>
+    public IterationCount IterationCount
     {
-        var image = e.Sender as GifImage;
-        if (image is null || e.NewValue is not IterationCount iterationCount)
-            return;
-
-        image.IterationCount = iterationCount;
+        get => GetValue(IterationCountProperty);
+        set => SetValue(IterationCountProperty, value);
     }
 
-    /// <inheritdoc />
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    static GifImage()
     {
-        var compositor = ElementComposition.GetElementVisual(this)?.Compositor;
-        if (compositor == null || _customVisual?.Compositor == compositor)
-            return;
-        _customVisual = compositor.CreateCustomVisual(new GifCustomVisualHandler());
-        ElementComposition.SetElementChildVisual(this, _customVisual);
-        _customVisual.SendHandlerMessage(GifCustomVisualHandler.StartMessage);
+        AffectsRender<GifImage>(SourceProperty,
+            StretchProperty,
+            StretchDirectionProperty,
+            WidthProperty,
+            HeightProperty);
 
-        if (_initialSource is not null)
-        {
-            UpdateGifInstance(_initialSource);
-            _initialSource = null;
-        }
-
-        Update();
-        base.OnAttachedToVisualTree(e);
+        AffectsMeasure<GifImage>(SourceProperty,
+            StretchProperty,
+            StretchDirectionProperty,
+            WidthProperty,
+            HeightProperty);
     }
 
-    /// <inheritdoc />
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    private Size GetGifSize()
     {
-        var compositor = ElementComposition.GetElementVisual(this)?.Compositor;
-        if (compositor == null || _customVisual?.Compositor == compositor)
-            return;
-            
-        ElementComposition.SetElementChildVisual(this, null);
-        _customVisual?.SendHandlerMessage(GifCustomVisualHandler.StopMessage);
-        _customVisual = null;
+        return new Size(_gifWidth, _gifHeight);
     }
 
-
-    private void Update()
-    {
-        if (_customVisual is null || _gifInstance is null)
-            return;
-
-        var dpi = this.GetVisualRoot()?.RenderScaling ?? 1.0;
-        var sourceSize = _gifInstance.GifPixelSize.ToSize(dpi);
-        var viewPort = new Rect(Bounds.Size);
-
-        var scale = Stretch.CalculateScaling(Bounds.Size, sourceSize, StretchDirection);
-        var scaledSize = sourceSize * scale;
-        var destRect = viewPort
-            .CenterRect(new Rect(scaledSize))
-            .Intersect(viewPort);
-
-        _customVisual.Size = Stretch == Stretch.None ?
-            new Vector2((float)sourceSize.Width, (float)sourceSize.Height) : 
-            new Vector2((float)destRect.Size.Width, (float)destRect.Size.Height);
-
-        _customVisual.Offset = new Vector3((float)destRect.Position.X, (float)destRect.Position.Y, 0);
-    }
-
-    /// <inheritdoc/>
+    /// <summary>
+    /// Measures the control.
+    /// </summary>
+    /// <param name="availableSize">The available size.</param>
+    /// <returns>The desired size of the control.</returns>
     protected override Size MeasureOverride(Size availableSize)
     {
-        var result = new Size();
-        var scaling = this.GetVisualRoot()?.RenderScaling ?? 1.0;
-        if (_gifInstance != null)
-        {
-            result = Stretch.CalculateSize(availableSize, _gifInstance.GifPixelSize.ToSize(scaling),
-                StretchDirection);
-        }
-
-        return result;
+        return Stretch.CalculateSize(availableSize, GetGifSize(), StretchDirection);
     }
 
     /// <inheritdoc/>
     protected override Size ArrangeOverride(Size finalSize)
     {
-        if (_gifInstance is null) return new Size();
-        var scaling = this.GetVisualRoot()?.RenderScaling ?? 1.0;
-        var sourceSize = _gifInstance.GifPixelSize.ToSize(scaling);
+        var sourceSize = GetGifSize();
         var result = Stretch.CalculateSize(finalSize, sourceSize);
         return result;
     }
 
-    private void SourceChanged(AvaloniaPropertyChangedEventArgs e)
+    /// <inheritdoc />
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        if (e.NewValue is null ||
-            (e.NewValue is string value && !Uri.IsWellFormedUriString(value, UriKind.Absolute)))
-        {
-            return;
-        }
+        base.OnAttachedToVisualTree(e);
 
-        if (_customVisual is null)
-        {
-            _initialSource = e.NewValue;
-            return;
-        }
-
-        UpdateGifInstance(e.NewValue);
-
-        InvalidateArrange();
-        InvalidateMeasure();
-        Update();
+        InitializeGif();
     }
 
-    private void UpdateGifInstance(object source)
+    /// <inheritdoc />
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
-        _gifInstance?.Dispose();
-        _gifInstance = new GifInstance(source);
-        _gifInstance.IterationCount = IterationCount;
-        _customVisual?.SendHandlerMessage(_gifInstance);
+        base.OnPropertyChanged(change);
+
+        if (change.Property == SourceProperty)
+        {
+            InitializeGif();
+        }
+    }
+
+    private void InitializeGif()
+    {
+        Stop();
+        DisposeImpl();
+
+        var elemVisual = ElementComposition.GetElementVisual(this);
+        var compositor = elemVisual?.Compositor;
+
+        if (compositor is null)
+        {
+            return;
+        }
+
+        _customVisual = compositor.CreateCustomVisual(new GifCompositionCustomVisualHandler());
+
+        ElementComposition.SetElementChildVisual(this, _customVisual);
+
+        LayoutUpdated += OnLayoutUpdated;
+
+        _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
+
+        using var stream = AssetLoader.Open(Source);
+        using var tempGifDecoder = new GifDecoder(stream, CancellationToken.None);
+        _gifHeight = tempGifDecoder.Size.Height;
+        _gifWidth = tempGifDecoder.Size.Width;
+
+        _customVisual?.SendHandlerMessage(
+            new GifDrawPayload(
+                HandlerCommand.Start,
+                Source,
+                GetGifSize(),
+                Bounds.Size,
+                Stretch,
+                StretchDirection,
+                IterationCount));
+
+        InvalidateVisual();
+    }
+
+    /// <inheritdoc />
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        LayoutUpdated -= OnLayoutUpdated;
+
+        Stop();
+        DisposeImpl();
+    }
+
+
+    private void OnLayoutUpdated(object? sender, EventArgs e)
+    {
+        if (_customVisual == null)
+        {
+            return;
+        }
+
+        _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
+
+        _customVisual.SendHandlerMessage(
+            new GifDrawPayload(
+                HandlerCommand.Update,
+                null,
+                GetGifSize(),
+                Bounds.Size,
+                Stretch,
+                StretchDirection,
+                IterationCount));
+    }
+
+    private void Stop()
+    {
+        _customVisual?.SendHandlerMessage(new GifDrawPayload(HandlerCommand.Stop));
+    }
+
+    private void DisposeImpl()
+    {
+        _customVisual?.SendHandlerMessage(new GifDrawPayload(HandlerCommand.Dispose));
+        _customVisual = null;
     }
 }

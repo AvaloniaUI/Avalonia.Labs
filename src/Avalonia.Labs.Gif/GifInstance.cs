@@ -24,18 +24,15 @@ internal class GifInstance : IDisposable
 
     internal GifInstance(object newValue) : this(newValue switch
     {
-        Stream s => s,
-        Uri u => GetStreamFromUri(u),
-        string str => GetStreamFromString(str),
+        Stream s => s, 
         _ => throw new InvalidDataException("Unsupported source object")
     })
-    { }
-
-    public GifInstance(string uri) : this(GetStreamFromString(uri))
-    { }
-
-    public GifInstance(Uri uri) : this(GetStreamFromUri(uri))
-    { }
+    {
+    }
+    
+    public GifInstance(Uri uri) : this(AssetLoader.Open(uri))
+    {
+    }
 
     private GifInstance(Stream currentStream)
     {
@@ -50,10 +47,10 @@ internal class GifInstance : IDisposable
         CurrentCts = new CancellationTokenSource();
 
         _gifDecoder = new GifDecoder(currentStream, CurrentCts.Token);
-        
-        if(_gifDecoder.Header is null) 
+
+        if (_gifDecoder.Header is null)
             return;
-        
+
         var pixSize = new PixelSize(_gifDecoder.Header.Dimensions.Width, _gifDecoder.Header.Dimensions.Height);
 
         _targetBitmap = new WriteableBitmap(pixSize, new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
@@ -70,45 +67,16 @@ internal class GifInstance : IDisposable
         _gifDecoder.RenderFrame(0, _targetBitmap);
     }
 
-    private static Stream GetStreamFromString(string str)
-    {
-        if (!Uri.TryCreate(str, UriKind.RelativeOrAbsolute, out var res))
-        {
-            throw new InvalidCastException("The string provided can't be converted to URI.");
-        }
-
-        return GetStreamFromUri(res);
-    }
-
-    private static Stream GetStreamFromUri(Uri uri)
-    {
-        var uriString = uri.OriginalString.Trim();
-
-        if (!uriString.StartsWith("resm") && !uriString.StartsWith("avares"))
-            throw new InvalidDataException(
-                "The URI provided is not currently supported.");
-
-        var assetLocator = AssetLoader.Open(uri);
-
-        if (assetLocator is null)
-            throw new InvalidDataException(
-                "The resource URI was not found in the current assembly.");
-
-        return assetLocator;
-    }
-
-    public int? GifFrameCount => _frameTimes?.Count;
-
     public PixelSize GifPixelSize { get; }
-    public bool IsDisposed { get; private set; }
+    private bool _isDisposed;
 
     public void Dispose()
     {
-        if (IsDisposed) return;
-            
+        if (_isDisposed) return;
+
         GC.SuppressFinalize(this);
 
-        IsDisposed = true;
+        _isDisposed = true;
         CurrentCts.Cancel();
         _targetBitmap?.Dispose();
     }
