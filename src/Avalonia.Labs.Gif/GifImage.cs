@@ -11,7 +11,10 @@ using Avalonia.Rendering.Composition;
 
 namespace Avalonia.Labs.Gif;
 
-public class GifImage : UserControl
+/// <summary>
+/// A control that presents GIF animations.
+/// </summary>
+public class GifImage : Control
 {
     private CompositionCustomVisual? _customVisual;
 
@@ -22,7 +25,7 @@ public class GifImage : UserControl
     /// </summary>
     public static readonly StyledProperty<Uri> SourceProperty =
         AvaloniaProperty.Register<GifImage, Uri>(nameof(Source));
-
+ 
     /// <summary>
     /// Defines the <see cref="IterationCount"/> property.
     /// </summary>
@@ -123,14 +126,31 @@ public class GifImage : UserControl
         InitializeGif();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc /> 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
+        var avProp = change.Property;
 
-        if (change.Property == SourceProperty)
+        if (avProp == SourceProperty)
         {
             InitializeGif();
+        }
+
+        if ((avProp == SourceProperty ||
+             avProp == StretchProperty ||
+             avProp == StretchDirectionProperty ||
+             avProp == IterationCountProperty) && _customVisual is not null)
+        {
+            _customVisual.SendHandlerMessage(
+                new GifDrawPayload(
+                    HandlerCommand.Update,
+                    null,
+                    GetGifSize(),
+                    Bounds.Size,
+                    Stretch,
+                    StretchDirection,
+                    IterationCount));
         }
     }
 
