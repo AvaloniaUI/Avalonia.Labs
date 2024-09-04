@@ -17,6 +17,9 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\avalonia.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(BUILD_SOURCEBRANCH)' == 'refs/heads/master'">
+      <Version>$(Version)-cibuild-$([System.String]::Format('{0:00000000}', $([MSBuild]::Add($(BUILD_BUILDID), 0))))</Version>
+  </PropertyGroup>
 
   <ItemGroup Label="PackageIcon">
     <None Include="$(MSBuildThisFileDirectory)/Assets/Icon.png" Pack="true" Visible="false" PackagePath=""/>
