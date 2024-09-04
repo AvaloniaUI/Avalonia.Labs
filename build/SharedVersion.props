@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Product>Avalonia.Labs</Product>
-    <Version>11.1.0</Version>
+    <Version>11.2.999</Version>
     <Authors>Avalonia Team</Authors>
     <Copyright>Copyright 2013-$([System.DateTime]::Now.ToString(`yyyy`)) &#169; The AvaloniaUI Project</Copyright>
     <PackageProjectUrl>https://avaloniaui.net</PackageProjectUrl>
@@ -16,6 +16,9 @@
     <RepositoryType>git</RepositoryType>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\avalonia.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BUILD_SOURCEBRANCH)' == 'refs/heads/master'">
+      <Version>$(Version)-cibuild-$([System.String]::Format('{0:00000000}', $([MSBuild]::Add($(BUILD_BUILDID), 0))))</Version>
   </PropertyGroup>
 
   <ItemGroup Label="PackageIcon">
