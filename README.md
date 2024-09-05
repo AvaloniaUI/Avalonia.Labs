@@ -36,3 +36,6 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
  - [SKCanvasView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/SKCanvasView)
  - [SwipeView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/SwipeView)
  - [TabControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/TabLayout)
+
+## Nightly Builds
+Nightly builds are published on the Avalonia Nightly feed. Instructions for using them can be found here https://github.com/AvaloniaUI/Avalonia/wiki/Using-nightly-build-feed
