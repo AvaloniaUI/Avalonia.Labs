@@ -1,15 +1,15 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 
-namespace Avalonia.Labs.Notifications.Windows
+namespace Avalonia.Labs.Notifications
 {
-    public static class AppBuilderExtensions
+    public static partial class AppBuilderExtensions
     {
         public static AppBuilder WithWin32AppNotifications(this AppBuilder appBuilder, Win32NotificationOptions options)
         {
             if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
                 return appBuilder;
 
-            var notificationManager = new NativeNotificationManager();
+            var notificationManager = new Avalonia.Labs.Notifications.Windows.NativeNotificationManager();
             Notifications.NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
             if (options.Channels != null)

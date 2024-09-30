@@ -30,11 +30,11 @@ namespace Avalonia.Labs.Notifications
         void Close();
     }
 
-    public class NativeNotificationAction
+    public record NativeNotificationAction
     {
-        public string? Tag { get; set; }
-        public string? Caption { get; set; }
-        public Bitmap? Icon { get; set; }
+        public string? Tag { get; init; }
+        public string? Caption { get; init; }
+        public Bitmap? Icon { get; init; }
     }
 
     public interface INativeNotificationManager
@@ -52,12 +52,12 @@ namespace Avalonia.Labs.Notifications
     public class NativeNotificationCompletedEventArgs : EventArgs
     {
         // tag of the action
-        public string? ActionTag { get; set; }
-        public uint? NotificationId { get; set; }
+        public string? ActionTag { get; init; }
+        public uint? NotificationId { get; init; }
 
         // could be used for text input
-        public object? UserData { get; set; }
-        public bool IsCancelled { get; set; }
-        public bool IsActivated { get; set; }
+        public object? UserData { get; init; }
+        public bool IsCancelled { get; init; }
+        public bool IsActivated { get; init; }
     }
 }

@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Labs.Notifications.Linux;
 
-namespace Avalonia.Labs.Notifications.Linux
+namespace Avalonia.Labs.Notifications
 {
-    public static class AppBuilderExtensions
+    public static partial class AppBuilderExtensions
     {
         public static AppBuilder WithX11AppNotifications(this AppBuilder appBuilder, X11NotificationOptions options)
         {
