@@ -12,29 +12,29 @@ namespace Avalonia.Labs.Notifications.Windows;
 [SupportedOSPlatform("windows6.1")]
 internal class NotificationComServer
 {
-    private static NotificationActivatorClassFactory? _classFactory;
-    private static uint _cookie;
+    private static NotificationActivatorClassFactory? s_classFactory;
+    private static uint s_cookie;
 
     public static unsafe void CreateAndRegisterActivator(Guid uuid)
     {
-        if (_classFactory is not null)
+        if (s_classFactory is not null)
             throw new InvalidOperationException("Already registered.");
 
         if (!DesktopBridgeHelpers.IsContainerized())
             RegisterComServer(uuid);
 
-        _classFactory = new NotificationActivatorClassFactory(uuid);
+        s_classFactory = new NotificationActivatorClassFactory(uuid);
         PInvoke.CoRegisterClassObject(uuid,
-            (IUnknown*)_classFactory.GetNativeIntPtr<IClassFactory>(),
+            (IUnknown*)s_classFactory.GetNativeIntPtr<IClassFactory>(),
             CLSCTX.CLSCTX_LOCAL_SERVER,
             REGCLS.REGCLS_MULTIPLEUSE,
-            out _cookie).ThrowOnFailure();
+            out s_cookie).ThrowOnFailure();
     }
 
     public static void UnregisterActivator()
     {
-        _classFactory = null;
-        PInvoke.CoRevokeClassObject(_cookie);
+        s_classFactory = null;
+        PInvoke.CoRevokeClassObject(s_cookie);
     }
 
     private static void RegisterComServer(Guid guid)

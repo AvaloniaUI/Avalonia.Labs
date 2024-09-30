@@ -13,7 +13,7 @@ namespace Avalonia.Labs.Notifications.Windows
         public const string NotificationsGroupName = "AvaloniaUI"; 
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
         private (string id, bool syntetic) _aumid;
-        private Guid _serverUuid;
+        private Guid? _serverUuid;
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
@@ -45,9 +45,12 @@ namespace Avalonia.Labs.Notifications.Windows
         internal void Initialize(Win32NotificationOptions? options)
         {
             _aumid = options?.AppUserModelId is not null ? (options.AppUserModelId, true) : AumidHelper.GetAumid();
-            _serverUuid = _aumid.syntetic ? AumidHelper.GetGuidFromId(_aumid.id) : NotificationActivator.PackagedGuid;
 
-            NotificationComServer.CreateAndRegisterActivator(_serverUuid);
+            if (options is null || !options.DisableComServer)
+            {
+                _serverUuid = _aumid.syntetic ? AumidHelper.GetGuidFromId(_aumid.id) : NotificationActivator.PackagedGuid;
+                NotificationComServer.CreateAndRegisterActivator(_serverUuid.Value);
+            }
 
             if (_aumid.syntetic)
                 AumidHelper.RegisterAumid(_aumid.id, _serverUuid, options?.AppName, options?.AppIcon);
@@ -154,7 +157,10 @@ namespace Avalonia.Labs.Notifications.Windows
                 CloseAll();
             }
 
-            NotificationComServer.DeleteActivatorRegistration(_serverUuid);
+            if (_serverUuid is not null)
+            {
+                NotificationComServer.DeleteActivatorRegistration(_serverUuid.Value);
+            }
         }
 
         private string GetAppDataFolderPath()

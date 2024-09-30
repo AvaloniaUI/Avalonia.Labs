@@ -43,20 +43,28 @@ namespace Avalonia.Labs.Notifications
         /// If not defined, Application.Name if used.
         /// Is ignored for packaged applications.
         /// </summary>
-        public string? AppName { get; set; }
+        public string? AppName { get; init; }
 
         /// <summary>
         /// Application icon for notifications.
         /// Is ignored for packaged applications.
         /// </summary>
-        public string? AppIcon { get; set; }
+        public string? AppIcon { get; init; }
 
         /// <summary>
         /// Overrides AppUserModelId used for notifications.
         /// Is ignored for packged applications.
         /// </summary>
-        public string? AppUserModelId { get; set; }
+        public string? AppUserModelId { get; init; }
 
-        public IReadOnlyList<NotificationChannel>? Channels { get; set; }
+        /// <summary>
+        /// Indicates whether ComServer for receiving notification actions should be disabled.
+        /// When true, no callbacks can be retrieved, but application makes less footprint on the user machine.
+        /// Default is false.
+        /// Is ignored for packged applications.
+        /// </summary>
+        public bool DisableComServer { get; init; }
+
+        public IReadOnlyList<NotificationChannel>? Channels { get; init; }
     }
 }

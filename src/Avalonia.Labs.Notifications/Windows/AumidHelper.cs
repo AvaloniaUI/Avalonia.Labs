@@ -65,12 +65,25 @@ internal static class AumidHelper
         return string.Join(string.Empty, hashedBytes.Select(b => b.ToString("X2")));
     }
 
-    internal static void RegisterAumid(string id, Guid comServerGuid, string? appName, string? appIcon)
+    internal static void RegisterAumid(string id, Guid? comServerGuid, string? appName, string? appIcon)
     {
         using (var rootKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\AppUserModelId\" + id))
         {
             rootKey.SetValue("DisplayName", appName ?? Application.Current?.Name ?? "Avalonia App");
-            rootKey.SetValue("CustomActivator", string.Format("{{{0}}}", comServerGuid));
+            rootKey.SetValue("IconBackgroundColor", "FFDDDDDD");
+
+            if (comServerGuid is not null)
+            {
+                rootKey.SetValue("CustomActivator", string.Format("{{{0}}}", comServerGuid.Value));
+            }
+            else
+            {
+                if (rootKey.GetValue("CustomActivator") != null)
+                {
+                    rootKey.DeleteValue("CustomActivator");
+                }
+            }
+
             if (appIcon != null)
             {
                 rootKey.SetValue("IconUri", appIcon);
@@ -82,7 +95,6 @@ internal static class AumidHelper
                     rootKey.DeleteValue("IconUri");
                 }
             }
-            rootKey.SetValue("IconBackgroundColor", "FFDDDDDD");
         }
     }
 }
