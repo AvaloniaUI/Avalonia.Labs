@@ -3,100 +3,64 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Com;
+using Windows.Win32.UI.Notifications;
+using Avalonia.Labs.Notifications.Windows.WinRT;
+using Avalonia.MicroCom;
+using MicroCom.Runtime;
 using Microsoft.Win32;
+using IUnknown = Windows.Win32.System.Com.IUnknown;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows10.0.17763.0")]
     internal class NativeInterop
     {
         private const string TOAST_ACTIVATED_LAUNCH_ARG = "-ToastActivated";
         private const int CLASS_E_NOAGGREGATION = -2147221232;
-        private const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
         private const int E_NOINTERFACE = -2147467262;
-        private const int CLSCTX_LOCAL_SERVER = 4;
-        private const int REGCLS_MULTIPLEUSE = 1;
-        private const int S_OK = 0;
-        private static readonly Guid IUnknownGuid = new Guid("00000000-0000-0000-C000-000000000046");
 
-        public enum PackagePathType
+        private static readonly NotificationActivatorClassFactory s_factory = new();
+        private static readonly NotificationActivator s_activator = new();
+
+        public static unsafe void CreateAndRegisterActivator()
         {
-            PackagePathType_Install = 0,
-            PackagePathType_Mutable = 1,
-            PackagePathType_Effective = 2,
-            PackagePathType_MachineExternal = 3,
-            PackagePathType_UserExternal = 4,
-            PackagePathType_EffectiveExternal = 5,
-        }
-
-        [DllImport("ole32.dll")]
-        public static extern int CoRegisterClassObject(
-            [MarshalAs(UnmanagedType.LPStruct)] Guid rclsid,
-            [MarshalAs(UnmanagedType.IUnknown)] object pUnk,
-            uint dwClsContext,
-            uint flags,
-            out uint lpdwRegister);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern int GetApplicationUserModelId(IntPtr processHandle, ref int aumidLength, StringBuilder aumid);
-
-        [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true)]
-        public static extern int GetPackagePathByFullName([MarshalAs(UnmanagedType.LPWStr)] string packageFullName,
-            ref int pathLength, [Optional, MarshalAs(UnmanagedType.LPWStr)] StringBuilder? path);
-
-        [ComImport]
-        [Guid("00000001-0000-0000-C000-000000000046")]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface IClassFactory
-        {
-            [PreserveSig]
-            int CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject);
-
-            [PreserveSig]
-            int LockServer(bool fLock);
-        }
-
-        [RequiresUnreferencedCode("")]
-        public static void CreateAndRegisterActivator()
-        {
-            var uuid = typeof(NotificationActivator).GUID;
+            var uuid = NotificationActivator.Guid;
             if (!IsContainerized())
                 RegisterComServer(uuid, Process.GetCurrentProcess()?.MainModule?.FileName ?? "");
 
-            CoRegisterClassObject(uuid,
-                new NotificationActivatorClassFactory(),
-                CLSCTX_LOCAL_SERVER,
-                REGCLS_MULTIPLEUSE,
-                out var c);
+            var ptr = s_factory.GetNativeIntPtr<IClassFactory>();
+            PInvoke.CoRegisterClassObject(uuid,
+                (IUnknown*)ptr,
+                CLSCTX.CLSCTX_LOCAL_SERVER,
+                REGCLS.REGCLS_MULTIPLEUSE,
+                out var c).ThrowOnFailure();
         }
 
-        private class NotificationActivatorClassFactory : IClassFactory
+        private class NotificationActivatorClassFactory : CallbackBase, IClassFactory
         {
-            public int CreateInstance(IntPtr pUnkOuter, ref Guid riid, out IntPtr ppvObject)
+            public unsafe int CreateInstance(IntPtr pUnkOuter, Guid* riid, IntPtr* ppvObject)
             {
-                ppvObject = IntPtr.Zero;
+                *ppvObject = default;
 
-                if (pUnkOuter != IntPtr.Zero)
-                    Marshal.ThrowExceptionForHR(CLASS_E_NOAGGREGATION);
+                if (pUnkOuter != default)
+                    return CLASS_E_NOAGGREGATION;
 
-                if (riid == typeof(NotificationActivator).GUID || riid == IUnknownGuid)
-                    // Create the instance of the .NET object
-                    ppvObject = Marshal.GetComInterfaceForObject(new NotificationActivator(),
-                        typeof(INotificationActivationCallback));
-                else
-                    // The object that ppvObject points to does not support the
-                    // interface identified by riid.
-                    Marshal.ThrowExceptionForHR(E_NOINTERFACE);
-                return S_OK;
+                var iid = *riid;
+                if (iid == NotificationActivator.Guid
+                    || iid == MicroComRuntime.GetGuidFor(typeof(INotificationActivationCallback))
+                    || iid == IUnknown.IID_Guid)
+                {
+                    *ppvObject = s_activator.GetNativeIntPtr<INotificationActivationCallback>();
+                    return 0;
+                }
+
+                return E_NOINTERFACE;
             }
 
-            public int LockServer(bool fLock)
-            {
-                return S_OK;
-            }
+            public int LockServer(bool fLock) => 0;
         }
         private static bool IsElevated
         {
@@ -105,7 +69,6 @@ namespace Avalonia.Labs.Notifications.Windows
                 return new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent()).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
             }
         }
-
 
         private static void RegisterComServer(Guid guid, string exePath)
         {
@@ -141,110 +104,92 @@ namespace Avalonia.Labs.Notifications.Windows
                 }
             }
         }
-
-        [ComImport]
-        [Guid("53E31837-6600-4A81-9395-75CFFE746F94")]
-        [ComVisible(true)]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        public interface INotificationActivationCallback
+        
+        public class NotificationActivator : CallbackBase, INotificationActivationCallback
         {
-            void Activate(
-                [In][MarshalAs(UnmanagedType.LPWStr)] string appUserModelId,
-                [In][MarshalAs(UnmanagedType.LPWStr)] string invokedArgs,
-                [In] [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 3)]
-                NOTIFICATION_USER_INPUT_DATA[] data,
-                [In][MarshalAs(UnmanagedType.U4)] uint dataCount);
-        }
+            public static Guid Guid { get; } = new("67890354-2A47-444C-B15F-DBF513C82F04");
 
-        [Serializable]
-        public struct NOTIFICATION_USER_INPUT_DATA
-        {
-            [MarshalAs(UnmanagedType.LPWStr)] public readonly string Key;
-
-            [MarshalAs(UnmanagedType.LPWStr)] public readonly string Value;
-        }
-
-        [ClassInterface(ClassInterfaceType.None)]
-        [ComSourceInterfaces(typeof(INotificationActivationCallback))]
-        [Guid("67890354-2A47-444C-B15F-DBF513C82F04")]
-        [ComVisible(true)]
-        public class NotificationActivator : INotificationActivationCallback
-        {
-            #region interface INotificationActivationCallback
-
-            public void Activate(string appUserModelId, string invokedArgs, NOTIFICATION_USER_INPUT_DATA[] data,
-                uint dataCount)
+            public unsafe void Activate(IntPtr appUserModelId, IntPtr invokedArgs, NOTIFICATION_USER_INPUT_DATA* data, uint count)
             {
-                var pairs = Enumerable.Range(0, (int)dataCount)
-                    .ToDictionary(i => data[i].Key, i => data[i].Value);
-
-                (Notifications.NativeNotificationManager.Current as NativeNotificationManager)?.OnNotificationReceived(invokedArgs, pairs, appUserModelId);
+                (Notifications.NativeNotificationManager.Current as NativeNotificationManager)?
+                    .OnNotificationReceived(
+                        new PWSTR((char*)invokedArgs).ToString(),
+                        Enumerable.Range(0, (int)count)
+                            .ToDictionary(i => data[i].Key.ToString(), i => data[i].Value.ToString()),
+                        new PWSTR((char*)appUserModelId).ToString());
             }
-
-            #endregion
         }
 
-        public static bool HasPackage()
+        public static bool HasPackage() => GetCurrentPackageFullName() is not null;
+
+        private static unsafe string? GetCurrentPackageFullName()
         {
-            int length = 0;
-            var sb = new StringBuilder(0);
-            int error = GetCurrentPackageFullName(ref length, sb);
+            var length = 0u;
+            var sb = new PWSTR();
+            _ = PInvoke.GetCurrentPackageFullName(ref length, sb);
+            if (length == 0)
+                return null;
 
-            sb = new StringBuilder(length);
-            error = GetCurrentPackageFullName(ref length, sb);
-
-            return error != APPMODEL_ERROR_NO_PACKAGE;
+            var span = stackalloc char[(int)length];
+            sb = new PWSTR(span);
+            var res = PInvoke.GetCurrentPackageFullName(ref length, sb);
+            if (res == 0)
+                return sb.ToString();
+            return null;
         }
+        
+        private static unsafe string? GetPackagePathByFullName(string packageFullName)
+        {
+            var length = 0u;
+            var sb = new PWSTR();
+            _ = PInvoke.GetPackagePathByFullName(packageFullName, ref length, sb);
+            if (length == 0)
+                return null;
+
+            var span = stackalloc char[(int)length];
+            sb = new PWSTR(span);
+            var res = PInvoke.GetPackagePathByFullName(packageFullName, ref length, sb);
+            if (res == 0)
+                return sb.ToString();
+            return null;
+        } 
 
         public static bool IsContainerized()
         {
             if (IsWindows7OrLower)
                 return false;
 
-            int length = 0;
-            var sb = new StringBuilder(0);
-            GetCurrentPackageFullName(ref length, sb);
-
-            sb = new StringBuilder(length);
-            int error = GetCurrentPackageFullName(ref length, sb);
-
-            if(error == APPMODEL_ERROR_NO_PACKAGE)
-            {
+            var packageName = GetCurrentPackageFullName();
+            if (packageName is null)
                 return false;
-            }
-            var packageName = sb.ToString();
-            sb = new StringBuilder();
-            length = 0;
-            GetPackagePathByFullName(packageName, ref length, sb);
-            if(length == 0)
-            {
+
+            var packagePath = GetPackagePathByFullName(packageName);
+            if (packagePath is null)
                 return false;
-            }
-            sb = new StringBuilder(length);
-            GetPackagePathByFullName(packageName, ref length, sb);
+
             var exe = Process.GetCurrentProcess()?.MainModule?.FileName ?? "";
-            var packagePath = sb.ToString();
 
             return exe.StartsWith(packagePath);
         }
 
-        public static string GetAumid()
+        public static unsafe string? GetAumid()
         {
-            var length = 0;
-            var sb = new StringBuilder();
-            var error = GetApplicationUserModelId(Process.GetCurrentProcess().Handle, ref length, sb);
-            if (length != 0)
-            {
-                sb = new StringBuilder(length);
-                error = GetApplicationUserModelId(Process.GetCurrentProcess().Handle, ref length, sb);
-            }
+            var length = 0u;
+            var sb = new PWSTR();
+            var processId = (HANDLE)Process.GetCurrentProcess().Handle;
+            PInvoke.GetApplicationUserModelId(processId, ref length, sb);
+            if (length == 0)
+                return null;
 
+            var span = stackalloc char[(int)length];
+            sb = new PWSTR(span);
+            PInvoke.GetApplicationUserModelId(processId, ref length, sb);
             return sb.ToString();
         }
 
         internal static void DeleteActivatorRegistration()
         {
-            var uuid = typeof(NotificationActivator).GUID;
+            var uuid = NotificationActivator.Guid;
             try
             {
                 Registry.CurrentUser.DeleteSubKeyTree(string.Format("SOFTWARE\\Classes\\CLSID\\{{{0}}}", uuid));

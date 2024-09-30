@@ -1,10 +1,12 @@
-﻿using Avalonia.Labs.Notifications.Windows.WinRT;
+﻿using System.Runtime.Versioning;
+using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
-    internal class NativeNotification : INativeNotification
+    [SupportedOSPlatform("windows10.0.17763.0")]
+    internal unsafe class NativeNotification : INativeNotification
     {
         private static uint s_currentId = 0;
         private readonly NativeNotificationManager _manager;
@@ -100,17 +102,17 @@ namespace Avalonia.Labs.Notifications.Windows
             """;
             using var xmlDoc = NativeWinRTMethods.CreateInstance<IXmlDocument>("Windows.Data.Xml.Dom.XmlDocument");
             using var xmlIO = xmlDoc.QueryInterface<IXmlDocumentIO>();
-            var xmlIntPtr = NativeWinRTMethods.WindowsCreateString(xml);
-            xmlIO.LoadXml(xmlIntPtr);
-            NativeWinRTMethods.WindowsDeleteString(xmlIntPtr);
+            using (var xmlIntPtr = new HStringWrapper(xml))
+            {
+                xmlIO.LoadXml(xmlIntPtr);
+            }
 
             using var factory = NativeWinRTMethods.CreateActivationFactory<IToastNotificationFactory>("Windows.UI.Notifications.ToastNotification");
             CurrentNotification = factory.CreateToastNotification(xmlDoc);
             if (CurrentNotification.QueryInterface<IToastNotification2>() is { } toastNotification2)
             {
-                var idPtr = NativeWinRTMethods.WindowsCreateString(Id.ToString());
+                using var idPtr = new HStringWrapper(Id.ToString());
                 toastNotification2.SetTag(idPtr);
-                NativeWinRTMethods.WindowsDeleteString(idPtr);
             }
 
             _manager.Show(this);

@@ -1,0 +1,11 @@
+CoRegisterClassObject
+CoCreateInstance
+RoActivateInstance
+RoGetActivationFactory
+RoInitialize
+GetApplicationUserModelId
+GetCurrentPackageFullName
+GetPackagePathByFullName
+GetCurrentProcessExplicitAppUserModelID
+WindowsCreateString
+NOTIFICATION_USER_INPUT_DATA

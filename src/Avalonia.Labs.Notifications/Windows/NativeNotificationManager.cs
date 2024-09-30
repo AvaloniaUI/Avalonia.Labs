@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,7 +8,7 @@ using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows10.0.17763.0")]
     internal class NativeNotificationManager : INativeNotificationManager, IDisposable
     {
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
@@ -34,21 +33,20 @@ namespace Avalonia.Labs.Notifications.Windows
             }
         }
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
         internal void Initialize()
         {
             _aumid = NativeInterop.GetAumid();
 
-            if (string.IsNullOrWhiteSpace(_aumid))
-                return;
+            //if (string.IsNullOrWhiteSpace(_aumid))
+              //  return;
 
             NativeInterop.CreateAndRegisterActivator();
         }
 
         public INativeNotification? CreateNotification(string? category)
         {
-            if (_aumid == null)
-                return null;
+            //if (_aumid == null) TODO
+              //  return null;
 
             var channel = ChannelManager?.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
                 ChannelManager?.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
@@ -90,14 +88,32 @@ namespace Avalonia.Labs.Notifications.Windows
             }
         }
 
-        internal void Show(NativeNotification nativeNotification)
+        internal unsafe void Show(NativeNotification nativeNotification)
         {
             if (nativeNotification.CurrentNotification == null)
                 return;
+
             using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
-            using var notifier = managerStatics.CreateToastNotifier();
-            notifier.Show(nativeNotification.CurrentNotification);
-            _notifications[nativeNotification.Id] = nativeNotification;
+
+            IToastNotifier notifier;
+
+            if (NativeInterop.HasPackage())
+            {
+                notifier = managerStatics.CreateToastNotifier();
+            }
+            else
+            {
+                var appIdRef = "com.Avalonia.Labs.Catalog";
+                //PInvoke.GetCurrentProcessExplicitAppUserModelID(out var appIdRef);
+                using var appIdHRef = new HStringWrapper(appIdRef.ToString());
+                notifier = managerStatics.CreateToastNotifierWithId(appIdHRef);
+            }
+
+            using (notifier)
+            {
+                notifier.Show(nativeNotification.CurrentNotification);
+                _notifications[nativeNotification.Id] = nativeNotification;
+            }
         }
 
         internal void Close(NativeNotification nativeNotification)
@@ -105,9 +121,8 @@ namespace Avalonia.Labs.Notifications.Windows
             using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
             if(managerStatics.QueryInterface<IToastNotificationManagerStatics2>() is { } manager2)
             {
-                var tagPtr = NativeWinRTMethods.WindowsCreateString(nativeNotification.Id.ToString());
-                manager2.History?.Remove(tagPtr);
-                NativeWinRTMethods.WindowsDeleteString(tagPtr);
+                using var str = new HStringWrapper(nativeNotification.Id.ToString());
+                manager2.History?.Remove(str);
             }
             _notifications.Remove(nativeNotification.Id);
         }
@@ -131,9 +146,9 @@ namespace Avalonia.Labs.Notifications.Windows
             NativeInterop.DeleteActivatorRegistration();
         }
 
-        internal string GetAppDataFolderPath()
+        internal string? GetAppDataFolderPath()
         {
-            return _aumid == null ? "" : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", _aumid.Split("!")[0], "AppData", "Images");
+            return _aumid == null ? null : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", _aumid.Split("!")[0], "AppData", "Images");
         }
 
         internal string? SaveBitmapToAppPath(Bitmap bitmap)

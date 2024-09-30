@@ -6,7 +6,7 @@ namespace Avalonia.Labs.Notifications.Windows
     {
         public static AppBuilder WithWin32AppNotifications(this AppBuilder appBuilder, Win32NotificationOptions options)
         {
-            if (!OperatingSystem.IsWindows())
+            if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
                 return appBuilder;
             var notificationManager = new NativeNotificationManager();
             Notifications.NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
@@ -16,9 +16,8 @@ namespace Avalonia.Labs.Notifications.Windows
                 {
                     notificationManager.ChannelManager.AddChannel(channel);
                 }
-
-            var callback = appBuilder.AfterSetupCallback;
-            callback += (a) =>
+            
+            appBuilder.AfterSetup(_ =>
             {
                 notificationManager.Initialize();
                 var lifetime = Application.Current?.ApplicationLifetime;
@@ -30,9 +29,7 @@ namespace Avalonia.Labs.Notifications.Windows
                         notificationManager.Dispose();
                     };
                 }
-            };
-
-            appBuilder.AfterSetup(callback);
+            });
 
             return appBuilder;
         }
