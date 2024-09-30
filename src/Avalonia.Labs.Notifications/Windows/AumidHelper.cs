@@ -72,18 +72,6 @@ internal static class AumidHelper
             rootKey.SetValue("DisplayName", appName ?? Application.Current?.Name ?? "Avalonia App");
             rootKey.SetValue("IconBackgroundColor", "FFDDDDDD");
 
-            if (comServerGuid is not null)
-            {
-                rootKey.SetValue("CustomActivator", string.Format("{{{0}}}", comServerGuid.Value));
-            }
-            else
-            {
-                if (rootKey.GetValue("CustomActivator") != null)
-                {
-                    rootKey.DeleteValue("CustomActivator");
-                }
-            }
-
             if (appIcon != null)
             {
                 rootKey.SetValue("IconUri", appIcon);
@@ -93,6 +81,18 @@ internal static class AumidHelper
                 if (rootKey.GetValue("IconUri") != null)
                 {
                     rootKey.DeleteValue("IconUri");
+                }
+            }
+
+            if (comServerGuid is not null)
+            {
+                rootKey.SetValue("CustomActivator", string.Format("{{{0}}}", comServerGuid.Value));
+            }
+            else
+            {
+                if (rootKey.GetValue("CustomActivator") != null)
+                {
+                    rootKey.DeleteValue("CustomActivator");
                 }
             }
         }

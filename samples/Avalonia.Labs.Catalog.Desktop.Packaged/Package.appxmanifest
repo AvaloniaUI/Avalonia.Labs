@@ -43,12 +43,12 @@
       </uap:VisualElements>
         <Extensions>
             <desktop:Extension Category="windows.toastNotificationActivation">
-                <desktop:ToastNotificationActivation ToastActivatorCLSID="67890354-2A47-444C-B15F-DBF513C82F04" />
+                <desktop:ToastNotificationActivation ToastActivatorCLSID="67890354-2A47-444C-B15F-DBF513C82F03" />
             </desktop:Extension>
             <com:Extension Category="windows.comServer">
               <com:ComServer>
                 <com:ExeServer Executable="YourProject\YourProject.exe" Arguments="-ToastActivated" DisplayName="Toast activator">
-                  <com:Class Id="67890354-2A47-444C-B15F-DBF513C82F04" DisplayName="Toast activator"/>
+                  <com:Class Id="67890354-2A47-444C-B15F-DBF513C82F03" DisplayName="Toast activator"/>
                 </com:ExeServer>
               </com:ComServer>
             </com:Extension>

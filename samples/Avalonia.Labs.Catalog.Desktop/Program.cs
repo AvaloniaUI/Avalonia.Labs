@@ -54,7 +54,9 @@ class Program
                 AppName = "Avalonia.Labs",
                 AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
                 AppUserModelId = "com.Avalonia.Labs.Catalog",
-                Channels = s_channels
+                Channels = s_channels,
+                // Is required for Packaged project, optional for the rest.
+                // ComActivatorGuidOverride = Guid.Parse("67890354-2A47-444C-B15F-DBF513C82F03")
             })
             .AfterSetup(builder =>
             {

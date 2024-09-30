@@ -44,16 +44,18 @@ namespace Avalonia.Labs.Notifications.Windows
 
         internal void Initialize(Win32NotificationOptions? options)
         {
-            _aumid = options?.AppUserModelId is not null ? (options.AppUserModelId, true) : AumidHelper.GetAumid();
+            _aumid = !DesktopBridgeHelpers.HasPackage() && options?.AppUserModelId is not null ? (options.AppUserModelId, true) : AumidHelper.GetAumid();
 
             if (options is null || !options.DisableComServer)
             {
-                _serverUuid = _aumid.syntetic ? AumidHelper.GetGuidFromId(_aumid.id) : NotificationActivator.PackagedGuid;
+                _serverUuid = options.ComActivatorGuidOverride ?? AumidHelper.GetGuidFromId(_aumid.id);
                 NotificationComServer.CreateAndRegisterActivator(_serverUuid.Value);
             }
 
             if (_aumid.syntetic)
+            {
                 AumidHelper.RegisterAumid(_aumid.id, _serverUuid, options?.AppName, options?.AppIcon);
+            }
         }
 
         public INativeNotification? CreateNotification(string? category)

@@ -10,7 +10,6 @@ namespace Avalonia.Labs.Notifications.Windows;
 internal class NotificationActivator : CallbackBase, INotificationActivationCallback
 {
     public static NotificationActivator Instance { get; } = new();
-    public static Guid PackagedGuid { get; } = new("67890354-2A47-444C-B15F-DBF513C82F04");
 
     [SupportedOSPlatform("windows10.0.17763.0")]
     public unsafe void Activate(IntPtr appUserModelId, IntPtr invokedArgs, NOTIFICATION_USER_INPUT_DATA* data, uint count)
