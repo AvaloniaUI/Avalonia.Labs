@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Labs.Notifications.Windows.WinRT;
@@ -11,8 +10,10 @@ namespace Avalonia.Labs.Notifications.Windows
     [SupportedOSPlatform("windows10.0.17763.0")]
     internal class NativeNotificationManager : INativeNotificationManager, IDisposable
     {
+        public const string NotificationsGroupName = "AvaloniaUI"; 
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
-        private string? _aumid;
+        private (string id, bool syntetic) _aumid;
+        private Guid _serverUuid;
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
@@ -29,25 +30,31 @@ namespace Avalonia.Labs.Notifications.Windows
             using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
             if (managerStatics.QueryInterface<IToastNotificationManagerStatics2>() is { } manager2)
             {
-                manager2.History?.Clear();
+                if (_aumid.syntetic)
+                {
+                    using var hstring = new HStringWrapper(_aumid.id);
+                    manager2.History.ClearWithId(hstring);
+                }
+                else
+                {
+                    manager2.History.Clear();
+                }
             }
         }
 
-        internal void Initialize()
+        internal void Initialize(Win32NotificationOptions? options)
         {
-            _aumid = NativeInterop.GetAumid();
+            _aumid = options?.AppUserModelId is not null ? (options.AppUserModelId, true) : AumidHelper.GetAumid();
+            _serverUuid = _aumid.syntetic ? AumidHelper.GetGuidFromId(_aumid.id) : NotificationActivator.PackagedGuid;
 
-            //if (string.IsNullOrWhiteSpace(_aumid))
-              //  return;
+            NotificationComServer.CreateAndRegisterActivator(_serverUuid);
 
-            NativeInterop.CreateAndRegisterActivator();
+            if (_aumid.syntetic)
+                AumidHelper.RegisterAumid(_aumid.id, _serverUuid, options?.AppName, options?.AppIcon);
         }
 
         public INativeNotification? CreateNotification(string? category)
         {
-            //if (_aumid == null) TODO
-              //  return null;
-
             var channel = ChannelManager?.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
                 ChannelManager?.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
 
@@ -60,8 +67,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
         internal void OnNotificationReceived(string invokedArgs, Dictionary<string, string> pairs, string appUserModelId)
         {
-            Debugger.Launch();
-            if (appUserModelId != _aumid)
+            if (appUserModelId != _aumid.id)
                 return;
             Dictionary<string, string> args = new Dictionary<string, string>();
             var splits = invokedArgs.Split(';');
@@ -88,7 +94,7 @@ namespace Avalonia.Labs.Notifications.Windows
             }
         }
 
-        internal unsafe void Show(NativeNotification nativeNotification)
+        internal void Show(NativeNotification nativeNotification)
         {
             if (nativeNotification.CurrentNotification == null)
                 return;
@@ -97,16 +103,14 @@ namespace Avalonia.Labs.Notifications.Windows
 
             IToastNotifier notifier;
 
-            if (NativeInterop.HasPackage())
+            if (_aumid.syntetic)
             {
-                notifier = managerStatics.CreateToastNotifier();
+                using var appIdHRef = new HStringWrapper(_aumid.id);
+                notifier = managerStatics.CreateToastNotifierWithId(appIdHRef);
             }
             else
             {
-                var appIdRef = "com.Avalonia.Labs.Catalog";
-                //PInvoke.GetCurrentProcessExplicitAppUserModelID(out var appIdRef);
-                using var appIdHRef = new HStringWrapper(appIdRef.ToString());
-                notifier = managerStatics.CreateToastNotifierWithId(appIdHRef);
+                notifier = managerStatics.CreateToastNotifier();
             }
 
             using (notifier)
@@ -121,8 +125,18 @@ namespace Avalonia.Labs.Notifications.Windows
             using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
             if(managerStatics.QueryInterface<IToastNotificationManagerStatics2>() is { } manager2)
             {
-                using var str = new HStringWrapper(nativeNotification.Id.ToString());
-                manager2.History?.Remove(str);
+                using var tagStr = new HStringWrapper(nativeNotification.Id.ToString());
+                using var groupStr = new HStringWrapper(NotificationsGroupName);
+
+                if (_aumid.syntetic)
+                {
+                    using var appIdStr = new HStringWrapper(_aumid.id);
+                    manager2.History.RemoveGroupedTagWithId(tagStr, groupStr, appIdStr);
+                }
+                else
+                {
+                    manager2.History.RemoveGroupedTag(tagStr, groupStr);
+                }
             }
             _notifications.Remove(nativeNotification.Id);
         }
@@ -133,36 +147,36 @@ namespace Avalonia.Labs.Notifications.Windows
             if (Directory.Exists(path))
                 Directory.Delete(path, true);
 
-            if (NativeInterop.IsContainerized() || string.IsNullOrWhiteSpace(_aumid))
-                return;
-
             _notifications.Clear();
 
-            if (!NativeInterop.HasPackage())
+            if (!DesktopBridgeHelpers.HasPackage())
             {
                 CloseAll();
             }
 
-            NativeInterop.DeleteActivatorRegistration();
+            NotificationComServer.DeleteActivatorRegistration(_serverUuid);
         }
 
-        internal string? GetAppDataFolderPath()
+        private string GetAppDataFolderPath()
         {
-            return _aumid == null ? null : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", _aumid.Split("!")[0], "AppData", "Images");
+            return _aumid.syntetic ?
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "ToastNotificationManagerCompat", "Apps", _aumid.id.Split("!")[0]) :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "Packages", _aumid.id.Split("!")[0], "Avalonia.Labs.Notifications");
         }
 
         internal string? SaveBitmapToAppPath(Bitmap bitmap)
         {
             try
             {
-                if (GetAppDataFolderPath() is not string folder)
-                    return null;
+                var folder = GetAppDataFolderPath();
                 var name = Convert.ToHexString(SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(DateTime.Now.ToString() + Random.Shared.Next()))) + ".png";
                 Directory.CreateDirectory(folder);
                 var path = Path.Combine(folder, name);
                 bitmap.Save(path);
 
-                return $"file:///{path}";
+                return new Uri(path).AbsoluteUri;
             }
             catch(Exception _)
             {

@@ -8,6 +8,7 @@ namespace Avalonia.Labs.Notifications.Windows
         {
             if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
                 return appBuilder;
+
             var notificationManager = new NativeNotificationManager();
             Notifications.NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
@@ -19,7 +20,7 @@ namespace Avalonia.Labs.Notifications.Windows
             
             appBuilder.AfterSetup(_ =>
             {
-                notificationManager.Initialize();
+                notificationManager.Initialize(options);
                 var lifetime = Application.Current?.ApplicationLifetime;
 
                 if (lifetime is IClassicDesktopStyleApplicationLifetime desktopStyleApplicationLifetime)
@@ -37,6 +38,25 @@ namespace Avalonia.Labs.Notifications.Windows
 
     public class Win32NotificationOptions
     {
-        public IReadOnlyList<NotificationChannel>? Channels { get; init; }
+        /// <summary>
+        /// Application display name for notifications.
+        /// If not defined, Application.Name if used.
+        /// Is ignored for packaged applications.
+        /// </summary>
+        public string? AppName { get; set; }
+
+        /// <summary>
+        /// Application icon for notifications.
+        /// Is ignored for packaged applications.
+        /// </summary>
+        public string? AppIcon { get; set; }
+
+        /// <summary>
+        /// Overrides AppUserModelId used for notifications.
+        /// Is ignored for packged applications.
+        /// </summary>
+        public string? AppUserModelId { get; set; }
+
+        public IReadOnlyList<NotificationChannel>? Channels { get; set; }
     }
 }

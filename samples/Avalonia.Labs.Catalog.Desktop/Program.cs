@@ -68,6 +68,9 @@ class Program
             })
             .WithWin32AppNotifications(new Win32NotificationOptions()
             {
+                AppName = "Avalonia.Labs",
+                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
+                AppUserModelId = "com.Avalonia.Labs.Catalog",
                 Channels = new[]
                     {
                         new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),

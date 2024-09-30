@@ -6,7 +6,7 @@ using MicroCom.Runtime;
 namespace Avalonia.Labs.Notifications.Windows
 {
     [SupportedOSPlatform("windows10.0.17763.0")]
-    internal unsafe class NativeNotification : INativeNotification
+    internal class NativeNotification : INativeNotification
     {
         private static uint s_currentId = 0;
         private readonly NativeNotificationManager _manager;
@@ -113,6 +113,9 @@ namespace Avalonia.Labs.Notifications.Windows
             {
                 using var idPtr = new HStringWrapper(Id.ToString());
                 toastNotification2.SetTag(idPtr);
+
+                using var groupStr = new HStringWrapper(NativeNotificationManager.NotificationsGroupName);
+                toastNotification2.SetGroup(groupStr);
             }
 
             _manager.Show(this);

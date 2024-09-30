@@ -3,6 +3,7 @@
              xmlns:local="using:Avalonia.Labs.Catalog"
              xmlns:labs="using:Avalonia.Labs.Controls"
              x:Class="Avalonia.Labs.Catalog.App"
+             Name="Avalonia.Labs Catalog"
              RequestedThemeVariant="{x:Static ThemeVariant.Light}">
     <Application.DataTemplates>
         <local:ViewLocator/>

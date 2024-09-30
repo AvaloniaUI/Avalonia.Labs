@@ -1,4 +1,5 @@
 CoRegisterClassObject
+CoRevokeClassObject
 CoCreateInstance
 RoActivateInstance
 RoGetActivationFactory
