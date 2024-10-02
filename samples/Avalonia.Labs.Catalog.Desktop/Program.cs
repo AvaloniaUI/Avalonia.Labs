@@ -8,7 +8,7 @@ using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.Desktop;
 
-class Program
+sealed class Program
 {
     private static NotificationChannel[] s_channels = new[]
     {
@@ -42,6 +42,7 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .LogToTrace()
             .UseReactiveUI()
             .WithAppleAppNotifications(new AppleNotificationOptions()
             {
@@ -68,6 +69,5 @@ class Program
                 {
                     BaseCachePath = Path.Combine(Path.GetTempPath(), "Avalonia.Labs")
                 });
-            })
-            .LogToTrace();
+            });
 }

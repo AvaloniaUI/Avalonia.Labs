@@ -11,8 +11,13 @@ using NotificationChannel = Avalonia.Labs.Notifications.NotificationChannel;
 
 namespace Avalonia.Labs.Catalog.Android;
 
-[Activity(Label = "Avalonia.Labs.Catalog.Android", Theme = "@style/MyTheme.NoActionBar", Icon = "@drawable/icon", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
-public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHandler
+[Activity(
+    Label = "Avalonia.Labs.Catalog.Android",
+    Theme = "@style/MyTheme.NoActionBar",
+    Icon = "@drawable/icon",
+    MainLauncher = true,
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+public class MainActivity : AvaloniaMainActivity<App>
 {
     public event EventHandler<Intent> OnActivityIntent;
 
