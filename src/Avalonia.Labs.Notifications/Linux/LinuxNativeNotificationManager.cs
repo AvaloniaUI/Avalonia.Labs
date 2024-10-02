@@ -1,4 +1,5 @@
-﻿using System;
+#if INCLUDE_LINUX
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -129,3 +130,4 @@ namespace Avalonia.Labs.Notifications.Linux
         };
     }
 }
+#endif
