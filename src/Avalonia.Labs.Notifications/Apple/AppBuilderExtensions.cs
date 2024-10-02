@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AppleInterop;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Labs.Notifications.Apple;

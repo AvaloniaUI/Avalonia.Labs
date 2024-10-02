@@ -1,4 +1,6 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
+using System.Linq;
 using System.Runtime.Versioning;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Notifications;

@@ -1,5 +1,8 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
+using System.Collections.Generic;
 using System.Runtime.Versioning;
+using System.Threading;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;

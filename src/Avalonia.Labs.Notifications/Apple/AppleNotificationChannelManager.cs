@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Avalonia.Labs.Notifications.Apple;
 
 internal class AppleNotificationChannelManager : NotificationChannelManager

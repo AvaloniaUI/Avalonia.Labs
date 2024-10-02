@@ -1,10 +1,12 @@
+using System;
+using System.Collections.Generic;
 using AppleInterop;
 
 namespace Avalonia.Labs.Notifications.Apple;
 
 internal class UNNotificationCategory : NSObject
 {
-    private static readonly IntPtr s_class = UserNotifications.objc_getClass("UNNotificationCategory");
+    private static readonly IntPtr s_class = AppleInterop.UserNotifications.objc_getClass("UNNotificationCategory");
     private static readonly IntPtr s_categoryWithIdentifier = Libobjc.sel_getUid("categoryWithIdentifier:actions:intentIdentifiers:options:");
 
     private UNNotificationCategory(IntPtr handle) : base(false)

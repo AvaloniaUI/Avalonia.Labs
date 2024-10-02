@@ -1,4 +1,7 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;

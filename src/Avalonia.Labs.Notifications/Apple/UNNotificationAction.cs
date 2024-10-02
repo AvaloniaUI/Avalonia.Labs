@@ -1,10 +1,11 @@
+using System;
 using AppleInterop;
 
 namespace Avalonia.Labs.Notifications.Apple;
 
 internal class UNNotificationAction : NSObject
 {
-    private static readonly IntPtr s_class = UserNotifications.objc_getClass("UNNotificationAction");
+    private static readonly IntPtr s_class = AppleInterop.UserNotifications.objc_getClass("UNNotificationAction");
     private static readonly IntPtr s_actionWithIdentifier = Libobjc.sel_getUid("actionWithIdentifier:title:options:");
 
     private UNNotificationAction(IntPtr handle) : base(false)

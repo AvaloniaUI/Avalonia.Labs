@@ -1,5 +1,7 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,7 +25,7 @@ internal static class AumidHelper
             return (appIdPtr.ToString(), true);
 
         var executable = process.MainModule!.FileName!;
-        var fileName = Path.GetFileNameWithoutExtension(executable);
+        var fileName = System.IO.Path.GetFileNameWithoutExtension(executable);
         var maxFileNameLength = Math.Min(40, fileName.Length);
         return ($"{fileName[..maxFileNameLength]}_{HashAppId(executable)[10..]}", true);
     }

@@ -1,4 +1,6 @@
-﻿namespace Avalonia.Labs.Notifications
+﻿using System.Collections.Generic;
+
+namespace Avalonia.Labs.Notifications
 {
     internal class NotificationChannelManager
     {

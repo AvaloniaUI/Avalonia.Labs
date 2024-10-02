@@ -1,3 +1,5 @@
+using System;
+
 namespace AppleInterop;
 
 internal class NSError : NSObject

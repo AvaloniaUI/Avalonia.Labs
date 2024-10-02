@@ -1,4 +1,6 @@
-﻿using Avalonia.Media.Imaging;
+﻿using System;
+using System.Collections.Generic;
+using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications
 {

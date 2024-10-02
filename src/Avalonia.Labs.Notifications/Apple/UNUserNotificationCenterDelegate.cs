@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -20,7 +21,7 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     {
         var delegateClass = AllocateClassPair("AvaloniaUNUserNotificationCenterDelegate");
 
-        var protocol = UserNotifications.objc_getProtocol("UNUserNotificationCenterDelegate");
+        var protocol = AppleInterop.UserNotifications.objc_getProtocol("UNUserNotificationCenterDelegate");
         var result = Libobjc.class_addProtocol(delegateClass, protocol);
         Debug.Assert(result == 1);
 

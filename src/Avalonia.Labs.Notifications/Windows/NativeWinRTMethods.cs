@@ -1,5 +1,7 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
 using System.Runtime.Versioning;
+using System.Threading;
 using Windows.Win32;
 using Windows.Win32.System.WinRT;
 using MicroCom.Runtime;

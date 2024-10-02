@@ -1,10 +1,11 @@
+using System;
 using AppleInterop;
 
 namespace Avalonia.Labs.Notifications.Apple;
 
 internal class UNNotificationRequest : NSObject
 {
-    private static readonly IntPtr s_class = UserNotifications.objc_getClass("UNNotificationRequest");
+    private static readonly IntPtr s_class = AppleInterop.UserNotifications.objc_getClass("UNNotificationRequest");
     private static readonly IntPtr s_requestWithIdentifier = Libobjc.sel_getUid("requestWithIdentifier:content:trigger:");
     private static readonly IntPtr s_identifier = Libobjc.sel_getUid("identifier");
     private static readonly IntPtr s_request = Libobjc.sel_getUid("request"); // property on UNNotification

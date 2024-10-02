@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using AppleInterop;
 using Avalonia.Threading;
 
@@ -10,7 +13,7 @@ internal class UNUserNotificationCenter : NSObject
     private static readonly unsafe IntPtr s_addCallback = new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void>)&NotificationAddCallback);
     private static readonly unsafe IntPtr s_requestAuthCallback = new((delegate* unmanaged[Cdecl]<IntPtr, int, IntPtr, void>)&RequestAuthorizationCallback);
 
-    private static readonly IntPtr s_class = UserNotifications.objc_getClass("UNUserNotificationCenter");
+    private static readonly IntPtr s_class = AppleInterop.UserNotifications.objc_getClass("UNUserNotificationCenter");
     private static readonly IntPtr s_current = Libobjc.sel_getUid("currentNotificationCenter");
     private static readonly IntPtr s_delegate = Libobjc.sel_getUid("setDelegate:");
     private static readonly IntPtr s_addNotificationRequest = Libobjc.sel_getUid("addNotificationRequest:withCompletionHandler:");

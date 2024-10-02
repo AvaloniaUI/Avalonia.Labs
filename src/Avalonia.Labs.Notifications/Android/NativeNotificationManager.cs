@@ -1,4 +1,7 @@
 ﻿#if ANDROID
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Android;
 using Android.Content;
 using Android.OS;

@@ -1,4 +1,5 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
 using System.Runtime.Versioning;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.MicroCom;

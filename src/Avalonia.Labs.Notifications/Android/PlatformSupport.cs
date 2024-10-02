@@ -1,4 +1,7 @@
 ﻿#if ANDROID
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Android.Content.PM;
 using Avalonia.Android;
 

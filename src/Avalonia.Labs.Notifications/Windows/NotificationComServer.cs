@@ -1,4 +1,5 @@
 ﻿#if INCLUDE_WINDOWS
+using System;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using Windows.Win32;
