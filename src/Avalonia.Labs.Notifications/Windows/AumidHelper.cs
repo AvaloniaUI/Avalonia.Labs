@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿#if INCLUDE_WINDOWS
+using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
@@ -98,3 +99,4 @@ internal static class AumidHelper
         }
     }
 }
+#endif

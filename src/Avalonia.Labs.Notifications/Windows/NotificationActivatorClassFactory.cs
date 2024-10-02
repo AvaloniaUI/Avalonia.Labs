@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿#if INCLUDE_WINDOWS
+using System.Runtime.Versioning;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.MicroCom;
 using MicroCom.Runtime;
@@ -30,3 +31,4 @@ internal class NotificationActivatorClassFactory(Guid guid) : CallbackBase, ICla
 
     public int LockServer(bool fLock) => 0;
 }
+#endif

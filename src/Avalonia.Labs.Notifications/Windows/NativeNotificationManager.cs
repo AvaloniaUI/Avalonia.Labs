@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿#if INCLUDE_WINDOWS
+using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Labs.Notifications.Windows.WinRT;
@@ -193,3 +194,4 @@ namespace Avalonia.Labs.Notifications.Windows
         }
     }
 }
+#endif

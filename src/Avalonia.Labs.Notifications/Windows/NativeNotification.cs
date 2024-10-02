@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿#if INCLUDE_WINDOWS
+using System.Runtime.Versioning;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
@@ -129,3 +130,4 @@ namespace Avalonia.Labs.Notifications.Windows
         }
     }
 }
+#endif

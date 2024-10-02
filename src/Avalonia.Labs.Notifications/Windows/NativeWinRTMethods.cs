@@ -1,4 +1,5 @@
-﻿using System.Runtime.Versioning;
+﻿#if INCLUDE_WINDOWS
+using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.System.WinRT;
 using MicroCom.Runtime;
@@ -68,3 +69,4 @@ internal readonly unsafe ref struct HStringWrapper
     public static implicit operator HSTRING(HStringWrapper value) => value._pointer;
     public static implicit operator IntPtr(HStringWrapper value) => value._pointer;
 }
+#endif

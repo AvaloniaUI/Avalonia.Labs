@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿#if INCLUDE_WINDOWS
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace Avalonia.Labs.Notifications
 {
@@ -78,3 +79,4 @@ namespace Avalonia.Labs.Notifications
         public IReadOnlyList<NotificationChannel>? Channels { get; init; }
     }
 }
+#endif

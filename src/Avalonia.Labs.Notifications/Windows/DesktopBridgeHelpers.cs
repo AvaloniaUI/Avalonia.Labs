@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿#if INCLUDE_WINDOWS
+using System.Diagnostics;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -65,3 +66,4 @@ internal class DesktopBridgeHelpers
         return null;
     }
 }
+#endif
