@@ -47,6 +47,10 @@ internal static unsafe partial class Libobjc
     [LibraryImport(libobjc, EntryPoint = "objc_msgSend")]
     public static partial IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3);
     [LibraryImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3, int param4);
+    [LibraryImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, int param3);
+    [LibraryImport(libobjc, EntryPoint = "objc_msgSend")]
     public static partial void void_objc_msgSend(IntPtr basePtr, IntPtr selector, [MarshalAs(UnmanagedType.I1)] bool param1);
     [LibraryImport(libobjc, EntryPoint = "objc_msgSend")]
     public static partial void void_objc_msgSend(IntPtr basePtr, IntPtr selector);
@@ -89,6 +93,10 @@ internal static unsafe partial class Libobjc
     public static extern IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3, int param4);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern IntPtr intptr_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, int param3);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]

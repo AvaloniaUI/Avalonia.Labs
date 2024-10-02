@@ -1,16 +1,16 @@
 namespace AppleInterop;
 
-internal class NSArray : NSObject
+internal class NSSet : NSObject
 {
-    private static readonly IntPtr s_class = Libobjc.objc_getClass("NSArray");
-    private static readonly IntPtr s_arrayWithObjects = Libobjc.sel_getUid("arrayWithObjects:count:");
+    private static readonly IntPtr s_class = Libobjc.objc_getClass("NSSet");
+    private static readonly IntPtr s_arrayWithObjects = Libobjc.sel_getUid("setWithObjects:count:");
 
-    private NSArray(IntPtr handle) : base(true)
+    private NSSet(IntPtr handle) : base(true)
     {
         Handle = handle;
     }
 
-    public static NSArray WithObjects(IReadOnlyList<NSObject> objects)
+    public static NSSet WithObjects(IReadOnlyList<NSObject> objects)
     {
         var handles = new IntPtr[objects.Count];
         for (int i = 0; i < objects.Count; i++)
@@ -21,14 +21,14 @@ internal class NSArray : NSObject
         return WithObjects(handles);
     }
 
-    public static unsafe NSArray WithObjects(IntPtr[] handles)
+    public static unsafe NSSet WithObjects(IntPtr[] handles)
     {
         fixed (void* ptr = handles)
         {
             var handle = Libobjc.intptr_objc_msgSend(s_class, s_arrayWithObjects, new IntPtr(ptr), new IntPtr(handles.Length));
             if (handle is default(IntPtr))
                 throw new InvalidOperationException();
-            return new NSArray(handle);
+            return new NSSet(handle);
         }
     }
 }

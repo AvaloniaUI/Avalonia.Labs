@@ -9,6 +9,8 @@ internal class UNMutableNotificationContent : NSObject
     private static readonly IntPtr s_setTitle = Libobjc.sel_getUid("setTitle:");
     private static readonly IntPtr s_body = Libobjc.sel_getUid("body");
     private static readonly IntPtr s_setBody = Libobjc.sel_getUid("setBody:");
+    private static readonly IntPtr s_categoryIdentifier = Libobjc.sel_getUid("categoryIdentifier");
+    private static readonly IntPtr s_setCategoryIdentifier = Libobjc.sel_getUid("setCategoryIdentifier:");
 
     public UNMutableNotificationContent() : base(s_class)
     {
@@ -25,5 +27,11 @@ internal class UNMutableNotificationContent : NSObject
     {
         get => NSString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_body));
         set => Libobjc.void_objc_msgSend(Handle, s_setBody, value?.Handle ?? default);
+    }
+
+    public NSString? CategoryIdentifier
+    {
+        get => NSString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_categoryIdentifier));
+        set => Libobjc.void_objc_msgSend(Handle, s_setCategoryIdentifier, value?.Handle ?? default);
     }
 }

@@ -18,11 +18,11 @@ public partial class AppBuilderExtensions
         var notificationManager = new AppleNativeNotificationManager(identifier);
         NativeNotificationManager.RegisterNativeNotificationManager(notificationManager);
 
-        // if (options.Channels != null)
-        //     foreach (var channel in options.Channels)
-        //     {
-        //         notificationManager.ChannelManager.AddChannel(channel);
-        //     }
+        if (options.Channels != null)
+            foreach (var channel in options.Channels)
+            {
+                notificationManager.ChannelManager.AddChannel(channel);
+            }
 
         var callback = appBuilder.AfterSetupCallback;
         callback += (a) =>

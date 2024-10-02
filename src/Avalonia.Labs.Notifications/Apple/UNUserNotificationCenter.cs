@@ -17,6 +17,7 @@ internal class UNUserNotificationCenter : NSObject
     private static readonly IntPtr s_removePendingNotificationRequestsWithIdentifiers = Libobjc.sel_getUid("removePendingNotificationRequestsWithIdentifiers:");
     private static readonly IntPtr s_removeAllPendingNotificationRequests = Libobjc.sel_getUid("removeAllPendingNotificationRequests");
     private static readonly IntPtr s_requestAuthorizationWithOptions = Libobjc.sel_getUid("requestAuthorizationWithOptions:completionHandler:");
+    private static readonly IntPtr s_setNotificationCategories = Libobjc.sel_getUid("setNotificationCategories:");
 
     private UNUserNotificationCenter(IntPtr handle) : base(false) => Handle = handle;
 
@@ -37,12 +38,18 @@ internal class UNUserNotificationCenter : NSObject
         }
     }
 
-    public UNUserNotificationCenterDelegate Delegate
+    public UNUserNotificationCenterDelegate? Delegate
     {
         set
         {
-            Libobjc.void_objc_msgSend(Handle, s_delegate, value.Handle);
+            Libobjc.void_objc_msgSend(Handle, s_delegate, value?.Handle ?? default);
         }
+    }
+
+    public void SetNotificationCategories(IReadOnlyList<UNNotificationCategory> categories)
+    {
+        using var set = NSSet.WithObjects(categories);
+        Libobjc.void_objc_msgSend(Handle, s_setNotificationCategories, set.Handle);
     }
 
     public async Task<bool> RequestAlertAuthorization()

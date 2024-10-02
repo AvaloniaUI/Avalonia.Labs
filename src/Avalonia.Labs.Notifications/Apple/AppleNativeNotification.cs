@@ -11,12 +11,12 @@ internal class AppleNativeNotification : INativeNotification
     private static uint s_currentId = 0;
 
     public AppleNativeNotification(
-        string? cateogry, string bundleId,
+        NotificationChannel channel, string bundleId,
         AppleNativeNotificationManager manager)
     {
         Id = Interlocked.Increment(ref s_currentId);
         AppleIdentifier = $"{bundleId}.notification.{Id}";
-        Category = cateogry;
+        Category = channel.Id;
         _manager = manager;
     }
 
