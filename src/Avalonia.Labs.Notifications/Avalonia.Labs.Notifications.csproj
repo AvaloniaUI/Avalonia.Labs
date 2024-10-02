@@ -7,7 +7,7 @@
     <Nullable>annotations</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>true</IsPackable>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">$(DefineConstants);INCLUDE_WINDOWS</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">$(DefineConstants);INCLUDE_WINDOWS;INCLUDE_LINUX</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

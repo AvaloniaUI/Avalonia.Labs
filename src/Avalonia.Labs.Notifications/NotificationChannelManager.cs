@@ -24,7 +24,7 @@ namespace Avalonia.Labs.Notifications
             }
         }
 
-        public NotificationChannel? GetChannel(string id)
+        public virtual NotificationChannel? GetChannel(string id)
         {
             if (_channels.TryGetValue(id, out var channel))
                 return channel;

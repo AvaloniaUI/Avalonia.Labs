@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if INCLUDE_LINUX
+using System;
 using System.Runtime.InteropServices;
 
 namespace Avalonia.Labs.Notifications.Linux
@@ -109,3 +110,4 @@ namespace Avalonia.Labs.Notifications.Linux
         }
     }
 }
+#endif

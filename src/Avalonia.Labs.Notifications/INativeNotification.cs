@@ -49,6 +49,12 @@ namespace Avalonia.Labs.Notifications
         event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
     }
 
+    internal interface INativeNotificationManagerImpl : INativeNotificationManager, IDisposable
+    {
+        void Initialize(AppNotificationOptions? options);
+        NotificationChannelManager ChannelManager { get; }
+    }
+
     public class NativeNotificationCompletedEventArgs : EventArgs
     {
         // tag of the action

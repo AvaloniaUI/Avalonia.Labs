@@ -44,22 +44,12 @@ sealed class Program
             .UsePlatformDetect()
             .LogToTrace()
             .UseReactiveUI()
-            .WithAppleAppNotifications(new AppleNotificationOptions()
+            .WithAppNotifications(new AppNotificationOptions()
             {
-                Channels = s_channels
-            })
-            .WithX11AppNotifications(new X11NotificationOptions()
-            {
-                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
-                AppName = "Avalonia.Labs",
-                Channels = s_channels
-            })
-            .WithWin32AppNotifications(new Win32NotificationOptions()
-            {
-                AppName = "Avalonia.Labs",
-                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
-                AppUserModelId = "com.Avalonia.Labs.Catalog",
                 Channels = s_channels,
+                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
+                AppName = "Avalonia.Labs",
+                AppUserModelId = "com.Avalonia.Labs.Catalog",
                 // Is required for Packaged project, optional for the rest.
                 // ComActivatorGuidOverride = Guid.Parse("67890354-2A47-444C-B15F-DBF513C82F03")
             })

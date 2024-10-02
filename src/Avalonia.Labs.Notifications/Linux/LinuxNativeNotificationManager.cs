@@ -1,26 +1,27 @@
-﻿using System;
+﻿#if INCLUDE_LINUX
+using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading;
 using static Avalonia.Labs.Notifications.Linux.NativeInterop;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
-    internal class LinuxNativeNotificationManager : INativeNotificationManager, IDisposable
+    [SupportedOSPlatform("linux")]
+    internal class LinuxNativeNotificationManager : INativeNotificationManagerImpl, IDisposable
     {
         public const string DefaultAction = "default";
         public delegate void ActionDelegate(IntPtr notification, string action, IntPtr user_data);
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
         private string _appName;
-        private readonly string? _appIcon;
+        private string? _appIcon;
         private bool _isInitialized;
         private Thread? _loopThread;
         private IntPtr _loop;
         public ActionDelegate Callback = new ActionDelegate(Activated);
 
-        public LinuxNativeNotificationManager(string appName, string? appIcon)
+        public LinuxNativeNotificationManager()
         {
-            _appName = appName;
-            _appIcon = appIcon;
             ChannelManager = new NotificationChannelManager();
         }
 
@@ -28,7 +29,7 @@ namespace Avalonia.Labs.Notifications.Linux
 
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
-        internal NotificationChannelManager ChannelManager { get; set; }
+        public NotificationChannelManager ChannelManager { get; }
 
         public string? AppIcon => _appIcon;
 
@@ -50,8 +51,11 @@ namespace Avalonia.Labs.Notifications.Linux
             return new LinuxNativeNotification(channel, this);
         }
 
-        internal unsafe void Initialize()
+        public unsafe void Initialize(AppNotificationOptions? options)
         {
+            _appName = options?.AppName ?? "";
+            _appIcon = options?.AppIcon;
+
             if (string.IsNullOrWhiteSpace(_appName) || _isInitialized)
             {
                 return;
@@ -173,3 +177,4 @@ namespace Avalonia.Labs.Notifications.Linux
         }
     }
 }
+#endif

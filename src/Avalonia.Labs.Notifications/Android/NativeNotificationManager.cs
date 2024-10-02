@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
 
 namespace Avalonia.Labs.Notifications.Android
 {
-    internal class NativeNotificationManager : INativeNotificationManager
+    internal class NativeNotificationManager : INativeNotificationManagerImpl, IDisposable
     {
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
         private Activity _activity;
@@ -17,7 +18,8 @@ namespace Avalonia.Labs.Notifications.Android
 
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
-        internal NotificationChannelManager ChannelManager { get; set; }
+        public AndroidNotificationChannelManager ChannelManager { get; }
+        NotificationChannelManager INativeNotificationManagerImpl.ChannelManager => ChannelManager;
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
@@ -25,7 +27,7 @@ namespace Avalonia.Labs.Notifications.Android
         {
             _activity = activity;
 
-            ChannelManager = new NotificationChannelManager(activity);
+            ChannelManager = new AndroidNotificationChannelManager(activity);
 
             if(_activity is IActivityIntentResultHandler handler)
                 handler.OnActivityIntent += Activity_OnActivityIntent;
@@ -56,8 +58,8 @@ namespace Avalonia.Labs.Notifications.Android
             if (!_isActive || _activity == null)
                 return null;
 
-            var channel = ChannelManager?.GetChannel(category ?? NotificationChannelManager.DefaultChannel) ??
-                ChannelManager?.AddChannel(new NotificationChannel(NotificationChannelManager.DefaultChannel, NotificationChannelManager.DefaultChannelLabel));
+            var channel = ChannelManager?.GetChannel(category ?? AndroidNotificationChannelManager.DefaultChannel) ??
+                ChannelManager?.AddChannel(new NotificationChannel(AndroidNotificationChannelManager.DefaultChannel, AndroidNotificationChannelManager.DefaultChannelLabel));
 
             if (channel == null)
             {
@@ -67,7 +69,7 @@ namespace Avalonia.Labs.Notifications.Android
             return new NativeNotification(_activity, this, channel);
         }
 
-        public async void Initialize()
+        public async void Initialize(AppNotificationOptions? options)
         {
             ChannelManager.ConsolidateChannels();
             _isActive = await CheckPermission();
@@ -121,6 +123,11 @@ namespace Avalonia.Labs.Notifications.Android
         {
             NotificationManagerCompat.From(_activity).Cancel((int)nativeNotification.Id);
             _notifications.Remove(nativeNotification.Id);
+        }
+
+        public void Dispose()
+        {
+            // no-op
         }
     }
 }

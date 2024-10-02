@@ -9,7 +9,7 @@ namespace Avalonia.Labs.Notifications.Apple;
 
 [SupportedOSPlatform("ios")]
 [SupportedOSPlatform("macos")]
-internal class AppleNativeNotificationManager : INativeNotificationManager, IDisposable
+internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, IDisposable
 {
     private readonly string _identifier;
     private readonly UNUserNotificationCenterDelegate _notificationDelegate;
@@ -23,6 +23,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
     }
 
     public AppleNotificationChannelManager ChannelManager { get; }
+    NotificationChannelManager INativeNotificationManagerImpl.ChannelManager => ChannelManager;
 
     public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications =>
         _notifications.ToDictionary(
@@ -50,7 +51,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
 
     public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
-    public void Initialize()
+    public void Initialize(AppNotificationOptions? options)
     {
         var current = UNUserNotificationCenter.Current;
         _notificationDelegate.DidReceiveNotificationResponse += NotificationDelegateOnDidReceiveNotificationResponse;
