@@ -6,18 +6,15 @@ using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
-    internal class LinuxNativeNotification : INativeNotification
+    internal class LinuxNativeNotification(NotificationChannel channel, LinuxNativeNotificationManager nativeNotificationManager) : INativeNotification
     {
-        private readonly NotificationChannel _channel;
-        private readonly LinuxNativeNotificationManager _manager;
-
         private static int s_currentId;
 
         /// <inheritdoc />
-        public uint Id { get; }
+        public uint Id { get; } = (uint)GetNextId();
 
         /// <inheritdoc />
-        public string Category => string.Empty;
+        public string Category => channel.Id;
 
         /// <inheritdoc />
         public string? Title { get; set; }
@@ -38,17 +35,9 @@ namespace Avalonia.Labs.Notifications.Linux
         public string? ReplyActionTag { get; set; }
 
         /// <inheritdoc />
-        public IReadOnlyList<NativeNotificationAction> Actions { get; private set; }
+        public IReadOnlyList<NativeNotificationAction> Actions { get; private set; } = channel.Actions;
 
-        public NotificationPriority Priority => _channel.Priority;
-
-        public LinuxNativeNotification(NotificationChannel channel, LinuxNativeNotificationManager nativeNotificationManager)
-        {
-            _channel = channel;
-            _manager = nativeNotificationManager;
-            Id = (uint)GetNextId();
-            Actions = channel.Actions;
-        }
+        public NotificationPriority Priority => channel.Priority;
 
         /// <inheritdoc />
         public void SetActions(IReadOnlyList<NativeNotificationAction> actions)
@@ -57,10 +46,10 @@ namespace Avalonia.Labs.Notifications.Linux
         }
 
         /// <inheritdoc />
-        public void Show() => _manager.ShowNotificationAsync(this);
+        public async void Show() => await nativeNotificationManager.ShowNotificationAsync(this);
 
         /// <inheritdoc />
-        public void Close() => _manager.CloseNotificationAsync(this);
+        public async void Close() => await nativeNotificationManager.CloseNotificationAsync(this);
 
         private static int GetNextId() => Interlocked.Increment(ref s_currentId);
     }

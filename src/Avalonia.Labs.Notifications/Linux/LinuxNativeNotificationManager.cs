@@ -10,19 +10,20 @@ using Tmds.DBus.SourceGenerator;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
-    internal class LinuxNativeNotificationManager : INativeNotificationManager, IDisposable
+    internal class LinuxNativeNotificationManager : INativeNotificationManagerImpl
     {
+        private readonly Dictionary<uint, INativeNotification> _notifications = new();
         private readonly OrgFreedesktopPortalNotification _freedesktopPortalNotification = new(Connection.Session, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
 
         private bool _isAvailable;
         private IDisposable? _signalWatcher;
 
         /// <inheritdoc />
-        public IDictionary<uint, INativeNotification> ActiveNotifications { get; } = new Dictionary<uint, INativeNotification>();
+        public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
-        internal NotificationChannelManager ChannelManager { get; } = new();
+        public NotificationChannelManager ChannelManager { get; } = new();
 
-        public async void Initialize()
+        public async void Initialize(AppNotificationOptions? options)
         {
             try
             {
@@ -104,14 +105,14 @@ namespace Avalonia.Labs.Notifications.Linux
                 serializedNotification.Add("buttons", Variant.FromArray(buttons));
             }
 
-            ActiveNotifications.Add(notification.Id, notification);
+            _notifications.Add(notification.Id, notification);
             await _freedesktopPortalNotification.AddNotificationAsync(notification.Id.ToString(NumberFormatInfo.InvariantInfo), serializedNotification);
         }
 
         internal async Task CloseNotificationAsync(LinuxNativeNotification notification)
         {
             await _freedesktopPortalNotification.RemoveNotificationAsync(notification.Id.ToString(NumberFormatInfo.InvariantInfo));
-            ActiveNotifications.Remove(notification.Id);
+            _notifications.Remove(notification.Id);
         }
 
         /// <inheritdoc />
