@@ -1,4 +1,6 @@
-﻿#if ANDROID
+﻿using System.Collections.Generic;
+
+#if ANDROID
 namespace Avalonia.Labs.Notifications.Android
 {
     public static class AppBuilderExtensions

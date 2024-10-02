@@ -13,6 +13,7 @@
 @clr-map UINT32 uint
 @clr-map UINT64 ulong
 @clr-map DOUBLE double
+@clr-map NOTIFICATION_USER_INPUT_DATA global::Windows.Win32.UI.Notifications.NOTIFICATION_USER_INPUT_DATA
 
 enum TrustLevel
 {
@@ -217,4 +218,17 @@ interface IUserNotificationChangedEventArgs : IInspectable
 {
     [propget] HRESULT ChangeKind([out] [retval] UserNotificationChangedKind* value);
     [propget] HRESULT UserNotificationId([out] [retval] UINT32* value);
+}
+
+[uuid(00000001-0000-0000-C000-000000000046)]
+interface IClassFactory
+{
+    int CreateInstance(IntPtr pUnkOuter, Guid* riid, IntPtr* ppvObject);
+    int LockServer(bool fLock);
+}
+
+[uuid(53E31837-6600-4A81-9395-75CFFE746F94)]
+interface INotificationActivationCallback
+{
+    void Activate(IntPtr appUserModelId, IntPtr invokedArgs, NOTIFICATION_USER_INPUT_DATA* data, uint dataCount);
 }

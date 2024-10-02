@@ -11,8 +11,13 @@ using NotificationChannel = Avalonia.Labs.Notifications.NotificationChannel;
 
 namespace Avalonia.Labs.Catalog.Android;
 
-[Activity(Label = "Avalonia.Labs.Catalog.Android", Theme = "@style/MyTheme.NoActionBar", Icon = "@drawable/icon", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
-public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHandler
+[Activity(
+    Label = "Avalonia.Labs.Catalog.Android",
+    Theme = "@style/MyTheme.NoActionBar",
+    Icon = "@drawable/icon",
+    MainLauncher = true,
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+public class MainActivity : AvaloniaMainActivity<App>
 {
     public event EventHandler<Intent> OnActivityIntent;
 
@@ -28,16 +33,8 @@ public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHand
                     {
                         Actions = new List<NativeNotificationAction>
                         {
-                            new NativeNotificationAction()
-                            {
-                                Tag = "hello",
-                                Caption = "Hello"
-                            },
-                            new NativeNotificationAction()
-                            {
-                                Tag = "world",
-                                Caption = "world"
-                            }
+                            new NativeNotificationAction("Hello", "hello"),
+                            new NativeNotificationAction("world", "world")
                         }
                     },
                     new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
@@ -45,11 +42,7 @@ public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHand
                     {
                         Actions = new List<NativeNotificationAction>
                         {
-                            new NativeNotificationAction()
-                            {
-                                Tag = "reply",
-                                Caption = "Reply"
-                            }
+                            new NativeNotificationAction("Reply", "reply")
                         }
                     },
                 }

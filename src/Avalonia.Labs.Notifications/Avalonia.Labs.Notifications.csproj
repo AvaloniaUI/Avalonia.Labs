@@ -3,9 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
+    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-ios'">13.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-android'">21.0</SupportedOSPlatformVersion>
     <Nullable>annotations</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsPackable>true</IsPackable>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">$(DefineConstants);INCLUDE_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +17,19 @@
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.19.0" />
     <PackageReference Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.0" PrivateAssets="all" />
     <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.17" PrivateAssets="all" />
+    <AdditionalFiles Include="Windows\WinRT\windows.ui.notifications.mcidl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0-android' ">

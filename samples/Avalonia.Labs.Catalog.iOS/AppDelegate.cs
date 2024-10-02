@@ -1,9 +1,7 @@
+using System.Collections.Generic;
 using Foundation;
-using UIKit;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.iOS;
-using Avalonia.Media;
+using Avalonia.Labs.Notifications;
 using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.iOS;
@@ -12,10 +10,36 @@ namespace Avalonia.Labs.Catalog.iOS;
 // User Interface of the application, as well as listening (and optionally responding) to 
 // application events from iOS.
 [Register("AppDelegate")]
+#pragma warning disable CA1711 // Identifiers should not have incorrect suffix
 public partial class AppDelegate : AvaloniaAppDelegate<App>
+#pragma warning restore CA1711 // Identifiers should not have incorrect suffix
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
-        return builder.UseReactiveUI();
+        return base.CustomizeAppBuilder(builder)
+            .WithAppleAppNotifications(new AppleNotificationOptions()
+            {
+                Channels = new[]
+                {
+                    new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),
+                    new NotificationChannel("actions", "Send Notification with Predefined Actions", Notifications.NotificationPriority.High)
+                    {
+                        Actions = new List<NativeNotificationAction>
+                        {
+                            new NativeNotificationAction("Hello", "hello"),
+                            new NativeNotificationAction("world", "world")
+                        }
+                    },
+                    new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
+                    new NotificationChannel("reply", "Send Notification with Reply Action", Notifications.NotificationPriority.High)
+                    {
+                        Actions = new List<NativeNotificationAction>
+                        {
+                            new NativeNotificationAction("Reply", "reply")
+                        }
+                    },
+                }
+            })
+            .UseReactiveUI();
     }
 }

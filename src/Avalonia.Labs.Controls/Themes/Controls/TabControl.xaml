@@ -42,17 +42,13 @@
                     Margin="{TemplateBinding Padding}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-              <control:AnimatedScrollViewer Name="PART_ScrollViewer"
-                            HorizontalScrollBarVisibility="Hidden"
-                            VerticalScrollBarVisibility="Disabled"
+              <control:FlipViewScrollViewer Name="PART_ScrollViewer"
                             HorizontalAlignment="Stretch"
                             HorizontalSnapPointsType="MandatorySingle"
-                            HorizontalSnapPointsAlignment="Near"
-                            IsScrollInertiaEnabled="False"
                             VerticalAlignment="Stretch">
                 <ItemsPresenter Name="PART_ItemsPresenter"
                                 ItemsPanel="{TemplateBinding ItemsPanel}"/>
-              </control:AnimatedScrollViewer>
+              </control:FlipViewScrollViewer>
             </Border>
           </DockPanel>
         </Border>

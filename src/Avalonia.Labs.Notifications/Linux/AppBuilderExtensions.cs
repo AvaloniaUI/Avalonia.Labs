@@ -2,9 +2,9 @@
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 
-namespace Avalonia.Labs.Notifications.Linux
+namespace Avalonia.Labs.Notifications
 {
-    public static class AppBuilderExtensions
+    public static partial class AppBuilderExtensions
     {
         public static AppBuilder WithDBusAppNotifications(this AppBuilder appBuilder, DBusNotificationOptions options)
         {
