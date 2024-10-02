@@ -1,70 +1,79 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿#if INCLUDE_WINDOWS
+using System;
+using System.Runtime.Versioning;
 using System.Threading;
+using Windows.Win32;
+using Windows.Win32.System.WinRT;
 using MicroCom.Runtime;
 
-namespace Avalonia.Labs.Notifications.Windows
+namespace Avalonia.Labs.Notifications.Windows;
+
+[SupportedOSPlatform("windows8.0")]
+internal static unsafe class NativeWinRTMethods
 {
-    internal static class NativeWinRTMethods
+    private static bool s_initialized;
+    private static void EnsureRoInitialized()
     {
-        [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll", CallingConvention = CallingConvention.StdCall,
-            PreserveSig = false)]
-        internal static extern IntPtr WindowsCreateString(
-            [MarshalAs(UnmanagedType.LPWStr)] string sourceString,
-            int length);
+        if (s_initialized)
+            return;
+        PInvoke.RoInitialize(Thread.CurrentThread.GetApartmentState() == ApartmentState.STA ?
+            RO_INIT_TYPE.RO_INIT_SINGLETHREADED :
+            RO_INIT_TYPE.RO_INIT_MULTITHREADED);
+        s_initialized = true;
+    }
 
-        internal static IntPtr WindowsCreateString(string sourceString)
-            => WindowsCreateString(sourceString, sourceString.Length);
+    internal static T CreateInstance<T>(string fullName) where T : IUnknown
+    {
+        using var fullNameStr = new HStringWrapper(fullName);
+        EnsureRoInitialized();
 
-        [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll",
-            CallingConvention = CallingConvention.StdCall, PreserveSig = false)]
-        internal static extern void WindowsDeleteString(IntPtr hString);
+        IInspectable* inspectable;
+        PInvoke.RoActivateInstance(fullNameStr, &inspectable).ThrowOnFailure();
 
         [DllImport("combase.dll", PreserveSig = false)]
         private static extern IntPtr RoActivateInstance(IntPtr activatableClassId);
 
         [DllImport("combase.dll", PreserveSig = false)]
         private static extern IntPtr RoGetActivationFactory(IntPtr activatableClassId, ref Guid iid);
+        using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(inspectable, true);
+        return unk.QueryInterface<T>();
+    }
 
-        [DllImport("combase.dll", PreserveSig = false)]
-        private static extern void RoInitialize(RO_INIT_TYPE initType);
-        private static bool s_initialized;
+    internal static TFactory CreateActivationFactory<TFactory>(string fullName) where TFactory : IUnknown
+    {
+        using var fullNameStr = new HStringWrapper(fullName);
+        EnsureRoInitialized();
 
-        internal enum RO_INIT_TYPE
-        {
-            RO_INIT_SINGLETHREADED = 0, // Single-threaded application
-            RO_INIT_MULTITHREADED = 1, // COM calls objects on any thread.
-        }
+        var guid = MicroComRuntime.GetGuidFor(typeof(TFactory));
+        PInvoke.RoGetActivationFactory(fullNameStr, guid, out var pUnk).ThrowOnFailure();
 
-        internal static T CreateInstance<T>(string fullName) where T : IUnknown
-        {
-            var s = WindowsCreateString(fullName);
-            EnsureRoInitialized();
-            var pUnk = RoActivateInstance(s);
-            using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
-            WindowsDeleteString(s);
-            return MicroComRuntime.QueryInterface<T>(unk);
-        }
-
-        internal static TFactory CreateActivationFactory<TFactory>(string fullName) where TFactory : IUnknown
-        {
-            var s = WindowsCreateString(fullName);
-            EnsureRoInitialized();
-            var guid = MicroComRuntime.GetGuidFor(typeof(TFactory));
-            var pUnk = RoGetActivationFactory(s, ref guid);
-            using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
-            WindowsDeleteString(s);
-            return MicroComRuntime.QueryInterface<TFactory>(unk);
-        }
-
-        private static void EnsureRoInitialized()
-        {
-            if (s_initialized)
-                return;
-            RoInitialize(Thread.CurrentThread.GetApartmentState() == ApartmentState.STA ?
-                RO_INIT_TYPE.RO_INIT_SINGLETHREADED :
-                RO_INIT_TYPE.RO_INIT_MULTITHREADED);
-            s_initialized = true;
-        }
+        using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
+        return unk.QueryInterface<TFactory>();
     }
 }
+
+[SupportedOSPlatform("windows8.0")]
+internal readonly unsafe ref struct HStringWrapper
+{
+    private readonly HSTRING _pointer;
+    public HStringWrapper(string? input)
+    {
+        if (input is null)
+            _pointer = default;
+        else
+        {
+            fixed (HSTRING* ptr = &_pointer)
+                PInvoke.WindowsCreateString(input, (uint)input.Length, ptr).ThrowOnFailure();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_pointer != 0)
+            PInvoke.WindowsDeleteString(_pointer);
+    }
+
+    public static implicit operator HSTRING(HStringWrapper value) => value._pointer;
+    public static implicit operator IntPtr(HStringWrapper value) => value._pointer;
+}
+#endif

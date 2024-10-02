@@ -1,4 +1,9 @@
 ﻿#if ANDROID
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
@@ -95,7 +100,7 @@ namespace Avalonia.Labs.Notifications.Android
             builder.SetContentIntent(PendingIntent.GetActivity(_activity, pendingIntentId + 1, tapIntent, flags))
                 .SetDeleteIntent(PendingIntent.GetBroadcast(_activity, pendingIntentId + 2, deleteIntent, flags));
 
-            if(!NotificationChannelManager.SupportsChannels)
+            if(!AndroidNotificationChannelManager.SupportsChannels)
             {
                 builder.SetPriority(_channel.Priority switch
                 {

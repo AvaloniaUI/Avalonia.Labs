@@ -1,4 +1,5 @@
 ﻿#if ANDROID
+using System.IO;
 using Android.Graphics;
 using AndroidBitmap = Android.Graphics.Bitmap;
 using AvaloniaBitmap = Avalonia.Media.Imaging.Bitmap;

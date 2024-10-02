@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalonia.Labs.Gif\Avalonia.Labs.Gif.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Lottie\Avalonia.Labs.Lottie.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Notifications\Avalonia.Labs.Notifications.csproj" />
@@ -35,16 +36,6 @@
     <AvaloniaResource Update="Assets\avalonia-logo.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AvaloniaResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Views\BadgesView.axaml.cs">
-      <DependentUpon>BadgesView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\NativeNotifications.axaml.cs">
-      <DependentUpon>NativeNotifications.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,14 @@
 ﻿#if ANDROID
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Android.App;
 using Android.OS;
 using AndroidX.Core.App;
 
 namespace Avalonia.Labs.Notifications.Android
 {
-    internal class NotificationChannelManager
+    internal class AndroidNotificationChannelManager : NotificationChannelManager
     {
         public const string DefaultChannel = "default";
         public const string DefaultChannelLabel = "Notifications";
@@ -15,12 +19,12 @@ namespace Avalonia.Labs.Notifications.Android
         internal static bool SupportsChannels => Build.VERSION.SdkInt >= BuildVersionCodes.O;
 
 
-        public NotificationChannelManager(Activity activity)
+        public AndroidNotificationChannelManager(Activity activity)
         {
             _activity = activity;
         }
 
-        public NotificationChannel AddChannel(NotificationChannel notificationChannel)
+        public override NotificationChannel AddChannel(NotificationChannel notificationChannel)
         {
             if (SupportsChannels)
             {
@@ -52,7 +56,7 @@ namespace Avalonia.Labs.Notifications.Android
             return channels.Select(c => c.Id ?? "").ToArray();
         }
 
-        public void DeleteChannel(string channel)
+        public override void DeleteChannel(string channel)
         {
             if(_channels.TryGetValue(channel, out _))
             {
@@ -65,7 +69,7 @@ namespace Avalonia.Labs.Notifications.Android
             }
         }
 
-        public NotificationChannel? GetChannel(string id)
+        public override NotificationChannel? GetChannel(string id)
         {
             if (_channels.TryGetValue(id, out var channel))
                 return channel;

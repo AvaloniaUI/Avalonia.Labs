@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications
@@ -33,23 +32,14 @@ namespace Avalonia.Labs.Notifications
         void Close();
     }
 
-    public class NativeNotificationAction
+    public record NativeNotificationAction(string Caption, string Tag)
     {
-        public NativeNotificationAction(string tag, string caption, Bitmap? icon = null)
-        {
-            Tag = tag;
-            Caption = caption;
-            Icon = icon;
-        }
-
-        public string Tag { get; }
-        public string Caption { get; }
-        public Bitmap? Icon { get; }
+        public Bitmap? Icon { get; init; }
     }
 
     public interface INativeNotificationManager
     {
-        IDictionary<uint, INativeNotification> ActiveNotifications { get; }
+        IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications { get; }
 
         // if null, implementation will set a default category, otherwise category must be defined at launch
         INativeNotification? CreateNotification(string? category);
@@ -59,15 +49,21 @@ namespace Avalonia.Labs.Notifications
         event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
     }
 
+    internal interface INativeNotificationManagerImpl : INativeNotificationManager, IDisposable
+    {
+        void Initialize(AppNotificationOptions? options);
+        NotificationChannelManager ChannelManager { get; }
+    }
+
     public class NativeNotificationCompletedEventArgs : EventArgs
     {
         // tag of the action
-        public string? ActionTag { get; set; }
-        public uint? NotificationId { get; set; }
+        public string? ActionTag { get; init; }
+        public uint? NotificationId { get; init; }
 
         // could be used for text input
-        public object? UserData { get; set; }
-        public bool IsCancelled { get; set; }
-        public bool IsActivated { get; set; }
+        public object? UserData { get; init; }
+        public bool IsCancelled { get; init; }
+        public bool IsActivated { get; init; }
     }
 }
