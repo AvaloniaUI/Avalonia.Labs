@@ -43,6 +43,7 @@ class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .UseReactiveUI()
+            .WithAppleAppNotifications(new AppleNotificationOptions())
             .WithX11AppNotifications(new X11NotificationOptions()
             {
                 AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",

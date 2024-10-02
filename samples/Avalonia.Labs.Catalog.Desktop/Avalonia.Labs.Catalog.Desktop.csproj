@@ -1,13 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net8.0-macos</TargetFrameworks>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
+    <ApplicationId>com.Avalonia.Labs.Catalog</ApplicationId>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <CodesignKey>Mac Developer</CodesignKey>
   </PropertyGroup>
 
   <ItemGroup>
