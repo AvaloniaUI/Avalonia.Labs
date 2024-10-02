@@ -18,18 +18,12 @@ namespace Avalonia.Labs.Notifications
 
         public virtual void DeleteChannel(string channel)
         {
-            if (_channels.TryGetValue(channel, out _))
-            {
-                _channels.Remove(channel);
-            }
+            _channels.Remove(channel, out _);
         }
 
         public virtual NotificationChannel? GetChannel(string id)
         {
-            if (_channels.TryGetValue(id, out var channel))
-                return channel;
-
-            return null;
+            return _channels.GetValueOrDefault(id);
         }
     }
 }

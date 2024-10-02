@@ -9,6 +9,7 @@ namespace Avalonia.Labs.Notifications
         public string Id { get; }
 
         public string Label { get; }
+
         public NotificationPriority Priority { get; }
 
         public NotificationChannel(string id, string label, NotificationPriority priority = NotificationPriority.Default)

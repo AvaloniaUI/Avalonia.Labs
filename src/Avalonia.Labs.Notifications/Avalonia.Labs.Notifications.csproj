@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>latest</LangVersion>
     <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-ios'">13.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net8.0-android'">21.0</SupportedOSPlatformVersion>
@@ -11,14 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Windows\WinRT\windows.ui.notifications.mcidl" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="Windows/WinRT/windows.ui.notifications.mcidl" />
+    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.portal.Notification.xml" DBusGeneratorMode="Proxy" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.20.0" />
+    <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.19" PrivateAssets="all" />
     <PackageReference Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,4 +34,5 @@
     <PackageReference Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.5" />
   </ItemGroup>
+
 </Project>
