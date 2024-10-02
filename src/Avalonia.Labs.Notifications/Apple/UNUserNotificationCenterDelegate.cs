@@ -52,7 +52,7 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnWillPresentNotification(IntPtr self, IntPtr sel, IntPtr notificationCenter, IntPtr presentNotification, IntPtr completionHandler)
     {
-        var managedHandle = NSObject.GetIvarValue(self, "_managedThis");
+        var managedHandle = GetIvarValue(self, "_managedThis");
         var managedThis = managedHandle == default ? null : GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
 
         var id = UNNotificationRequest.GetIdentifierFromUNNotification(presentNotification);
@@ -66,7 +66,7 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnDidReceiveNotificationResponse(IntPtr self, IntPtr sel, IntPtr notificationCenter, IntPtr notificationResponse, IntPtr completionHandler)
     {
-        var managedHandle = NSObject.GetIvarValue(self, "_managedThis");
+        var managedHandle = GetIvarValue(self, "_managedThis");
         var managedThis = managedHandle == default ? null : GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
 
         var notificationId = UNNotificationRequest.GetIdentifierFromUNNotificationResponse(notificationResponse);

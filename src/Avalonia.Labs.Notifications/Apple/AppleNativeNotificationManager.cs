@@ -75,7 +75,9 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
     public async void Show(AppleNativeNotification appleNativeNotification)
     {
         var current = UNUserNotificationCenter.Current;
-        await current.RequestAlertAuthorization();
+        var result = await current.RequestAlertAuthorization();
+        if (!result)
+            return;
 
         using var content = new UNMutableNotificationContent();
         using var title = NSString.Create(appleNativeNotification.Title);
@@ -89,7 +91,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
         using var request = UNNotificationRequest.FromIdentifier(id, content);
 
         _notifications[appleNativeNotification.Id] = appleNativeNotification;
-        await UNUserNotificationCenter.Current.Add(request);
+        _ = UNUserNotificationCenter.Current.Add(request);
 
         if (appleNativeNotification.Expiration is { } expiration)
         {

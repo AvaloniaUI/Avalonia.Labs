@@ -11,7 +11,7 @@ internal class UNNotificationRequest : NSObject
     private static readonly IntPtr s_notification = Libobjc.sel_getUid("notification"); // property on UNNotificationResponse
     private static readonly IntPtr s_actionIdentifier = Libobjc.sel_getUid("actionIdentifier"); // property on UNNotificationResponse
 
-    private UNNotificationRequest(IntPtr handle) : base(true) => Handle = handle;
+    private UNNotificationRequest(IntPtr handle) : base(false) => Handle = handle;
 
     public static UNNotificationRequest FromIdentifier(
         NSString identifier,

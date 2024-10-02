@@ -10,7 +10,7 @@ internal class NSString : NSObject
     private static readonly IntPtr s_stringWithCharacters = Libobjc.sel_getUid("stringWithCharacters:length:");
     private static readonly IntPtr s_getUTF8String = Libobjc.sel_getUid("UTF8String");
 
-    private NSString(IntPtr handle, bool owns) : base(owns)
+    private NSString(IntPtr handle, bool owns) : base(false)
     {
         Handle = handle;
     }

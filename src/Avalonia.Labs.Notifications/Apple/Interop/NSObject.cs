@@ -17,8 +17,6 @@ internal abstract class NSObject : IDisposable
     protected NSObject(bool owns)
     {
         _owns = owns;
-        if (!_owns)
-            Libobjc.void_objc_msgSend(Handle, s_retainSel);
     }
 
     protected NSObject(IntPtr classHandle) : this(true)
@@ -67,7 +65,8 @@ internal abstract class NSObject : IDisposable
 
     private void ReleaseUnmanagedResources()
     {
-        //Libobjc.void_objc_msgSend(Handle, s_releaseSel);
+        if (_owns)
+            Libobjc.void_objc_msgSend(Handle, s_releaseSel);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -82,10 +81,8 @@ internal abstract class NSObject : IDisposable
         GC.SuppressFinalize(this);
     }
 
-#if DEBUG
     ~NSObject()
     {
-        Debug.Fail("NSObject has to be manually disposed.");
+        //Dispose(false);
     }
-#endif
 }
