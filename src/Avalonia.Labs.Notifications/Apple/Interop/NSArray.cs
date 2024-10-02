@@ -8,9 +8,8 @@ internal class NSArray : NSObject
     private static readonly IntPtr s_class = Libobjc.objc_getClass("NSArray");
     private static readonly IntPtr s_arrayWithObjects = Libobjc.sel_getUid("arrayWithObjects:count:");
 
-    private NSArray(IntPtr handle) : base(true)
+    private NSArray(IntPtr handle) : base(handle, true)
     {
-        Handle = handle;
     }
 
     public static NSArray WithObjects(IReadOnlyList<NSObject> objects)

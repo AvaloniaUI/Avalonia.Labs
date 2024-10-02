@@ -39,7 +39,7 @@ namespace Avalonia.Labs.Notifications
 
     public interface INativeNotificationManager
     {
-        IDictionary<uint, INativeNotification> ActiveNotifications { get; }
+        IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications { get; }
 
         // if null, implementation will set a default category, otherwise category must be defined at launch
         INativeNotification? CreateNotification(string? category);

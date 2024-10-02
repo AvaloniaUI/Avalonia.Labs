@@ -13,7 +13,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
 {
     private readonly string _identifier;
     private readonly UNUserNotificationCenterDelegate _notificationDelegate;
-    private readonly Dictionary<uint, INativeNotification> _notifications = [];
+    private readonly Dictionary<string, (INativeNotification, UNNotificationRequest)> _notifications = [];
 
     public AppleNativeNotificationManager(string identifier)
     {
@@ -23,7 +23,11 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
     }
 
     public AppleNotificationChannelManager ChannelManager { get; }
-    public IDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
+
+    public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications =>
+        _notifications.ToDictionary(
+            n => n.Value.Item1.Id,
+            n => n.Value.Item1);
 
     public INativeNotification? CreateNotification(string? category)
     {
@@ -51,21 +55,22 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
         var current = UNUserNotificationCenter.Current;
         _notificationDelegate.DidReceiveNotificationResponse += NotificationDelegateOnDidReceiveNotificationResponse;
         current.Delegate = _notificationDelegate;
-        ChannelManager.RegisterTo(current);
+
+        current.SetNotificationCategories(ChannelManager.ToSet());
     }
 
-    private void NotificationDelegateOnDidReceiveNotificationResponse(object? sender, (string notificationId, string actionId) e)
+    private void NotificationDelegateOnDidReceiveNotificationResponse(object? sender, (string notificationId, string actionId, string? userText) e)
     {
-        var notificationId = uint.Parse(e.notificationId.Split('.').Last());
-        if (!_notifications.TryGetValue(notificationId, out var notification))
+        if (!_notifications.TryGetValue(e.notificationId, out var notificationTuple))
             return;
 
         const string defaultActionId = "com.apple.UNNotificationDefaultActionIdentifier";
         NotificationCompleted?.Invoke(this, new NativeNotificationCompletedEventArgs
         {
-            NotificationId = notification.Id,
+            NotificationId = notificationTuple.Item1.Id,
             IsActivated = e.actionId == defaultActionId,
-            ActionTag = e.actionId == defaultActionId ? null : e.actionId
+            ActionTag = e.actionId == defaultActionId ? null : e.actionId,
+            UserData = e.userText
         });
     }
 
@@ -82,18 +87,15 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
         if (!result)
             return;
 
-        using var content = new UNMutableNotificationContent();
-        using var title = NSString.Create(appleNativeNotification.Title);
-        content.Title = title;
-        using var message = NSString.Create(appleNativeNotification.Message);
-        content.Body = message;
-        using var category = NSString.Create(appleNativeNotification.Category);
-        content.CategoryIdentifier = category;
+        var content = new UNMutableNotificationContent();
+        content.Title = CFString.Create(appleNativeNotification.Title);
+        content.Body = CFString.Create(appleNativeNotification.Message);
+        content.CategoryIdentifier = CFString.Create(appleNativeNotification.Category);
 
-        using var id = NSString.Create(appleNativeNotification.AppleIdentifier);
-        using var request = UNNotificationRequest.FromIdentifier(id, content);
+        var request = UNNotificationRequest.FromIdentifier(
+            CFString.Create(appleNativeNotification.AppleIdentifier), content);
+        _notifications[appleNativeNotification.AppleIdentifier] = (appleNativeNotification, request);
 
-        _notifications[appleNativeNotification.Id] = appleNativeNotification;
         _ = UNUserNotificationCenter.Current.Add(request);
 
         if (appleNativeNotification.Expiration is { } expiration)
@@ -101,14 +103,13 @@ internal class AppleNativeNotificationManager : INativeNotificationManager, IDis
             var closure = appleNativeNotification.AppleIdentifier;
             DispatcherTimer.RunOnce(() =>
             {
-                UNUserNotificationCenter.Current.RemovePending([closure]);
+                UNUserNotificationCenter.Current.RemovePending(closure);
             }, expiration);
         }
     }
 
     public void Close(AppleNativeNotification appleNativeNotification)
     {
-        _notifications.Remove(appleNativeNotification.Id);
-        UNUserNotificationCenter.Current.RemovePending([appleNativeNotification.AppleIdentifier]);
+        UNUserNotificationCenter.Current.RemovePending(appleNativeNotification.AppleIdentifier);
     }
 }

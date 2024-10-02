@@ -1,33 +1,66 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AppleInterop;
 
-internal class CFString : IDisposable
+internal sealed unsafe partial class CFString : IDisposable
 {
     private readonly IntPtr _cfString;
 
-    public CFString(IntPtr cfString)
+    private CFString(IntPtr cfString)
     {
         _cfString = cfString;
     }
 
-    public string? Value
-    {
-        get
-        {
-            var utf8String = CFStringGetCStringPtr(_cfString, /* kCFStringEncodingUTF8 */ 0x08000100);
-            if (utf8String != IntPtr.Zero)
-            {
-                return Marshal.PtrToStringUTF8(utf8String);
-            }
+    public IntPtr Handle => _cfString;
 
-            // CFString is not necessary backed by UTF8 string.
-            // When it doesn't, developers should use CFStringGetCStringPtr.
-            // It's not yet clear if BundleID can not be utf8 based at any case, and we should probably have a fallback anyway.
-            // TODO
-            return null;
+    public static string? GetString(IntPtr cfString)
+    {
+        return FromHandle(cfString).GetString();
+    }
+
+    public static CFString FromHandle(IntPtr handle)
+    {
+        return new CFString(handle);
+    }
+
+    [return: NotNullIfNotNull(nameof(value))]
+    public static CFString? Create(string? value)
+    {
+        if (value != null)
+        {
+            return new CFString(CFStringCreateWithCString(IntPtr.Zero, value, /* kCFStringEncodingUTF8 */ 0x08000100));
         }
+        else return null;
+    }
+
+    public string? GetString()
+    {
+        if (_cfString == IntPtr.Zero)
+            return null;
+
+        var utf8String = CFStringGetCStringPtr(_cfString, /* kCFStringEncodingUTF8 */ 0x08000100);
+        if (utf8String != IntPtr.Zero)
+        {
+            return Marshal.PtrToStringUTF8(utf8String);
+        }
+
+        var len = (int)CFStringGetLength(_cfString);
+        return string.Create(len, (len, _cfString), static (span, tuple) =>
+        {
+            var alloc = Marshal.AllocHGlobal(tuple.len * 8);
+            try
+            {
+                CFStringGetCString(tuple._cfString, (byte*)alloc, (uint)tuple.len + 1, /* kCFStringEncodingUTF8 */ 0x08000100);
+                Encoding.UTF8.GetChars(new ReadOnlySpan<byte>((void*)alloc, tuple.len), span);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(alloc);
+            }
+        });
     }
 
     public void Dispose()
@@ -35,11 +68,25 @@ internal class CFString : IDisposable
         CFRelease(_cfString);
     }
 
-    private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation";
+    private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
 
     [DllImport(CoreFoundationLibrary)]
     private static extern IntPtr CFStringGetCStringPtr(IntPtr cfString, long encoding);
 
     [DllImport(CoreFoundationLibrary)]
+    private static extern long CFStringGetLength(IntPtr cfString);
+
+    [DllImport(CoreFoundationLibrary)]
+    private static extern IntPtr CFStringGetCString(IntPtr cfString, byte* str, uint length, long encoding);
+
+    [DllImport(CoreFoundationLibrary)]
     private static extern void CFRelease(IntPtr ptr);
+
+#if NET7_0_OR_GREATER
+    [LibraryImport(CoreFoundationLibrary, StringMarshalling = StringMarshalling.Utf8)]
+    private static partial IntPtr CFStringCreateWithCString(IntPtr cfString, string str, long encoding);
+#else
+    [DllImport(CoreFoundationLibrary)]
+    private static extern IntPtr CFStringCreateWithCString(IntPtr cfString, string str, long encoding);
+#endif
 }

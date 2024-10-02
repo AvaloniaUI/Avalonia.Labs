@@ -15,7 +15,9 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     private static readonly delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, void>
         s_didReceiveNotificationResponse = &OnDidReceiveNotificationResponse;
     private static readonly IntPtr s_class;
-    private static readonly IntPtr s_ivar;
+    private static readonly int s_allowedNotificationOptions = OperatingSystem.IsIOSVersionAtLeast(14) || OperatingSystem.IsMacOSVersionAtLeast(11)
+        ? 8 | 16 // UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
+        : 4; // UNNotificationPresentationOptionAlert
 
     static UNUserNotificationCenterDelegate()
     {
@@ -48,19 +50,21 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     }
 
     public event EventHandler<string> WillPresentNotification;
-    public event EventHandler<(string notificationId, string actionId)> DidReceiveNotificationResponse;
+    public event EventHandler<(string notificationId, string actionId, string? response)> DidReceiveNotificationResponse;
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnWillPresentNotification(IntPtr self, IntPtr sel, IntPtr notificationCenter, IntPtr presentNotification, IntPtr completionHandler)
     {
         var managedHandle = GetIvarValue(self, "_managedThis");
-        var managedThis = managedHandle == default ? null : GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
+        var managedThis = managedHandle == default ?
+            null :
+            GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
 
         var id = UNNotificationRequest.GetIdentifierFromUNNotification(presentNotification);
         managedThis?.WillPresentNotification?.Invoke(managedThis, id);
 
         var callback = (delegate* unmanaged[Cdecl]<IntPtr, int, void>)BlockLiteral.GetCallback(completionHandler);
-        var options = 4; // allow UNNotificationPresentationOptionsAlert.
+        var options = s_allowedNotificationOptions;
         callback(completionHandler, options);
     }
 
@@ -68,11 +72,16 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
     private static void OnDidReceiveNotificationResponse(IntPtr self, IntPtr sel, IntPtr notificationCenter, IntPtr notificationResponse, IntPtr completionHandler)
     {
         var managedHandle = GetIvarValue(self, "_managedThis");
-        var managedThis = managedHandle == default ? null : GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
+        var managedThis = managedHandle == default ?
+            null :
+            GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
 
         var notificationId = UNNotificationRequest.GetIdentifierFromUNNotificationResponse(notificationResponse);
         var actionId = UNNotificationRequest.GetActionIdentifierFromUNNotificationResponse(notificationResponse);
-        managedThis?.DidReceiveNotificationResponse?.Invoke(managedThis, (notificationId, actionId));
+        var response = actionId == "reply" ?
+            UNNotificationRequest.GetActionUserTextFromUNNotificationResponse(notificationResponse) :
+            null;
+        managedThis?.DidReceiveNotificationResponse?.Invoke(managedThis, (notificationId, actionId, response));
 
         var callback = (delegate* unmanaged[Cdecl]<IntPtr, void>)BlockLiteral.GetCallback(completionHandler);
         callback(completionHandler);

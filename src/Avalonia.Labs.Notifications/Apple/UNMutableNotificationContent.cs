@@ -18,21 +18,21 @@ internal class UNMutableNotificationContent : NSObject
         Init();
     }
 
-    public NSString? Title
+    public CFString? Title
     {
-        get => NSString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_title));
+        get => CFString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_title));
         set => Libobjc.void_objc_msgSend(Handle, s_setTitle, value?.Handle ?? default);
     }
 
-    public NSString? Body
+    public CFString? Body
     {
-        get => NSString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_body));
+        get => CFString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_body));
         set => Libobjc.void_objc_msgSend(Handle, s_setBody, value?.Handle ?? default);
     }
 
-    public NSString? CategoryIdentifier
+    public CFString? CategoryIdentifier
     {
-        get => NSString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_categoryIdentifier));
+        get => CFString.FromHandle(Libobjc.intptr_objc_msgSend(Handle, s_categoryIdentifier));
         set => Libobjc.void_objc_msgSend(Handle, s_setCategoryIdentifier, value?.Handle ?? default);
     }
 }

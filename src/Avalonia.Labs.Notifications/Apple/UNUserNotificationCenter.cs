@@ -22,7 +22,12 @@ internal class UNUserNotificationCenter : NSObject
     private static readonly IntPtr s_requestAuthorizationWithOptions = Libobjc.sel_getUid("requestAuthorizationWithOptions:completionHandler:");
     private static readonly IntPtr s_setNotificationCategories = Libobjc.sel_getUid("setNotificationCategories:");
 
-    private UNUserNotificationCenter(IntPtr handle) : base(false) => Handle = handle;
+    private NSSet? _currentSet;
+
+    private UNUserNotificationCenter(IntPtr handle) : base(handle, false)
+    {
+        
+    }
 
     private static UNUserNotificationCenter? s_currentSingleton;
     public static UNUserNotificationCenter Current
@@ -49,10 +54,11 @@ internal class UNUserNotificationCenter : NSObject
         }
     }
 
-    public void SetNotificationCategories(IReadOnlyList<UNNotificationCategory> categories)
+    public void SetNotificationCategories(NSSet categories)
     {
-        using var set = NSSet.WithObjects(categories);
-        Libobjc.void_objc_msgSend(Handle, s_setNotificationCategories, set.Handle);
+        _currentSet?.Dispose();
+        _currentSet = categories;
+        Libobjc.void_objc_msgSend(Handle, s_setNotificationCategories, _currentSet.Handle);
     }
 
     public async Task<bool> RequestAlertAuthorization()
@@ -88,26 +94,11 @@ internal class UNUserNotificationCenter : NSObject
         }
     }
 
-    public void RemovePending(string[] identifiers)
+    public void RemovePending(string identifier)
     {
-        var strings = new NSString[identifiers.Length];
-        try
-        {
-            for (int i = 0; i < strings.Length; i++)
-            {
-                strings[i] = NSString.Create(identifiers[i]);
-            }
-
-            using var nsArray = NSArray.WithObjects(strings);
-            Libobjc.void_objc_msgSend(Handle, s_removePendingNotificationRequestsWithIdentifiers, nsArray.Handle);
-        }
-        finally
-        {
-            foreach (var nsString in strings)
-            {
-                nsString?.Dispose();
-            }
-        }
+        var cfString = CFString.Create(identifier);
+        var nsArray = NSArray.WithObjects([cfString.Handle]);
+        Libobjc.void_objc_msgSend(Handle, s_removePendingNotificationRequestsWithIdentifiers, nsArray.Handle);
     }
 
     public void RemoveAllPending()
@@ -123,20 +114,17 @@ internal class UNUserNotificationCenter : NSObject
             return;
         var tcs = GCHandle.FromIntPtr(tcsHandlePtr).Target as TaskCompletionSource<bool>;
 
-        Dispatcher.UIThread.InvokeAsync(() =>
+        if (errorPtr != IntPtr.Zero)
         {
-            if (errorPtr != IntPtr.Zero)
+            using var error = new NSError(errorPtr);
+            if (error.LocalizedDescription != null)
             {
-                using var error = new NSError(errorPtr);
-                if (error.LocalizedDescription != null)
-                {
-                    tcs?.TrySetException(new Exception(error.LocalizedDescription));
-                    return;
-                }
+                tcs?.TrySetException(new Exception(error.LocalizedDescription));
+                return;
             }
+        }
 
-            tcs?.TrySetResult(true);
-        });
+        tcs?.TrySetResult(true);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -147,19 +135,25 @@ internal class UNUserNotificationCenter : NSObject
             return;
         var tcs = GCHandle.FromIntPtr(tcsHandlePtr).Target as TaskCompletionSource<bool>;
 
-        Dispatcher.UIThread.InvokeAsync(() =>
+        if (errorPtr != IntPtr.Zero)
         {
-            if (errorPtr != IntPtr.Zero)
+            using var error = new NSError(errorPtr);
+            if (error.LocalizedDescription != null)
             {
-                using var error = new NSError(errorPtr);
-                if (error.LocalizedDescription != null)
-                {
-                    tcs?.TrySetException(new Exception(error.LocalizedDescription));
-                    return;
-                }
+                tcs?.TrySetException(new Exception(error.LocalizedDescription));
+                return;
             }
+        }
 
-            tcs?.TrySetResult(granted == 1);
-        });
+        tcs?.TrySetResult(granted == 1);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            _currentSet?.Dispose();
+        }
     }
 }

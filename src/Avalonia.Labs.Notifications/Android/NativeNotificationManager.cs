@@ -15,7 +15,7 @@ namespace Avalonia.Labs.Notifications.Android
         private Activity _activity;
         private bool _isActive;
 
-        public IDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
+        public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
         internal NotificationChannelManager ChannelManager { get; set; }
 

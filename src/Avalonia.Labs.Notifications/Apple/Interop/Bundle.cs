@@ -20,13 +20,11 @@ internal class Bundle
         var cfString = CFBundleGetIdentifier(bundle);
         if (cfString == default)
             return null;
-        
-        // DON'T dispose CFBundleGetIdentifier. For whatever reason macOS really doesn't like it and crashes in random SkiaSharp code...?
-        var cfStringWrapper = new CFString(cfString);
-        return cfStringWrapper.Value;
+
+        return CFString.GetString(cfString);
     }
 
-    private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/Versions/Current/CoreFoundation";
+    private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
 
     [DllImport(CoreFoundationLibrary)]
     private static extern IntPtr CFBundleGetMainBundle();

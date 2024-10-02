@@ -26,7 +26,7 @@ namespace Avalonia.Labs.Notifications.Linux
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
-        public IDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
+        public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
         internal NotificationChannelManager ChannelManager { get; set; }
 

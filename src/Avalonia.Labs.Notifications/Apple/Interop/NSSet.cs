@@ -8,9 +8,8 @@ internal class NSSet : NSObject
     private static readonly IntPtr s_class = Libobjc.objc_getClass("NSSet");
     private static readonly IntPtr s_arrayWithObjects = Libobjc.sel_getUid("setWithObjects:count:");
 
-    private NSSet(IntPtr handle) : base(true)
+    private NSSet(IntPtr handle) : base(handle, true)
     {
-        Handle = handle;
     }
 
     public static NSSet WithObjects(IReadOnlyList<NSObject> objects)

@@ -5,6 +5,10 @@
     <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CodesignKey>Apple Development: maxkatz6@outlook.com (DN2P3PH6J5)</CodesignKey>
+    <CodesignProvision>iOS Team Provisioning Profile: companyName.Avalonia.Labs.Catalog</CodesignProvision>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia.iOS" Version="$(AvaloniaSampleVersion)" />
