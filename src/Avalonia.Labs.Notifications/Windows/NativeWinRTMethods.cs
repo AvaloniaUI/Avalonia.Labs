@@ -30,11 +30,6 @@ internal static unsafe class NativeWinRTMethods
         IInspectable* inspectable;
         PInvoke.RoActivateInstance(fullNameStr, &inspectable).ThrowOnFailure();
 
-        [DllImport("combase.dll", PreserveSig = false)]
-        private static extern IntPtr RoActivateInstance(IntPtr activatableClassId);
-
-        [DllImport("combase.dll", PreserveSig = false)]
-        private static extern IntPtr RoGetActivationFactory(IntPtr activatableClassId, ref Guid iid);
         using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(inspectable, true);
         return unk.QueryInterface<T>();
     }

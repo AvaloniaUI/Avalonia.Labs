@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if INCLUDE_LINUX
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -65,3 +66,4 @@ namespace Avalonia.Labs.Notifications.Linux
         private static int GetNextId() => Interlocked.Increment(ref s_currentId);
     }
 }
+#endif
