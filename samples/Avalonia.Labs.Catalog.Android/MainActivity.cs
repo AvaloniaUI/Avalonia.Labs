@@ -24,7 +24,7 @@ public class MainActivity : AvaloniaMainActivity<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         return base.CustomizeAppBuilder(builder)
-            .WithAndroidNotifications(new AndroidNotificationOptions()
+            .WithAppNotifications(this, new AppNotificationOptions()
             {
                 Channels = new[]
                 {
@@ -46,7 +46,7 @@ public class MainActivity : AvaloniaMainActivity<App>
                         }
                     },
                 }
-            }, this)
+            })
             .UseReactiveUI();
     }
 

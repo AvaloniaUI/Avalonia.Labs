@@ -12,7 +12,7 @@ using MicroCom.Runtime;
 namespace Avalonia.Labs.Notifications.Windows
 {
     [SupportedOSPlatform("windows10.0.17763.0")]
-    internal class NativeNotificationManager : INativeNotificationManager, IDisposable
+    internal class NativeNotificationManager : INativeNotificationManagerImpl, IDisposable
     {
         public const string NotificationsGroupName = "AvaloniaUI"; 
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
@@ -23,7 +23,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
-        internal NotificationChannelManager ChannelManager { get; set; }
+        public NotificationChannelManager ChannelManager { get; }
         public NativeNotificationManager()
         {
             ChannelManager = new NotificationChannelManager();
@@ -46,7 +46,7 @@ namespace Avalonia.Labs.Notifications.Windows
             }
         }
 
-        internal void Initialize(Win32NotificationOptions? options)
+        public void Initialize(AppNotificationOptions? options)
         {
             _aumid = !DesktopBridgeHelpers.HasPackage() && options?.AppUserModelId is not null ? (options.AppUserModelId, true) : AumidHelper.GetAumid();
 

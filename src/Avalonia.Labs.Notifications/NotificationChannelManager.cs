@@ -21,7 +21,7 @@ namespace Avalonia.Labs.Notifications
             _channels.Remove(channel, out _);
         }
 
-        public NotificationChannel? GetChannel(string id)
+        public virtual NotificationChannel? GetChannel(string id)
         {
             return _channels.GetValueOrDefault(id);
         }
