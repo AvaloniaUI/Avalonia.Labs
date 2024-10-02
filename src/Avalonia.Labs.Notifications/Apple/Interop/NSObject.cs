@@ -36,6 +36,35 @@ internal abstract class NSObject : IDisposable
         Handle = Libobjc.intptr_objc_msgSend(Handle, s_initSel);
     }
 
+    protected unsafe bool SetIvarValue(string varName, IntPtr value)
+    {
+        var ivarPtr = GetIvarPointer(Handle, varName);
+        if (ivarPtr == default)
+            return false;
+        *(IntPtr*)ivarPtr = value;
+        return true;
+    }
+
+    protected IntPtr GetIvarValue(string varName)
+    {
+        return GetIvarValue(Handle, varName);
+    }
+
+    protected static unsafe IntPtr GetIvarValue(IntPtr handle, string varName)
+    {
+        var ivarPtr = GetIvarPointer(handle, varName);
+        if (ivarPtr == default)
+            return default;
+        return *(IntPtr*)ivarPtr;
+    }
+
+    private static IntPtr GetIvarPointer(IntPtr baseHandle, string varName)
+    {
+        var ivar = Libobjc.class_getInstanceVariable(Libobjc.object_getClass(baseHandle), varName);
+        if (ivar == default) return 0;
+        return baseHandle + Libobjc.ivar_getOffset(ivar);
+    }
+
     private void ReleaseUnmanagedResources()
     {
         //Libobjc.void_objc_msgSend(Handle, s_releaseSel);

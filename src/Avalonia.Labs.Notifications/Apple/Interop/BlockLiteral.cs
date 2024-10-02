@@ -42,7 +42,11 @@ internal ref struct BlockLiteral(IntPtr invoke)
     private IntPtr block_descriptor = BlockDescriptor.GlobalDescriptor;
     private IntPtr state;
 
-    public IntPtr GetCallback() => invoke;
+    public static unsafe IntPtr GetCallback(IntPtr blockPtr)
+    {
+        var block = (BlockLiteral*)(void*)blockPtr;
+        return block->invoke;
+    }
 
     public static unsafe IntPtr TryGetBlockState(IntPtr blockPtr)
     {

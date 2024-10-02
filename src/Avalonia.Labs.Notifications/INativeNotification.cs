@@ -30,10 +30,8 @@ namespace Avalonia.Labs.Notifications
         void Close();
     }
 
-    public record NativeNotificationAction
+    public record NativeNotificationAction(string Caption, string Tag)
     {
-        public string? Tag { get; init; }
-        public string? Caption { get; init; }
         public Bitmap? Icon { get; init; }
     }
 

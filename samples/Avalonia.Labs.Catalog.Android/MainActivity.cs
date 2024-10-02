@@ -28,16 +28,8 @@ public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHand
                     {
                         Actions = new List<NativeNotificationAction>
                         {
-                            new NativeNotificationAction()
-                            {
-                                Tag = "hello",
-                                Caption = "Hello"
-                            },
-                            new NativeNotificationAction()
-                            {
-                                Tag = "world",
-                                Caption = "world"
-                            }
+                            new NativeNotificationAction("Hello", "hello"),
+                            new NativeNotificationAction("world", "world")
                         }
                     },
                     new NotificationChannel("custom", "Send Notification with Custom Actions", Notifications.NotificationPriority.High),
@@ -45,11 +37,7 @@ public class MainActivity : AvaloniaMainActivity<App>, IActivityIntentResultHand
                     {
                         Actions = new List<NativeNotificationAction>
                         {
-                            new NativeNotificationAction()
-                            {
-                                Tag = "reply",
-                                Caption = "Reply"
-                            }
+                            new NativeNotificationAction("Reply", "reply")
                         }
                     },
                 }

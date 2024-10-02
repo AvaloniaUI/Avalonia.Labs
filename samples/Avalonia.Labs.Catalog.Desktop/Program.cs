@@ -17,14 +17,14 @@ class Program
         {
             Actions = new List<NativeNotificationAction>
             {
-                new() { Tag = "hello", Caption = "Hello" },
-                new() { Tag = "world", Caption = "world" }
+                new("Hello", "hello"),
+                new("world", "world")
             }
         },
         new NotificationChannel("custom", "Send Notification with Custom Actions", NotificationPriority.High),
         new NotificationChannel("reply", "Send Notification with Reply Action", NotificationPriority.High)
         {
-            Actions = [new NativeNotificationAction { Tag = "reply", Caption = "Reply" }]
+            Actions = [new NativeNotificationAction("Reply", "reply")]
         },
     };
 
