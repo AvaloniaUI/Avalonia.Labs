@@ -37,6 +37,12 @@ namespace Avalonia.Labs.Notifications
                 notificationManager = new Windows.NativeNotificationManager();
             }
 #endif
+#if INCLUDE_LINUX
+            else if (OperatingSystem.IsLinux())
+            {
+                notificationManager = new Linux.LinuxNativeNotificationManager();
+            }
+#endif
             else
             {
                 return appBuilder;
