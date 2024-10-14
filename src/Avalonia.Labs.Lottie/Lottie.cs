@@ -19,6 +19,7 @@ public class Lottie : Control
 {
     private SkiaSharp.Skottie.Animation? _animation;
     private int _repeatCount;
+    private int _playBackRate;
     private readonly Uri _baseUri;
     private CompositionCustomVisual? _customVisual;
 
@@ -52,6 +53,12 @@ public class Lottie : Control
     /// </summary>
     public static readonly StyledProperty<int> RepeatCountProperty =
         AvaloniaProperty.Register<Lottie, int>(nameof(RepeatCount), Infinity);
+
+    /// <summary>
+    /// Defines the <see cref="PlayBackRate"/> property.
+    /// </summary>
+    public static readonly StyledProperty<int> PlayBackRateProperty =
+        AvaloniaProperty.Register<Lottie, int>(nameof(PlayBackRate), 1);
 
     /// <summary>
     /// Gets or sets the Lottie animation path.
@@ -88,6 +95,15 @@ public class Lottie : Control
     {
         get => GetValue(RepeatCountProperty);
         set => SetValue(RepeatCountProperty, value);
+    }
+
+    /// <summary>
+    ///  Rate of the animation.
+    /// </summary>
+    public int PlayBackRate
+    {
+        get => GetValue(PlayBackRateProperty);
+        set => SetValue(PlayBackRateProperty, value);
     }
 
     /// <summary>
@@ -227,6 +243,13 @@ public class Lottie : Control
                 Start();
                 break;
             }
+            case nameof(PlayBackRate):
+            {
+                _playBackRate = change.GetNewValue<int>();
+                Stop();
+                Start();
+                break;
+            }
         }
     }
 
@@ -287,6 +310,7 @@ public class Lottie : Control
         try
         {
             _repeatCount = RepeatCount;
+            _playBackRate = PlayBackRate;
             _animation = Load(path, _baseUri);
 
             if (_animation is null)
@@ -316,7 +340,8 @@ public class Lottie : Control
                 _animation,
                 Stretch, 
                 StretchDirection, 
-                _repeatCount));
+                _repeatCount, 
+                _playBackRate));
     }
 
     private void Stop()
