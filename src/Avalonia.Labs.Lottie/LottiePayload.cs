@@ -7,4 +7,5 @@ internal record struct LottiePayload(
     SkiaSharp.Skottie.Animation? Animation = null,
     Stretch? Stretch = null,
     StretchDirection? StretchDirection = null,
-    int? RepeatCount = null);
+    int? RepeatCount = null,
+    int? PlayBackRate = null);
