@@ -55,19 +55,14 @@ namespace Avalonia.Labs.Notifications
                 notificationManager.ChannelManager.AddChannel(channel);
             }
 
-            var callback = appBuilder.AfterSetupCallback;
-            callback += (a) =>
+            return appBuilder.AfterSetup((a) =>
             {
                 notificationManager.Initialize(options);
                 Dispatcher.UIThread.ShutdownStarted += (sender, args) =>
                 {
                     notificationManager.Dispose();
                 };
-            };
-
-            appBuilder.AfterSetup(callback);
-
-            return appBuilder;
+            });
         }
     }
 }
