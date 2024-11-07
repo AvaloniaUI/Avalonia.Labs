@@ -54,6 +54,12 @@ public class Lottie : Control
         AvaloniaProperty.Register<Lottie, int>(nameof(RepeatCount), Infinity);
 
     /// <summary>
+    /// Defines the <see cref="AutoPlay"/> property.
+    /// </summary>
+    public static readonly StyledProperty<bool> AutoPlayProperty =
+        AvaloniaProperty.Register<Lottie, bool>(nameof(AutoPlay));
+
+    /// <summary>
     /// Gets or sets the Lottie animation path.
     /// </summary>
     [Content]
@@ -91,6 +97,25 @@ public class Lottie : Control
     }
 
     /// <summary>
+    /// Gets or sets whether the animation should automatically play when loaded.
+    /// </summary>
+    public bool AutoPlay
+    {
+        get => GetValue(AutoPlayProperty);
+        set => SetValue(AutoPlayProperty, value);
+    }
+
+    /// <summary>
+    /// Event triggered when the animation completes.
+    /// </summary>
+    public event EventHandler? AnimationCompleted;
+
+    /// <summary>
+    /// Event triggered when the animation completes a repetition. The event argument is the repetition number.
+    /// </summary>
+    public event EventHandler<int>? AnimationCompletedRepetition;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Lottie"/> class.
     /// </summary>
     /// <param name="baseUri">The base URL for the XAML context.</param>
@@ -119,7 +144,7 @@ public class Lottie : Control
         {
             return;
         }
-        
+
         _customVisual = compositor.CreateCustomVisual(new LottieCompositionCustomVisualHandler());
         ElementComposition.SetElementChildVisual(this, _customVisual);
 
@@ -138,11 +163,14 @@ public class Lottie : Control
         _customVisual.SendHandlerMessage(
             new LottiePayload(
                 LottieCommand.Update,
-                _animation, 
-                Stretch, 
+                _animation,
+                Stretch,
                 StretchDirection));
-        
-        Start();
+
+        if (AutoPlay)
+        {
+            Start();
+        }
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
@@ -167,9 +195,9 @@ public class Lottie : Control
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
         _customVisual.SendHandlerMessage(
             new LottiePayload(
-                LottieCommand.Update, 
-                _animation, 
-                Stretch, 
+                LottieCommand.Update,
+                _animation,
+                Stretch,
                 StretchDirection));
     }
 
@@ -224,7 +252,11 @@ public class Lottie : Control
             {
                 _repeatCount = change.GetNewValue<int>();
                 Stop();
-                Start();
+
+                if (AutoPlay)
+                {
+                    Start();
+                }
                 break;
             }
         }
@@ -253,8 +285,8 @@ public class Lottie : Control
 
     private SkiaSharp.Skottie.Animation? Load(string path, Uri? baseUri)
     {
-        var uri = path.StartsWith("/") 
-            ? new Uri(path, UriKind.Relative) 
+        var uri = path.StartsWith("/")
+            ? new Uri(path, UriKind.Relative)
             : new Uri(path, UriKind.RelativeOrAbsolute);
         if (uri.IsAbsoluteUri && uri.IsFile)
         {
@@ -297,7 +329,10 @@ public class Lottie : Control
             InvalidateArrange();
             InvalidateMeasure();
 
-            Start();
+            if (AutoPlay)
+            {
+                Start();
+            }
         }
         catch (Exception e)
         {
@@ -308,20 +343,70 @@ public class Lottie : Control
         }
     }
 
-    private void Start()
+    /// <summary>
+    /// Starts or resumes the animation.
+    /// </summary>
+    public void Start()
     {
         _customVisual?.SendHandlerMessage(
             new LottiePayload(
                 LottieCommand.Start,
                 _animation,
-                Stretch, 
-                StretchDirection, 
-                _repeatCount));
+                Stretch,
+                StretchDirection,
+                _repeatCount,
+                OnAnimationCompleted: OnAnimationCompleted,
+                OnAnimationCompletedRepetition: OnAnimationCompletedRepetition));
     }
 
-    private void Stop()
+    /// <summary>
+    /// Stops the animation.
+    /// </summary>
+    public void Stop()
     {
         _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Stop));
+    }
+
+    /// <summary>
+    /// Pauses the animation.
+    /// </summary>
+    public void Pause()
+    {
+        _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Pause));
+    }
+
+    /// <summary>
+    /// Resumes the animation if paused.
+    /// </summary>
+    public void Resume()
+    {
+        _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Resume));
+    }
+
+    /// <summary>
+    /// Seeks to a given frame in the animation.
+    /// </summary>
+    public void SeekToFrame(float frame)
+    {
+        _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Seek, SeekFrame: frame));
+    }
+
+    /// <summary>
+    /// Seeks to a given progress value between 0 and 1.
+    /// </summary>
+    public void SeekToProgress(float progress)
+    {
+        _customVisual?.SendHandlerMessage(new LottiePayload(LottieCommand.Seek, SeekProgress: progress));
+    }
+
+    private void OnAnimationCompleted()
+    {
+        AnimationCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnAnimationCompletedRepetition(int repetition)
+    {
+        AnimationCompletedRepetition?.Invoke(this, repetition);
     }
 
     private void DisposeImpl()
