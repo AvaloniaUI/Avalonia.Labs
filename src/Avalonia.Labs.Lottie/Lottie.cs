@@ -57,7 +57,7 @@ public class Lottie : Control
     /// Defines the <see cref="AutoPlay"/> property.
     /// </summary>
     public static readonly StyledProperty<bool> AutoPlayProperty =
-        AvaloniaProperty.Register<Lottie, bool>(nameof(AutoPlay));
+        AvaloniaProperty.Register<Lottie, bool>(nameof(AutoPlay), true);
 
     /// <summary>
     /// Gets or sets the Lottie animation path.
