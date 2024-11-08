@@ -5,5 +5,8 @@ internal enum LottieCommand
     Start,
     Stop,
     Update,
-    Dispose
+    Dispose,
+    Pause,
+    Resume,
+    Seek
 }
