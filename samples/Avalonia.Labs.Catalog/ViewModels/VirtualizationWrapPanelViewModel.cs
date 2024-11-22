@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia.Controls.Primitives;
 using Avalonia.Labs.Catalog.Views;
-using Avalonia.Labs.Catalog.Views.SamplePageBase;
 using Avalonia.Labs.Controls;
 using Avalonia.Layout;
 using ReactiveUI;
@@ -14,7 +13,7 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
 {
     static VirtualizingWrapPanelViewModel()
     {
-        ViewLocator.Register(typeof(VirtualizingWrapPanelViewModel), () => new VirtualizingWrapPanelSampleView());
+        ViewLocator.Register(typeof(VirtualizingWrapPanelViewModel), () => new VirtualizingWrapPanelView());
     }
     
     public VirtualizingWrapPanelViewModel()
