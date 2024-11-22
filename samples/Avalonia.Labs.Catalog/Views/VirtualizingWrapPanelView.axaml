@@ -1,0 +1,73 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+             xmlns:markupExtensions="clr-namespace:Avalonia.Labs.Catalog.MarkupExtensions"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:VirtualizingWrapPanelViewModel"
+             x:Class="Avalonia.Labs.Catalog.Views.VirtualizingWrapPanelView">
+  <UserControl.DataContext>
+    <viewModels:VirtualizingWrapPanelViewModel />
+  </UserControl.DataContext>
+
+  <Grid ColumnDefinitions="3*, *">
+    <ListBox ItemsSource="{Binding SampleItems}"
+             ScrollViewer.HorizontalScrollBarVisibility="{Binding HorizontalScrollBarVisibility}"
+             ScrollViewer.VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
+                                          SpacingMode="{Binding SpacingMode}"
+                                          IsGridLayoutEnabled="{Binding GridLayout}"
+                                          Orientation="{Binding Orientation}" />
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.ItemTemplate>
+        <DataTemplate DataType="viewModels:WrapPanelItemViewModel">
+          <Panel Width="{Binding ItemWidth}"
+                 Height="{Binding ItemHeight}">
+            <Border Background="LightBlue"
+                    CornerRadius="20"
+                    Margin="5">
+              <TextBlock Text="{Binding Content}"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center">
+              </TextBlock>
+            </Border>
+          </Panel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Grid.IsSharedSizeScope="True">
+        <TextBlock Text="Non-unifromItemSize" />
+        <ToggleSwitch IsChecked="{Binding AllowDifferentItemSizes}"></ToggleSwitch>
+        
+        <TextBlock Text="GridLayout" />
+        <ToggleSwitch IsChecked="{Binding GridLayout}"></ToggleSwitch>
+        
+        <TextBlock Text="Orientation" />
+        <ComboBox SelectedItem="{Binding Orientation}"
+                  ItemsSource="{markupExtensions:EnumItemsSource Orientation}">
+        </ComboBox>
+
+        <TextBlock Text="SpacingMode" />
+        <ComboBox SelectedItem="{Binding SpacingMode}"
+                  ItemsSource="{markupExtensions:EnumItemsSource controls:SpacingMode}">
+        </ComboBox>
+
+        <Button Content="Randomize ItemSize"
+                Command="{Binding RandomizeItemSizesCommand}">
+        </Button>
+        <Button Content="Reset ItemSize"
+                Command="{Binding ResetItemSizesCommand}">
+        </Button>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
