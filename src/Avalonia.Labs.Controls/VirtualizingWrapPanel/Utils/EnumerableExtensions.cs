@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 
 namespace Avalonia.Labs.Controls.Utils;
 
@@ -12,23 +12,27 @@ internal static class EnumerableExtensions
     /// </summary>
     internal static int IndexOf(this IEnumerable items, object item)
     {
-        if (items is IList list)
+        var list = items as IList;
+
+        if (list != null)
         {
             return list.IndexOf(item);
         }
-
-        int index = 0;
-
-        foreach (var i in items)
+        else
         {
-            if (ReferenceEquals(i, item))
+            int index = 0;
+
+            foreach (var i in items)
             {
-                return index;
+                if (ReferenceEquals(i, item))
+                {
+                    return index;
+                }
+
+                ++index;
             }
 
-            ++index;
+            return -1;
         }
-
-        return -1;
     }
 }
