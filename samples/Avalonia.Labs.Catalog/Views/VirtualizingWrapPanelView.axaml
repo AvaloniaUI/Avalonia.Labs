@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,15 +14,14 @@
     <viewModels:VirtualizingWrapPanelViewModel />
   </UserControl.DataContext>
 
-  <!-- <Grid ColumnDefinitions="3*, *"> -->
+  <Grid ColumnDefinitions="3*, *">
     <ListBox ItemsSource="{Binding SampleItems}"
-             x:Name="SampleListBox"
              ScrollViewer.HorizontalScrollBarVisibility="{Binding HorizontalScrollBarVisibility}"
              ScrollViewer.VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}">
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
-                                          SpacingMode="Uniform"
+                                          SpacingMode="{Binding SpacingMode}"
                                           IsGridLayoutEnabled="{Binding GridLayout}"
                                           Orientation="{Binding Orientation}" />
         </ItemsPanelTemplate>
@@ -44,31 +43,31 @@
       </ListBox.ItemTemplate>
     </ListBox>
 
-  <!--   <ScrollViewer Grid.Column="1"> -->
-  <!--     <StackPanel Grid.IsSharedSizeScope="True"> -->
-  <!--       <TextBlock Text="Non-unifromItemSize" /> -->
-  <!--       <ToggleSwitch IsChecked="{Binding AllowDifferentItemSizes}"></ToggleSwitch> -->
-  <!--        -->
-  <!--       <TextBlock Text="GridLayout" /> -->
-  <!--       <ToggleSwitch IsChecked="{Binding GridLayout}"></ToggleSwitch> -->
-  <!--        -->
-  <!--       <TextBlock Text="Orientation" /> -->
-  <!--       <ComboBox SelectedItem="{Binding Orientation}" -->
-  <!--                 ItemsSource="{markupExtensions:EnumItemsSource Orientation}"> -->
-  <!--       </ComboBox> -->
-  <!-- -->
-  <!--       <TextBlock Text="SpacingMode" /> -->
-  <!--       <ComboBox SelectedItem="{Binding SpacingMode}" -->
-  <!--                 ItemsSource="{markupExtensions:EnumItemsSource controls:SpacingMode}"> -->
-  <!--       </ComboBox> -->
-  <!-- -->
-  <!--       <Button Content="Randomize ItemSize" -->
-  <!--               Command="{Binding RandomizeItemSizesCommand}"> -->
-  <!--       </Button> -->
-  <!--       <Button Content="Reset ItemSize" -->
-  <!--               Command="{Binding ResetItemSizesCommand}"> -->
-  <!--       </Button> -->
-  <!--     </StackPanel> -->
-  <!--   </ScrollViewer> -->
-  <!-- </Grid> -->
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Grid.IsSharedSizeScope="True">
+        <TextBlock Text="Non-unifromItemSize" />
+        <ToggleSwitch IsChecked="{Binding AllowDifferentItemSizes}"></ToggleSwitch>
+        
+        <TextBlock Text="GridLayout" />
+        <ToggleSwitch IsChecked="{Binding GridLayout}"></ToggleSwitch>
+        
+        <TextBlock Text="Orientation" />
+        <ComboBox SelectedItem="{Binding Orientation}"
+                  ItemsSource="{markupExtensions:EnumItemsSource Orientation}">
+        </ComboBox>
+
+        <TextBlock Text="SpacingMode" />
+        <ComboBox SelectedItem="{Binding SpacingMode}"
+                  ItemsSource="{markupExtensions:EnumItemsSource controls:SpacingMode}">
+        </ComboBox>
+
+        <Button Content="Randomize ItemSize"
+                Command="{Binding RandomizeItemSizesCommand}">
+        </Button>
+        <Button Content="Reset ItemSize"
+                Command="{Binding ResetItemSizesCommand}">
+        </Button>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
 </UserControl>
