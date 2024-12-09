@@ -1,0 +1,170 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Avalonia.Labs.Controls">
+  <Design.PreviewWith>
+    <controls:NotificationHost />
+  </Design.PreviewWith>
+  
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Default">
+      <!-- Light theme colors -->
+      <Color x:Key="NotificationInformationBackgroundLight">#E3F2FD</Color>
+      <Color x:Key="NotificationWarningBackgroundLight">#FFF3E0</Color>
+      <Color x:Key="NotificationErrorBackgroundLight">#FFEBEE</Color>
+      <Color x:Key="NotificationSuccessBackgroundLight">#E8F5E9</Color>
+
+      <Color x:Key="NotificationInformationForegroundLight">#1976D2</Color>
+      <Color x:Key="NotificationWarningForegroundLight">#F57C00</Color>
+      <Color x:Key="NotificationErrorForegroundLight">#D32F2F</Color>
+      <Color x:Key="NotificationSuccessForegroundLight">#388E3C</Color>
+      
+      <SolidColorBrush x:Key="NotificationInformationBackground" Color="{StaticResource NotificationInformationBackgroundLight}"/>
+      <SolidColorBrush x:Key="NotificationWarningBackground" Color="{StaticResource NotificationWarningBackgroundLight}"/>
+      <SolidColorBrush x:Key="NotificationErrorBackground" Color="{StaticResource NotificationErrorBackgroundLight}"/>
+      <SolidColorBrush x:Key="NotificationSuccessBackground" Color="{StaticResource NotificationSuccessBackgroundLight}"/>
+      
+      <SolidColorBrush x:Key="NotificationInformationForeground" Color="{StaticResource NotificationInformationForegroundLight}"/>
+      <SolidColorBrush x:Key="NotificationWarningForeground" Color="{StaticResource NotificationWarningForegroundLight}"/>
+      <SolidColorBrush x:Key="NotificationErrorForeground" Color="{StaticResource NotificationErrorForegroundLight}"/>
+      <SolidColorBrush x:Key="NotificationSuccessForeground" Color="{StaticResource NotificationSuccessForegroundLight}"/>
+    </ResourceDictionary>
+    
+    <ResourceDictionary x:Key="Dark">
+      <!-- Dark theme colors -->
+      <Color x:Key="NotificationInformationBackgroundDark">#1565C0</Color>
+      <Color x:Key="NotificationWarningBackgroundDark">#EF6C00</Color>
+      <Color x:Key="NotificationErrorBackgroundDark">#C62828</Color>
+      <Color x:Key="NotificationSuccessBackgroundDark">#2E7D32</Color>
+
+      <Color x:Key="NotificationInformationForegroundDark">White</Color>
+      <Color x:Key="NotificationWarningForegroundDark">White</Color>
+      <Color x:Key="NotificationErrorForegroundDark">White</Color>
+      <Color x:Key="NotificationSuccessForegroundDark">White</Color>
+      
+      <SolidColorBrush x:Key="NotificationInformationBackground" Color="{StaticResource NotificationInformationBackgroundDark}"/>
+      <SolidColorBrush x:Key="NotificationWarningBackground" Color="{StaticResource NotificationWarningBackgroundDark}"/>
+      <SolidColorBrush x:Key="NotificationErrorBackground" Color="{StaticResource NotificationErrorBackgroundDark}"/>
+      <SolidColorBrush x:Key="NotificationSuccessBackground" Color="{StaticResource NotificationSuccessBackgroundDark}"/>
+      
+      <SolidColorBrush x:Key="NotificationInformationForeground" Color="{StaticResource NotificationInformationForegroundDark}"/>
+      <SolidColorBrush x:Key="NotificationWarningForeground" Color="{StaticResource NotificationWarningForegroundDark}"/>
+      <SolidColorBrush x:Key="NotificationErrorForeground" Color="{StaticResource NotificationErrorForegroundDark}"/>
+      <SolidColorBrush x:Key="NotificationSuccessForeground" Color="{StaticResource NotificationSuccessForegroundDark}"/>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- Icons remain the same -->
+  <StreamGeometry x:Key="NotificationInformationIcon">M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z</StreamGeometry>
+  <StreamGeometry x:Key="NotificationWarningIcon">M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z</StreamGeometry>
+  <StreamGeometry x:Key="NotificationErrorIcon">M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z</StreamGeometry>
+  <StreamGeometry x:Key="NotificationSuccessIcon">M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z</StreamGeometry>
+  
+  
+  
+  <ControlTheme x:Key="{x:Type controls:NotificationHost}" TargetType="controls:NotificationHost">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="MinimumDesktopWidth" Value="600" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Name="PART_LayoutRoot"
+              Background="{x:Null}"
+              ClipToBounds="True">
+          <!-- Top Left -->
+          <ItemsControl Name="PART_TopLeftNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Left"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+
+          <!-- Top Center -->
+          <ItemsControl Name="PART_TopCenterNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Center"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+
+          <!-- Top Right -->
+          <ItemsControl Name="PART_TopRightNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Right"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+
+          <!-- Bottom Left -->
+          <ItemsControl Name="PART_BottomLeftNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}"
+                        VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Left"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+
+          <!-- Bottom Center -->
+          <ItemsControl Name="PART_BottomCenterNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}"
+                        VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Center"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+
+          <!-- Bottom Right -->
+          <ItemsControl Name="PART_BottomRightNotifications"
+                        ClipToBounds="True"
+                        Background="{x:Null}"
+                        VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Spacing="8"
+                            Background="{x:Null}"
+                            ClipToBounds="True"
+                            controls:ResponsiveHorizontalAlignment.DesktopAlignment="Right"
+                            controls:ResponsiveHorizontalAlignment.MinimumDesktopWidth="{Binding MinimumDesktopWidth, RelativeSource={RelativeSource AncestorType=controls:NotificationHost}}" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+</ResourceDictionary>

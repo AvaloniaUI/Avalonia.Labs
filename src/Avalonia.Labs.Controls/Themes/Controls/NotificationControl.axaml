@@ -1,0 +1,43 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Avalonia.Labs.Controls">
+  <Design.PreviewWith>
+    <controls:NotificationControl />
+  </Design.PreviewWith>
+
+
+  <ControlTheme x:Key="{x:Type controls:NotificationControl}" TargetType="controls:NotificationControl">
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel Name="PART_LayoutRoot" IsVisible="False">
+          <Border Name="PART_NotificationBorder"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Background="{TemplateBinding Background}">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="10"
+                  Background="{x:Null}">
+              <PathIcon Name="StatusIcon"
+                        Grid.Column="0"
+                        Width="24"
+                        Height="24"
+                        Foreground="{TemplateBinding Foreground}"
+                        Margin="0,0,16,0" />
+              <ContentPresenter Grid.Column="1"
+                                x:Name="PART_NotificationPresenter"
+                                Content="{TemplateBinding Content}"
+                                Foreground="{TemplateBinding Foreground}"
+                                VerticalAlignment="Center" />
+              <Button Grid.Column="2"
+                      Name="PART_ActionButton"
+                      Classes="accent"
+                      IsVisible="False"
+                      Content="{TemplateBinding ActionButtonContent}" />
+            </Grid>
+          </Border>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+
+  </ControlTheme>
+</ResourceDictionary>
