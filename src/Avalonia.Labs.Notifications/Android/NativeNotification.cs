@@ -96,7 +96,7 @@ namespace Avalonia.Labs.Notifications.Android
                 .PutExtras(deleteBundle);
 
             var flags = Build.VERSION.SdkInt >= BuildVersionCodes.S ? PendingIntentFlags.Mutable : PendingIntentFlags.UpdateCurrent;
-
+            
             builder.SetContentIntent(PendingIntent.GetActivity(_activity, pendingIntentId + 1, tapIntent, flags))
                 .SetDeleteIntent(PendingIntent.GetBroadcast(_activity, pendingIntentId + 2, deleteIntent, flags));
 
@@ -130,7 +130,7 @@ namespace Avalonia.Labs.Notifications.Android
 
                 var actionIntent = new Intent(_activity, typeof(NotificationBroadcastReceiver))
                     .PutExtras(actionbundle);
-                var pendingIntent = PendingIntent.GetBroadcast(_activity, pendingIntentId + 3 + i, actionIntent, replyAction != null ? PendingIntentFlags.UpdateCurrent : flags);
+                var pendingIntent = PendingIntent.GetBroadcast(_activity, pendingIntentId + 3 + i, actionIntent, flags);
                 var notificationAction = new NotificationCompat.Action.Builder(icon, action.Caption, pendingIntent);
 
                 if (!string.IsNullOrWhiteSpace(ReplyActionTag) && replyAction == action)
