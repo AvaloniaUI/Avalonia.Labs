@@ -269,8 +269,8 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
                 _lastServerTime = CompositionNow;
             }
 
-            if (_animation is not { } an
-                || _stretch is not { } st
+            if (_animation is not { } an 
+                || _stretch is not { } st 
                 || _stretchDirection is not { } sd)
             {
                 return;

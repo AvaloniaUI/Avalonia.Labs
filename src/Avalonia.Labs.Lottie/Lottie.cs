@@ -179,8 +179,8 @@ public class Lottie : Control
         _customVisual.SendHandlerMessage(
             new LottiePayload(
                 LottieCommand.Update,
-                _animation,
-                Stretch,
+                _animation, 
+                Stretch, 
                 StretchDirection));
 
         if (AutoPlay)
@@ -211,9 +211,9 @@ public class Lottie : Control
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
         _customVisual.SendHandlerMessage(
             new LottiePayload(
-                LottieCommand.Update,
-                _animation,
-                Stretch,
+                LottieCommand.Update, 
+                _animation, 
+                Stretch, 
                 StretchDirection));
     }
 
@@ -308,8 +308,8 @@ public class Lottie : Control
 
     private SkiaSharp.Skottie.Animation? Load(string path, Uri? baseUri)
     {
-        var uri = path.StartsWith("/")
-            ? new Uri(path, UriKind.Relative)
+        var uri = path.StartsWith("/") 
+            ? new Uri(path, UriKind.Relative) 
             : new Uri(path, UriKind.RelativeOrAbsolute);
         if (uri.IsAbsoluteUri && uri.IsFile)
         {
