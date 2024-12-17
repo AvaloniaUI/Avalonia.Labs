@@ -12,6 +12,7 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
     private TimeSpan _primaryTimeElapsed, _animationElapsed;
     private TimeSpan? _lastServerTime;
     private bool _running;
+    private bool _paused;
     private SkiaSharp.Skottie.Animation? _animation;
     private Stretch? _stretch;
     private StretchDirection? _stretchDirection;
@@ -20,6 +21,8 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
     private int _repeatCount;
     private int _count;
     private int _playBackRate;
+    private Action? _onAnimationCompleted;
+    private Action<int>? _onAnimationCompletedRepetition;
 
     public override void OnMessage(object message)
     {
@@ -41,6 +44,7 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
             }:
             {
                 _running = true;
+                _paused = false;
                 _lastServerTime = null;
                 _stretch = st;
                 _stretchDirection = sd;
@@ -49,7 +53,41 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
                 _playBackRate = pbr;
                 _count = 0;
                 _animationElapsed = TimeSpan.Zero;
+                _onAnimationCompleted = msg.OnAnimationCompleted;
+                _onAnimationCompletedRepetition = msg.OnAnimationCompletedRepetition;
                 RegisterForNextAnimationFrameUpdate();
+                break;
+            }
+            case
+            {
+                LottieCommand: LottieCommand.Pause
+            }:
+            {
+                _paused = true;
+                break;
+            }
+            case
+            {
+                LottieCommand: LottieCommand.Resume
+            }:
+            {
+                _paused = false;
+                RegisterForNextAnimationFrameUpdate();
+                break;
+            }
+            case
+            {
+                LottieCommand: LottieCommand.Seek
+            }:
+            {
+                if (msg.SeekFrame.HasValue)
+                {
+                    SeekToFrame(msg.SeekFrame.Value);
+                }
+                else if (msg.SeekProgress.HasValue)
+                {
+                    SeekToProgress(msg.SeekProgress.Value);
+                }
                 break;
             }
             case
@@ -87,16 +125,48 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
 
     public override void OnAnimationFrameUpdate()
     {
-        if (!_running)
+        if (!_running || _paused)
             return;
 
-
-        if (_repeatCount == 0 || (_repeatCount > 0 && _count >= _repeatCount))
+        if (_lastServerTime.HasValue)
         {
-            _running = false;
-            _animationElapsed = TimeSpan.Zero;
+            var delta = CompositionNow - _lastServerTime.Value;
+            _primaryTimeElapsed += delta;
+            _animationElapsed += delta;
         }
 
+        _lastServerTime = CompositionNow;
+
+        GetFrameTime(); // This will handle cycle completion and repetitions
+
+        if (!_running)
+            return; // Animation has completed all repetitions
+
+        Invalidate();
+        RegisterForNextAnimationFrameUpdate();
+    }
+
+    private void SeekToFrame(float frame)
+    {
+        if (_animation == null)
+        {
+            return;
+        }
+
+        _animationElapsed = TimeSpan.FromSeconds(frame / _animation.Fps);
+        Invalidate();
+        RegisterForNextAnimationFrameUpdate();
+    }
+
+    private void SeekToProgress(float progress)
+    {
+        if (_animation == null)
+        {
+            return;
+        }
+
+        progress = Math.Min(Math.Max(progress, 0), 1);
+        _animationElapsed = TimeSpan.FromSeconds(_animation.Duration.TotalSeconds * progress);
         Invalidate();
         RegisterForNextAnimationFrameUpdate();
     }
@@ -128,6 +198,19 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
             _ic?.End();
             _ic?.Begin();
             _count++;
+
+            if (_repeatCount != Lottie.Infinity && _count >= _repeatCount)
+            {
+                // Animation has finished all repetitions
+                _running = false;
+                _onAnimationCompleted?.Invoke();
+                return _animation.Duration.TotalSeconds; // Return the last frame
+            }
+
+            // Animation cycle completed, but not finished all repetitions
+            _onAnimationCompletedRepetition?.Invoke(_count);
+
+            frameTime = 0; // Reset frame time for the next cycle
         }
 
         return frameTime;
