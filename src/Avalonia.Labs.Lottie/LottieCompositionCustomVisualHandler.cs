@@ -20,6 +20,7 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
     private readonly object _sync = new();
     private int _repeatCount;
     private int _count;
+    private int _playBackRate;
     private Action? _onAnimationCompleted;
     private Action<int>? _onAnimationCompletedRepetition;
 
@@ -38,7 +39,8 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
                 Animation: { } an,
                 Stretch: { } st,
                 StretchDirection: { } sd,
-                RepeatCount: { } rp
+                RepeatCount: { } rp,
+                PlayBackRate: { } pbr
             }:
             {
                 _running = true;
@@ -48,6 +50,7 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
                 _stretchDirection = sd;
                 _animation = an;
                 _repeatCount = rp;
+                _playBackRate = pbr;
                 _count = 0;
                 _animationElapsed = TimeSpan.Zero;
                 _onAnimationCompleted = msg.OnAnimationCompleted;
@@ -187,9 +190,9 @@ internal class LottieCompositionCustomVisualHandler : CompositionCustomVisualHan
             return 0f;
         }
 
-        var frameTime = _animationElapsed.TotalSeconds;
+        var frameTime = _animationElapsed.TotalSeconds * _playBackRate;
 
-        if (_animationElapsed.TotalSeconds > _animation.Duration.TotalSeconds)
+        if (frameTime > _animation.Duration.TotalSeconds)
         {
             _animationElapsed = TimeSpan.Zero;
             _ic?.End();

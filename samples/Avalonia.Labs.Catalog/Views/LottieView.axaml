@@ -92,6 +92,13 @@
                        Value="{Binding #Lottie.RepeatCount}"
                        HorizontalAlignment="Center"
                        Minimum="-1" />
+        <NumericUpDown Name="PlayBackRate"
+                       VerticalAlignment="Center"
+                       Margin="10,10,0,0"
+                       MinWidth="120"
+                       Value="{Binding #Lottie.PlayBackRate}"
+                       HorizontalAlignment="Center"
+                       Minimum="0" />
         <CheckBox Margin="10,10,0,0"
                   IsChecked="{Binding EnableCheckerboard}"
                   HorizontalAlignment="Center"
@@ -102,7 +109,8 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                 Path="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
-                RepeatCount="-1" />
+                RepeatCount="-1"
+                PlayBackRate="1"/>
       </Viewbox>
       
     </DockPanel>
