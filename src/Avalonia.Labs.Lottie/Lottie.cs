@@ -160,7 +160,7 @@ public class Lottie : Control
         {
             return;
         }
-
+        
         _customVisual = compositor.CreateCustomVisual(new LottieCompositionCustomVisualHandler());
         ElementComposition.SetElementChildVisual(this, _customVisual);
 
