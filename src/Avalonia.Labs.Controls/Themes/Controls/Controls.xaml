@@ -17,9 +17,15 @@
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentDialog.axaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/InfoBadge.axaml"/>
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/NotificationControl.axaml"/>
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/NotificationHost.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
+  
+  <StyleInclude Source="NotificationHostStyles.axaml"/>
+  <StyleInclude Source="NotificationControlStyles.axaml"/>
+  
   <Style Selector="control|FlipView > control|FlipViewItem">
     <Setter Property="Width"
             Value="{Binding $parent[control:FlipView].Bounds.Width}" />
