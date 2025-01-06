@@ -28,6 +28,7 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
  - [FlexPanel](https://github.com/AvaloniaUI/Avalonia.Labs/blob/main/src/Avalonia.Labs.Panels/FlexPanel.cs)
  - [FlipView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/FlipView)
  - [InfoBadge](/src/Avalonia.Labs.Controls/InfoBadge/Readme.md)
+ - [GIF image renderer and player](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Gif)
  - [Lottie Viewer](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Lottie)
  - [NavigationControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/Navigation)
  - [Qr Code Generator](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Qr)
