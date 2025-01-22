@@ -1,53 +1,309 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<views:MainView xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sys="using:System"
              xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
+             Container.Name="MainView"
+             Container.Sizing="Width"
              x:Class="Avalonia.Labs.Catalog.Views.MainView"
              xmlns:local="using:Avalonia.Labs.Catalog"
              xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
              xmlns:views="clr-namespace:Avalonia.Labs.Catalog.Views"
+             xmlns:extension="clr-namespace:Avalonia.Labs.Catalog.Extensions"
              HorizontalContentAlignment="Stretch"
              VerticalContentAlignment="Stretch"
              VerticalAlignment="Stretch"
              HorizontalAlignment="Stretch"
              x:DataType="viewModels:MainViewModel">
-  <UserControl.Resources>
+  <views:MainView.Resources>
+    <StreamGeometry x:Key="MenuIcon">M2 4.5C2 4.22386 2.22386 4 2.5 4H17.5C17.7761 4 18 4.22386 18 4.5C18 4.77614 17.7761 5 17.5 5H2.5C2.22386 5 2 4.77614 2 4.5Z M2 9.5C2 9.22386 2.22386 9 2.5 9H17.5C17.7761 9 18 9.22386 18 9.5C18 9.77614 17.7761 10 17.5 10H2.5C2.22386 10 2 9.77614 2 9.5Z M2.5 14C2.22386 14 2 14.2239 2 14.5C2 14.7761 2.22386 15 2.5 15H17.5C17.7761 15 18 14.7761 18 14.5C18 14.2239 17.7761 14 17.5 14H2.5Z</StreamGeometry>
     <StreamGeometry x:Key="SwapThemeIcon">M 23.935547,4.0019531 C 23.275047,4.0354318 22.748047,4.5831669 22.748047,5.2519531 V 7.7519531 C 22.748047,8.4423031 23.307647,9.0019531 23.998047,9.0019531 24.688347,9.0019531 25.248047,8.4423031 25.248047,7.7519531 V 5.2519531 C 25.248047,4.5615931 24.688347,4.0019531 23.998047,4.0019531 23.976472,4.0019531 23.956853,4.0008732 23.935547,4.0019531 Z M 10.25,9 C 9.9300987,9 9.6093094,9.1231125 9.3652344,9.3671875 8.8770744,9.8553475 8.8770744,10.646666 9.3652344,11.134766 L 11.865234,13.634766 C 12.353334,14.122966 13.146666,14.122966 13.634766,13.634766 14.122966,13.146666 14.122966,12.355287 13.634766,11.867188 L 11.134766,9.3671875 C 10.890716,9.1231125 10.569901,9 10.25,9 Z M 37.75,9 C 37.430087,9 37.111288,9.1231125 36.867188,9.3671875 L 34.367188,11.867188 C 33.879088,12.355287 33.879087,13.146666 34.367188,13.634766 34.855388,14.122966 35.646666,14.122966 36.134766,13.634766 L 38.634766,11.134766 C 39.122966,10.646666 39.122966,9.8553475 38.634766,9.3671875 38.390716,9.1231125 38.069913,9 37.75,9 Z M 24,14 C 18.47715,14 14,18.47715 14,24 14,29.5228 18.47715,34 24,34 29.5228,34 34,29.5228 34,24 34,18.47715 29.5228,14 24,14 Z M 24,15.5 C 28.6944,15.5 32.5,19.30558 32.5,24 32.5,28.6944 28.6944,32.5 24,32.5 Z M 5.25,22.75 C 4.55965,22.75 4,23.3097 4,24 4,24.6904 4.55965,25.25 5.25,25.25 H 7.75 C 8.44035,25.25 9,24.6904 9,24 9,23.3097 8.44035,22.75 7.75,22.75 Z M 40.25,22.75 C 39.5596,22.75 39,23.3097 39,24 39,24.6904 39.5596,25.25 40.25,25.25 H 42.75 C 43.4403,25.25 44,24.6904 44,24 44,23.3097 43.4403,22.75 42.75,22.75 Z M 12.75,34 C 12.4301,34 12.109284,34.123087 11.865234,34.367188 L 9.3652344,36.867188 C 8.8770744,37.355287 8.8770744,38.146666 9.3652344,38.634766 9.8533844,39.122966 10.646666,39.122966 11.134766,38.634766 L 13.634766,36.134766 C 14.122966,35.646666 14.122966,34.855288 13.634766,34.367188 13.390716,34.123087 13.0699,34 12.75,34 Z M 35.25,34 C 34.930087,34 34.611288,34.123087 34.367188,34.367188 33.879088,34.855288 33.879087,35.646666 34.367188,36.134766 L 36.867188,38.634766 C 37.355388,39.122966 38.146666,39.122966 38.634766,38.634766 39.122966,38.146666 39.122966,37.355287 38.634766,36.867188 L 36.134766,34.367188 C 35.890716,34.123087 35.569913,34 35.25,34 Z M 23.998047,39 C 23.307647,39 22.748047,39.5597 22.748047,40.25 V 42.75 C 22.748047,43.4404 23.307647,44 23.998047,44 24.688347,44 25.248047,43.4404 25.248047,42.75 V 40.25 C 25.248047,39.5597 24.688347,39 23.998047,39 Z</StreamGeometry>
-  </UserControl.Resources>
-  <labs:NavigationControl
-      x:Name="Nav"
-      VerticalAlignment="Stretch"
-      IsBackButtonVisible="{Binding ShowBackButton}"
-      IsNavBarVisible="{Binding ShowNavBar}"
-      NavigationRouter="{Binding NavigationRouter}"
-      Header="{Binding NavigationRouter.CurrentPage}"
-      Margin="5"
-      Padding="10"
-      Grid.Row="1"
-      Grid.ColumnSpan="2">
-    <labs:NavigationControl.HeaderTemplate>
-      <DataTemplate x:DataType="viewModels:ViewModelBase">
-        <DockPanel>
-          <Button Command="{Binding $parent[views:MainView].((viewModels:MainViewModel)DataContext).SwapTheme}"
-                  DockPanel.Dock="Right"
-                  Background="Transparent">
-            <PathIcon Data="{StaticResource SwapThemeIcon}"
-                      Width="32"
-                      Height="32"
+  </views:MainView.Resources>
+  <views:MainView.Styles>
+    <Style Selector="SplitView#MainSplitView">
+      <Setter Property="DisplayMode" Value="CompactInline"/>
+      <Setter Property="OpenPaneLength" Value="240"/>
+    </Style>
+    <Style>
+      <Setter Property="IsLargeWidth" Value="True"/>
+    </Style>
+    <Style Selector="Button#HeaderMenuButton">
+      <Setter Property="IsVisible">False</Setter>
+    </Style>
+    <ContainerQuery Name="MainView" Query="max-width:640">
+      <Style Selector="SplitView#MainSplitView">
+        <Setter Property="DisplayMode" Value="CompactOverlay"/>
+      </Style>
+      <Style Selector="Button#HeaderMenuButton">
+        <Setter Property="IsVisible">True</Setter>
+      </Style>
+    </ContainerQuery>
+  </views:MainView.Styles>
+  <SplitView Name="MainSplitView" UseLightDismissOverlayMode="True" IsPaneOpen="{Binding IsPaneOpen, Mode=TwoWay}" CompactPaneLength="0">
+    <SplitView.Pane>
+      <DockPanel Margin="10">
+        <Grid DockPanel.Dock="Top">
+          <Button Name="HeaderMenuButton" VerticalAlignment="Top" Click="MenuButton_Click">
+            <PathIcon Data="{StaticResource MenuIcon}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
                                 />
           </Button>
-          <Label Content="{Binding Title}"
-                 VerticalAlignment="Center"
-                 VerticalContentAlignment="Center"/>
-        </DockPanel>
-      </DataTemplate>
-    </labs:NavigationControl.HeaderTemplate>
-    <labs:NavigationControl.DataTemplates>
-      <local:ViewLocator/>
-    </labs:NavigationControl.DataTemplates>
-  </labs:NavigationControl>
-</UserControl>
+          <ThemeVariantScope RequestedThemeVariant="Light">
+            <Image Margin="5" Source="/Assets/avalonia_logo_box_white.png" MaxWidth="100"  Stretch="Uniform"/>
+          </ThemeVariantScope>
+          <ThemeVariantScope RequestedThemeVariant="Dark">
+            <Image Margin="5" Source="/Assets/avalonia_logo_box.png" MaxWidth="100"  Stretch="Uniform"/>
+          </ThemeVariantScope>
+        </Grid>
+        <Label DockPanel.Dock="Top" HorizontalAlignment="Center" FontSize="20">Avalonia Labs</Label>
+        <Border Margin="0,5,0,0" DockPanel.Dock="Bottom">
+          <ToggleButton Command="{Binding $parent[views:MainView].((viewModels:MainViewModel)DataContext).SwapTheme}"
+                              DockPanel.Dock="Right"
+                        HorizontalAlignment="Center"
+                        CornerRadius="21"
+                        Width="38"
+                        Height="38"
+                        Padding="0"
+                              Background="Transparent">
+            <PathIcon Data="{StaticResource SwapThemeIcon}"
+                                />
+          </ToggleButton>
+        </Border>
+        <Border DockPanel.Dock="Top" BorderThickness="1" CornerRadius="10" ClipToBounds="True"  VerticalAlignment="Stretch">
+          <ScrollViewer VerticalScrollBarVisibility="Hidden" IsVisible="{Binding $parent[SplitView].IsPaneOpen}">
+            <StackPanel Orientation="Vertical"
+                        Spacing="5"
+                HorizontalAlignment="Stretch">
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:AsyncImageViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:AsyncImageViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Async Image</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:BadgesViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:BadgesViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Badges</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:ContentDialogViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:ContentDialogViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">ContentDialog</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:CompositionViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:CompositionViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Composition</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:FlexViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:FlexViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">FlexView</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:FlipViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:FlipViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">FlipView</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:GestureViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:GestureViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Gesture</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:GifViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:GifViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">GIF</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:LottieViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:LottieViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Lottie</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:QrViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:QrViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Qr Generator</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:NativeNotificationsViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:NativeNotificationsViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Native Notifications</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:RouteCommandViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:RouteCommandViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">RoutedCommand</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:StepBarViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:StepBarViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">StepBar</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:SKXamlCanvasViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:SKXamlCanvasViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">SKCanvasView</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:SwipeViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:SwipeViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Swipe</Label>
+              </ToggleButton>
+              <ToggleButton HorizontalAlignment="Stretch"
+                      IsChecked="{extension:ActivePageMarkup {Binding NavigationRouter.CurrentPage} {x:Type viewModels:TabLayoutViewModel}}"
+                      Command="{Binding NavigateTo}"
+                      CornerRadius="10"
+                      >
+                <ToggleButton.CommandParameter>
+                  <viewModels:TabLayoutViewModel/>
+                </ToggleButton.CommandParameter>
+                <Label
+                       VerticalAlignment="Center">Tab Layout</Label>
+              </ToggleButton>
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </DockPanel>
+    </SplitView.Pane>
+    <labs:NavigationControl
+        x:Name="Nav"
+        VerticalAlignment="Stretch"
+        IsBackButtonVisible="{Binding ShowBackButton}"
+        IsNavBarVisible="{Binding ShowNavBar}"
+        NavigationRouter="{Binding NavigationRouter}"
+        Header="{Binding NavigationRouter.CurrentPage}"
+        LeadingIcon="{Binding NavigationRouter.CurrentPage}"
+        Margin="5"
+        Padding="10"
+        Grid.Row="1"
+        Grid.ColumnSpan="2">
+      <labs:NavigationControl.HeaderTemplate>
+        <DataTemplate x:DataType="viewModels:ViewModelBase">
+          <DockPanel>
+            <Label Content="{Binding Title}"
+                   VerticalAlignment="Center"
+                   VerticalContentAlignment="Center"/>
+          </DockPanel>
+        </DataTemplate>
+      </labs:NavigationControl.HeaderTemplate>
+      <labs:NavigationControl.LeadingIconTemplate>
+        <DataTemplate x:DataType="viewModels:ViewModelBase">
+          <StackPanel Spacing="10" Orientation="Horizontal">
+            <Grid DockPanel.Dock="Top" IsVisible="{Binding !$parent[SplitView].IsPaneOpen}">
+              <ThemeVariantScope RequestedThemeVariant="Light">
+                <Image Margin="5" Source="/Assets/avalonia_logo_box_white.png" MaxWidth="32"  Stretch="Uniform"/>
+              </ThemeVariantScope>
+              <ThemeVariantScope RequestedThemeVariant="Dark">
+                <Image Margin="5" Source="/Assets/avalonia_logo_box.png" MaxWidth="32"  Stretch="Uniform"/>
+              </ThemeVariantScope>
+            </Grid>
+            <ToggleButton IsChecked="{Binding $parent[SplitView].IsPaneOpen}">
+              <PathIcon Data="{StaticResource MenuIcon}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                                />
+            </ToggleButton>
+          </StackPanel>
+        </DataTemplate>
+      </labs:NavigationControl.LeadingIconTemplate>
+      <labs:NavigationControl.DataTemplates>
+        <local:ViewLocator/>
+      </labs:NavigationControl.DataTemplates>
+    </labs:NavigationControl>
+  </SplitView>
+</views:MainView>

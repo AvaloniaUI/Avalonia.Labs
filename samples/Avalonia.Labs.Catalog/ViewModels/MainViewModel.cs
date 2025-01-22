@@ -1,4 +1,5 @@
-﻿using Avalonia.Labs.Catalog.Views;
+﻿using System;
+using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
 using Avalonia.Styling;
 using ReactiveUI;
@@ -9,12 +10,15 @@ namespace Avalonia.Labs.Catalog.ViewModels
     {
         bool darkTheme = false;
 
+        public Func<bool>? ShouldClosePaneOnNavigate { get; set; }
+
         static MainViewModel()
         {
             ViewLocator.Register(typeof(MainViewModel), () => new MainView());
         }
 
         private bool? _showNavBar = true;
+        private bool? _isPaneOpen = true;
         private bool? _showBackButton = true;
         private INavigationRouter _navigationRouter;
 
@@ -29,6 +33,12 @@ namespace Avalonia.Labs.Catalog.ViewModels
         {
             get => _showNavBar;
             set => this.RaiseAndSetIfChanged(ref _showNavBar, value);
+        }
+
+        public bool? IsPaneOpen
+        {
+            get => _isPaneOpen;
+            set => this.RaiseAndSetIfChanged(ref _isPaneOpen, value);
         }
 
         public bool? ShowBackButton
@@ -47,6 +57,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
             if (NavigationRouter != null)
             {
                 await NavigationRouter.NavigateToAsync(page);
+                if (ShouldClosePaneOnNavigate?.Invoke() == true)
+                    IsPaneOpen = false;
             }
         }
 

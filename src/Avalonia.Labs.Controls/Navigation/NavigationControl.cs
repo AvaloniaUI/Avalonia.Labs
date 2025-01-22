@@ -39,6 +39,12 @@ namespace Avalonia.Labs.Controls
             AvaloniaProperty.Register<NavigationControl, object?>(nameof(Header));
 
         /// <summary>
+        /// Defines the <see cref="LeadingIcon"/> property.
+        /// </summary>
+        public static readonly StyledProperty<object?> LeadingIconProperty =
+            AvaloniaProperty.Register<NavigationControl, object?>(nameof(LeadingIcon));
+
+        /// <summary>
         /// Defines the <see cref="IsBackButtonVisible"/> property.
         /// </summary>
         public static readonly StyledProperty<bool?> IsBackButtonVisibleProperty =
@@ -61,6 +67,12 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly StyledProperty<IDataTemplate?> HeaderTemplateProperty =
             AvaloniaProperty.Register<NavigationControl, IDataTemplate?>(nameof(HeaderTemplate));
+        /// <summary>
+        /// 
+        /// Defines the <see cref="LeadingIconTemplate"/> property.
+        /// </summary>
+        public static readonly StyledProperty<IDataTemplate?> LeadingIconTemplateProperty =
+            AvaloniaProperty.Register<NavigationControl, IDataTemplate?>(nameof(LeadingIconTemplate));
 
         /// <summary>
         /// Defines the <see cref="INavigationRouter"/> property.
@@ -122,6 +134,15 @@ namespace Avalonia.Labs.Controls
         }
 
         /// <summary>
+        /// Gets or sets the leading icon template
+        /// </summary>
+        public IDataTemplate? LeadingIconTemplate
+        {
+            get => GetValue(LeadingIconTemplateProperty);
+            set => SetValue(LeadingIconTemplateProperty, value);
+        }
+
+        /// <summary>
         /// Gets or sets the navigation router.
         /// </summary>
         public INavigationRouter? NavigationRouter
@@ -160,6 +181,15 @@ namespace Avalonia.Labs.Controls
         {
             get => GetValue(HeaderProperty);
             set => SetValue(HeaderProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the header content.
+        /// </summary>
+        public object? LeadingIcon
+        {
+            get => GetValue(LeadingIconProperty);
+            set => SetValue(LeadingIconProperty, value);
         }
 
         /// <summary>

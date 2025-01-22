@@ -32,6 +32,11 @@
                   </Style>
                 </Styles>
               </DockPanel.Styles>
+              <ContentPresenter Name="PART_LeadingIcon"
+                  DockPanel.Dock="Left"
+                  ContentTemplate="{TemplateBinding LeadingIconTemplate}"
+                  Content="{TemplateBinding LeadingIcon}"
+                />
               <Button x:Name="PART_BackButton" 
                       Background="Transparent" 
                       DockPanel.Dock="Left" 

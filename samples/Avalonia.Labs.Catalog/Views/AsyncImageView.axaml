@@ -9,7 +9,8 @@
              x:Class="Avalonia.Labs.Catalog.Views.AsyncImageView">
     <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Horizontal">
         <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
-                         Margin="5" Width="80"
+                         Margin="5" Width="80"          
+                         Source="https://avaloniaui.net/img/logos/avalonia_logo_box.png"
                          Height="80"
                          />
         <labs:AsyncImage PlaceholderSource="/Assets/avalonia-logo.ico"
