@@ -6,30 +6,9 @@ namespace Avalonia.Labs.Catalog.Views;
 
 public partial class MainView : UserControl
 {
-    public static readonly StyledProperty<bool> IsLargeWidthProperty = AvaloniaProperty.Register<MainView, bool>(nameof(IsLargeWidth), true, defaultBindingMode: Data.BindingMode.TwoWay, 
-        coerce: (x, y) =>
-        {
-            return y;
-        });
-
-    public bool IsLargeWidth
-    {
-        get => GetValue(IsLargeWidthProperty);
-        set => SetValue(IsLargeWidthProperty, value);
-    }
-
     public MainView()
     {
         InitializeComponent();
-        DataContextChanged += MainView_DataContextChanged;
-    }
-
-    private void MainView_DataContextChanged(object? sender, System.EventArgs e)
-    {
-        if (DataContext is MainViewModel viewModel)
-        {
-            viewModel.ShouldClosePaneOnNavigate = () => !IsLargeWidth;
-        }
     }
 
     protected override void OnLoaded(RoutedEventArgs e)

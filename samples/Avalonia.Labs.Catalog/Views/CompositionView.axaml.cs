@@ -25,7 +25,6 @@ public partial class CompositionView : UserControl
     protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromLogicalTree(e);
-
         var topLevel = (TopLevel)e.Root;
         topLevel.RendererDiagnostics.DebugOverlays ^= RendererDebugOverlays.Fps;
     }

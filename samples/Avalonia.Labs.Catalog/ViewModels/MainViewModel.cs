@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Controls;
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
 using Avalonia.Styling;
@@ -10,8 +11,6 @@ namespace Avalonia.Labs.Catalog.ViewModels
     {
         bool darkTheme = false;
 
-        public Func<bool>? ShouldClosePaneOnNavigate { get; set; }
-
         static MainViewModel()
         {
             ViewLocator.Register(typeof(MainViewModel), () => new MainView());
@@ -19,6 +18,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
         private bool? _showNavBar = true;
         private bool? _isPaneOpen = true;
+        private SplitViewDisplayMode _paneDisplayMode = SplitViewDisplayMode.CompactInline;
         private bool? _showBackButton = true;
         private INavigationRouter _navigationRouter;
 
@@ -33,6 +33,12 @@ namespace Avalonia.Labs.Catalog.ViewModels
         {
             get => _showNavBar;
             set => this.RaiseAndSetIfChanged(ref _showNavBar, value);
+        }
+
+        public SplitViewDisplayMode PaneDisplayMode
+        {
+            get => _paneDisplayMode;
+            set => this.RaiseAndSetIfChanged(ref _paneDisplayMode, value);
         }
 
         public bool? IsPaneOpen
@@ -57,7 +63,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
             if (NavigationRouter != null)
             {
                 await NavigationRouter.NavigateToAsync(page);
-                if (ShouldClosePaneOnNavigate?.Invoke() == true)
+                if (PaneDisplayMode == SplitViewDisplayMode.CompactOverlay)
                     IsPaneOpen = false;
             }
         }

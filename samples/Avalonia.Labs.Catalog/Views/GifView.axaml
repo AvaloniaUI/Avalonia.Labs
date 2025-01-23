@@ -97,6 +97,8 @@
 
       <gif:GifImage Source="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
                     Stretch="{Binding SelectedStretch}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
                     StretchDirection="Both" />
 
 

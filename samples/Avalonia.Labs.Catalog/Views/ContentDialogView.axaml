@@ -2,28 +2,59 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             Container.Name="ContentDialog"
+             Container.Sizing="Width"
              xmlns:vm="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
              x:Class="Avalonia.Labs.Catalog.Views.ContentDialogView"
              x:DataType="vm:ContentDialogViewModel">
+  <UserControl.Styles>
+    <Style Selector="DockPanel > StackPanel:nth-child(1)">
+      <Setter Property="DockPanel.Dock"
+              x:SetterTargetType="StackPanel"
+              Value="Right"/>
+    </Style>
+    <ContainerQuery Query="max-width:600"
+                    Name="ContentDialog">
+      <Style Selector="DockPanel > StackPanel:nth-child(1)">
+        <Setter Property="DockPanel.Dock"
+                x:SetterTargetType="StackPanel"
+                Value="Top"/>
+      </Style>
+      <Style Selector="DockPanel > StackPanel > Button">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      </Style>
+    </ContainerQuery>
+  </UserControl.Styles>
   <DockPanel>
-    <StackPanel Orientation="Vertical" 
-                Spacing="4" 
-                MaxWidth="250"
-                DockPanel.Dock="Right">
-      <Expander Header="Enabled Buttons" IsExpanded="True">
+    <StackPanel
+      Margin="10"
+      Spacing="4"
+      MaxWidth="250">
+      <Expander Header="Enabled Buttons"
+                IsExpanded="True"
+                HorizontalAlignment="Stretch">
         <StackPanel Orientation="Vertical">
-          <CheckBox Content="IsPrimaryButtonEnabled" IsChecked="{Binding IsPrimaryButtonEnabled}"/>
-          <CheckBox Content="IsSecondaryButtonEnabled" IsChecked="{Binding IsSecondaryButtonEnabled}"/>
+          <CheckBox Content="IsPrimaryButtonEnabled"
+                    IsChecked="{Binding IsPrimaryButtonEnabled}"/>
+          <CheckBox Content="IsSecondaryButtonEnabled"
+                    IsChecked="{Binding IsSecondaryButtonEnabled}"/>
         </StackPanel>
       </Expander>
-      <Expander Header="Default Button">
-        <ComboBox Name="DefButtonSelector" MinWidth="90"
+      <Expander Header="Default Button"
+                HorizontalAlignment="Stretch">
+        <ComboBox Name="DefButtonSelector"
+                  MinWidth="90"
                   ItemsSource="{Binding ContentDialogButtons}"
                   SelectedItem="{Binding ContentDialogDefaultButton}" />
       </Expander>
-      <Expander Header="Content">
-        <StackPanel Orientation="Vertical" Spacing="4">
+      <Expander Header="Content"
+                HorizontalAlignment="Stretch">
+        <StackPanel Orientation="Vertical"
+                    Spacing="4">
           <TextBlock Text="Title"/>
           <TextBox Text="{Binding Title}" />
           <TextBlock Text="Content"/>
@@ -37,23 +68,24 @@
         </StackPanel>
       </Expander>
 
-      <StackPanel Orientation="Vertical" Margin="20 0">
-        <CheckBox Content="FullSizeDesired" IsChecked="{Binding FullSizeDesired}"
+      <StackPanel Orientation="Vertical">
+        <CheckBox Content="FullSizeDesired"
+                  IsChecked="{Binding FullSizeDesired}"
                   ToolTip.ShowDelay="100"
                   ToolTip.Tip="Full size stretches the dialog to &quot;full screen&quot;. &#x0a; Though, it just stretches it to the height size of a Content Dialog. &#x0a;"/>
       </StackPanel>
     </StackPanel>
 
-    <StackPanel Spacing="8">
+    <StackPanel Spacing="8" Margin="10">
       <Button Content="Launch ContentDialog"
-                 Command="{Binding LaunchDialog}"
-                 CommandParameter="{x:Static vm:DialogMode.Default}" />
+              Command="{Binding LaunchDialog}"
+              CommandParameter="{x:Static vm:DialogMode.Default}" />
       <Button Content="Launch ContentDialog with Primary Button deferral"
-                 Command="{Binding LaunchDialog}"
-                 CommandParameter="{x:Static vm:DialogMode.Deferal}" />
+              Command="{Binding LaunchDialog}"
+              CommandParameter="{x:Static vm:DialogMode.Deferal}" />
       <Button Content="Show Input"
-                 Command="{Binding LaunchDialog}"
-                 CommandParameter="{x:Static vm:DialogMode.Input}"/>
+              Command="{Binding LaunchDialog}"
+              CommandParameter="{x:Static vm:DialogMode.Input}"/>
     </StackPanel>
   </DockPanel>
 </UserControl>
