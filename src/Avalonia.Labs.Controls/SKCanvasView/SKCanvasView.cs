@@ -171,7 +171,7 @@ public partial class SKCanvasView : Decorator
         base.Render(context);
         if (GetValue(BackgroundProperty) is IBrush background)
         {
-            context.FillRectangle(background, Bounds);
+            context.FillRectangle(background, new Rect(Bounds.Size));
         }
     }
 
