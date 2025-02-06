@@ -281,7 +281,7 @@ namespace Avalonia.Labs.Controls
                     {
                         ArrangeRow(GetWidth(finalSize), rowChilds, childSizes, y);
                         x = 0;
-                        y += childSizes.Max(x1 => GetHeight(x1));
+                        y += rowHeight;
                         rowHeight = 0;
                         rowChilds.Clear();
                         childSizes.Clear();
@@ -308,14 +308,9 @@ namespace Avalonia.Labs.Controls
                 {
                     var startPoint = FindItemOffset(_focusedIndex);
 
-                    _startItemOffsetX = GetX(startPoint);
-                    _startItemOffsetY = GetY(startPoint);
+                    var rect = CreateRect(startPoint.X, startPoint.Y, 
+                        GetWidth(_focusedElement.Bounds.Size), GetHeight(_focusedElement.Bounds.Size));
 
-                    var rect = Orientation == Orientation.Horizontal
-                        ? new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width,
-                            finalSize.Height)
-                        : new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
-                            _focusedElement.DesiredSize.Height);
                     _focusedElement.Arrange(rect);
                 }
 
@@ -842,7 +837,7 @@ namespace Avalonia.Labs.Controls
 
                 container.Measure(upfrontKnownItemSize ?? Size.Infinity);
 
-                var containerSize = DetermineContainerSize(item, container, upfrontKnownItemSize);
+                var containerSize = upfrontKnownItemSize ?? DetermineContainerSize(item, container, upfrontKnownItemSize);
 
                 _measureElements!.Add(itemIndex, container, containerSize);
 
@@ -1041,7 +1036,7 @@ namespace Avalonia.Labs.Controls
 
             double x = -GetX(_viewport.TopLeft) + outerSpacing;
 
-            double rowHeight = childSizes.Max(childSize => GetHeight(childSize));
+            double rowHeight = childSizes.Max(GetHeight);
 
             for (int i = 0; i < children.Count; i++)
             {
