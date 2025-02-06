@@ -77,8 +77,17 @@ namespace Avalonia.Labs.Controls
                 return;
             }
 
-            var uri = Source as Uri;
+            Uri? uri = null;
 
+            if (source is Uri sourceUri)
+            {
+                uri = sourceUri;
+            } 
+            else if (Source is string sourceString)
+            {
+                uri = new Uri(sourceString);
+            }
+            
             if (uri != null && uri.IsAbsoluteUri)
             {
                 if (uri.Scheme == "http" || uri.Scheme == "https")
