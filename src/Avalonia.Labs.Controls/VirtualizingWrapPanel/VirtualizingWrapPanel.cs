@@ -569,21 +569,46 @@ namespace Avalonia.Labs.Controls
         /// <returns>the desired size</returns>
         private Size CalculateDesiredSize(Orientation orientation, int itemCount)
         {
-            // TODO: Handle different sized items somehow
             if (itemCount == 0) return EmptySize;
 
-            var itemSize = GetAverageItemSize();
+            var avarageItemSize = GetAverageItemSize();
 
             var viewportWidth = GetWidth(_viewport.Size);
 
-            var itemWidth = GetWidth(itemSize);
-            var itemHeight = GetHeight(itemSize);
+            var itemWidth = GetWidth(avarageItemSize);
+            var itemHeight = GetHeight(avarageItemSize);
 
             if (itemWidth == 0 || itemHeight == 0) return EmptySize;
 
             var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
 
-            var sizeU = Math.Ceiling(Items.Count / itemsPerRow) * itemHeight;
+            double sizeU = 0d; 
+            if (AllowDifferentSizedItems)
+            {
+                double x = 0;
+                double rowHeight = 0;
+                
+                foreach (var item in Items)
+                {
+                    Size itemSize = GetAssumedItemSize(item);
+
+                    if (x + GetWidth(itemSize) > GetWidth(_viewport.Size) && x != 0)
+                    {
+                        x = 0;
+                        sizeU += rowHeight;
+                        rowHeight = 0;
+                    }
+
+                    x += GetWidth(itemSize);
+                    rowHeight = Math.Max(rowHeight, GetHeight(itemSize));
+                }
+                
+                sizeU += rowHeight;
+            }
+            else
+            {
+                sizeU = Math.Ceiling(Items.Count / itemsPerRow) * itemHeight;
+            }
 
             return orientation == Orientation.Horizontal
                 ? new Size(viewportWidth, sizeU)
@@ -598,7 +623,6 @@ namespace Avalonia.Labs.Controls
         /// <returns>the estimated desired size</returns>
         private Size EstimateDesiredSize(Orientation orientation, int itemCount)
         {
-            // TODO: Handle different sized items somehow
             if (_scrollToIndex >= 0 && _scrollToElement is not null)
             {
                 // We have an element to scroll to, so we can estimate the desired size based on the
@@ -1459,7 +1483,6 @@ namespace Avalonia.Labs.Controls
 
             container.SetValue(RecycleKeyProperty, recycleKey);
             generator.PrepareItemContainer(container, item, index);
-            // TODO: Handle this here or in ItemsContainerManaager?
             AddInternalChild(container);
             generator.ItemContainerPrepared(container, item, index);
 
