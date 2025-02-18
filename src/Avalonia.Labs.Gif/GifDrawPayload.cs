@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Avalonia.Animation;
 using Avalonia.Media;
 
@@ -6,6 +7,7 @@ namespace Avalonia.Labs.Gif;
 
 internal record struct GifDrawPayload(
     HandlerCommand HandlerCommand,
+    Stream? SourceStream = default,
     Uri? Source = default,
     Size? GifSize = default,
     Size? Size = default,
