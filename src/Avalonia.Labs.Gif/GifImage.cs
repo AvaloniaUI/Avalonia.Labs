@@ -25,7 +25,13 @@ public class GifImage : Control
     /// </summary>
     public static readonly StyledProperty<Uri> SourceProperty =
         AvaloniaProperty.Register<GifImage, Uri>(nameof(Source));
- 
+
+    /// <summary>
+    /// Defines the <see cref="SourceStream"/> property.
+    /// </summary>
+    public static readonly StyledProperty<Stream> SourceStreamProperty =
+        AvaloniaProperty.Register<GifImage, Stream>(nameof(SourceStream));
+
     /// <summary>
     /// Defines the <see cref="IterationCount"/> property.
     /// </summary>
@@ -51,6 +57,15 @@ public class GifImage : Control
     {
         get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="Stream"/> containing the GIF image raw data. If set, <see cref="Source"/> will be ignored.
+    /// </summary>
+    public Stream SourceStream
+    {
+        get => GetValue(SourceStreamProperty);
+        set => SetValue(SourceStreamProperty, value);
     }
 
     /// <summary>
@@ -83,12 +98,14 @@ public class GifImage : Control
     static GifImage()
     {
         AffectsRender<GifImage>(SourceProperty,
+            SourceStreamProperty,
             StretchProperty,
             StretchDirectionProperty,
             WidthProperty,
             HeightProperty);
 
         AffectsMeasure<GifImage>(SourceProperty,
+            SourceStreamProperty,
             StretchProperty,
             StretchDirectionProperty,
             WidthProperty,
@@ -132,12 +149,13 @@ public class GifImage : Control
         base.OnPropertyChanged(change);
         var avProp = change.Property;
 
-        if (avProp == SourceProperty)
+        if (avProp == SourceProperty || avProp == SourceStreamProperty)
         {
             InitializeGif();
         }
 
         if ((avProp == SourceProperty ||
+             avProp == SourceStreamProperty ||
              avProp == StretchProperty ||
              avProp == StretchDirectionProperty ||
              avProp == IterationCountProperty) && _customVisual is not null)
@@ -145,6 +163,7 @@ public class GifImage : Control
             _customVisual.SendHandlerMessage(
                 new GifDrawPayload(
                     HandlerCommand.Update,
+                    null,
                     null,
                     GetGifSize(),
                     Bounds.Size,
@@ -175,20 +194,46 @@ public class GifImage : Control
 
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
 
-        using var stream = AssetLoader.Open(Source);
+        Stream stream;
+        if (SourceStream is not null)
+        {
+            stream = SourceStream;
+        }
+        else
+        { 
+            stream = AssetLoader.Open(Source); 
+        }
+
         using var tempGifDecoder = new GifDecoder(stream, CancellationToken.None);
         _gifHeight = tempGifDecoder.Size.Height;
         _gifWidth = tempGifDecoder.Size.Width;
 
-        _customVisual?.SendHandlerMessage(
-            new GifDrawPayload(
-                HandlerCommand.Start,
-                Source,
-                GetGifSize(),
-                Bounds.Size,
-                Stretch,
-                StretchDirection,
-                IterationCount));
+        if (SourceStream is not null)
+        {
+            _customVisual?.SendHandlerMessage(
+                new GifDrawPayload(
+                    HandlerCommand.Start,
+                    SourceStream,
+                    null,
+                    GetGifSize(),
+                    Bounds.Size,
+                    Stretch,
+                    StretchDirection,
+                    IterationCount));
+        }
+        else
+        {
+            _customVisual?.SendHandlerMessage(
+                new GifDrawPayload(
+                    HandlerCommand.Start,
+                    null,
+                    Source,
+                    GetGifSize(),
+                    Bounds.Size,
+                    Stretch,
+                    StretchDirection,
+                    IterationCount));
+        }
 
         InvalidateVisual();
     }
@@ -216,6 +261,7 @@ public class GifImage : Control
         _customVisual.SendHandlerMessage(
             new GifDrawPayload(
                 HandlerCommand.Update,
+                null,
                 null,
                 GetGifSize(),
                 Bounds.Size,
