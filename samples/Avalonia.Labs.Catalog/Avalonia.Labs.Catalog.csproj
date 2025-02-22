@@ -38,4 +38,11 @@
     </AvaloniaResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\NotificationsView.axaml.cs">
+      <DependentUpon>NotificationView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>
