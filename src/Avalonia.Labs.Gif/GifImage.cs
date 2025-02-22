@@ -23,14 +23,8 @@ public class GifImage : Control
     /// <summary>
     /// Defines the <see cref="Source"/> property.
     /// </summary>
-    public static readonly StyledProperty<Uri> SourceProperty =
-        AvaloniaProperty.Register<GifImage, Uri>(nameof(Source));
-
-    /// <summary>
-    /// Defines the <see cref="SourceStream"/> property.
-    /// </summary>
-    public static readonly StyledProperty<Stream> SourceStreamProperty =
-        AvaloniaProperty.Register<GifImage, Stream>(nameof(SourceStream));
+    public static readonly StyledProperty<object> SourceProperty =
+        AvaloniaProperty.Register<GifImage, object>(nameof(Source));
 
     /// <summary>
     /// Defines the <see cref="IterationCount"/> property.
@@ -51,21 +45,14 @@ public class GifImage : Control
         AvaloniaProperty.Register<GifImage, Stretch>(nameof(Stretch));
 
     /// <summary>
-    /// Gets or sets the uri pointing to the GIF image resource
+    /// Gets or sets the <see cref="Uri"/> or absolute uri <see cref="string"/> 
+    /// pointing to the GIF image resource or
+    /// <see cref="Stream"/> containing the GIF image.
     /// </summary>
-    public Uri Source
+    public object Source
     {
         get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the <see cref="Stream"/> containing the GIF image raw data. If set, <see cref="Source"/> will be ignored.
-    /// </summary>
-    public Stream SourceStream
-    {
-        get => GetValue(SourceStreamProperty);
-        set => SetValue(SourceStreamProperty, value);
     }
 
     /// <summary>
@@ -98,14 +85,12 @@ public class GifImage : Control
     static GifImage()
     {
         AffectsRender<GifImage>(SourceProperty,
-            SourceStreamProperty,
             StretchProperty,
             StretchDirectionProperty,
             WidthProperty,
             HeightProperty);
 
         AffectsMeasure<GifImage>(SourceProperty,
-            SourceStreamProperty,
             StretchProperty,
             StretchDirectionProperty,
             WidthProperty,
@@ -149,13 +134,12 @@ public class GifImage : Control
         base.OnPropertyChanged(change);
         var avProp = change.Property;
 
-        if (avProp == SourceProperty || avProp == SourceStreamProperty)
+        if (avProp == SourceProperty)
         {
             InitializeGif();
         }
 
         if ((avProp == SourceProperty ||
-             avProp == SourceStreamProperty ||
              avProp == StretchProperty ||
              avProp == StretchDirectionProperty ||
              avProp == IterationCountProperty) && _customVisual is not null)
@@ -163,7 +147,6 @@ public class GifImage : Control
             _customVisual.SendHandlerMessage(
                 new GifDrawPayload(
                     HandlerCommand.Update,
-                    null,
                     null,
                     GetGifSize(),
                     Bounds.Size,
@@ -195,46 +178,46 @@ public class GifImage : Control
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
 
         Stream stream;
-        if (SourceStream is not null)
+        if (Source is Stream s)
         {
-            stream = SourceStream;
+            stream = s;
+        }
+        else if (Source is Uri uri)
+        {
+            stream = AssetLoader.Open(uri);
+        }
+        else if (Source is string str)
+        {
+            if (Uri.TryCreate(str, UriKind.Absolute, out var uri2))
+            {
+                stream = AssetLoader.Open(uri2);
+            }
+            else
+            {
+                throw new ArgumentException(
+                    "Unsupported Source object: only Stream, Uri and absolute uri string are supported.");
+            }
         }
         else
         { 
-            stream = AssetLoader.Open(Source); 
+            throw new ArgumentException(
+                "Unsupported Source object: only Stream, Uri and absolute uri string are supported.");
         }
 
         using var tempGifDecoder = new GifDecoder(stream, CancellationToken.None);
         _gifHeight = tempGifDecoder.Size.Height;
         _gifWidth = tempGifDecoder.Size.Width;
 
-        if (SourceStream is not null)
-        {
-            _customVisual?.SendHandlerMessage(
-                new GifDrawPayload(
-                    HandlerCommand.Start,
-                    SourceStream,
-                    null,
-                    GetGifSize(),
-                    Bounds.Size,
-                    Stretch,
-                    StretchDirection,
-                    IterationCount));
-        }
-        else
-        {
-            _customVisual?.SendHandlerMessage(
-                new GifDrawPayload(
-                    HandlerCommand.Start,
-                    null,
-                    Source,
-                    GetGifSize(),
-                    Bounds.Size,
-                    Stretch,
-                    StretchDirection,
-                    IterationCount));
-        }
-
+        _customVisual?.SendHandlerMessage(
+            new GifDrawPayload(
+                HandlerCommand.Start,
+                stream,
+                GetGifSize(),
+                Bounds.Size,
+                Stretch,
+                StretchDirection,
+                IterationCount));
+        
         InvalidateVisual();
     }
 
@@ -261,7 +244,6 @@ public class GifImage : Control
         _customVisual.SendHandlerMessage(
             new GifDrawPayload(
                 HandlerCommand.Update,
-                null,
                 null,
                 GetGifSize(),
                 Bounds.Size,

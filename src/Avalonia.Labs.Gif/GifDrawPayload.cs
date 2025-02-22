@@ -7,8 +7,7 @@ namespace Avalonia.Labs.Gif;
 
 internal record struct GifDrawPayload(
     HandlerCommand HandlerCommand,
-    Stream? SourceStream = default,
-    Uri? Source = default,
+    Stream? Source = default,
     Size? GifSize = default,
     Size? Size = default,
     Stretch? Stretch = default,
