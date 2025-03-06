@@ -5,12 +5,21 @@
              x:Class="Avalonia.Labs.Catalog.App"
              Name="Avalonia.Labs Catalog"
              RequestedThemeVariant="{x:Static ThemeVariant.Light}">
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+  <Application.DataTemplates>
+    <local:ViewLocator />
+  </Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme/>
-        <labs:ControlThemes/>
-    </Application.Styles>
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+         <ResourceInclude Source="/Views/SamplePageBase/ControlSampleBaseTheme.axaml"></ResourceInclude>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+   
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <labs:ControlThemes />
+  </Application.Styles>
 </Application>
