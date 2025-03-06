@@ -29,10 +29,6 @@ internal class GifInstance : IDisposable
     })
     {
     }
-    
-    public GifInstance(Uri uri) : this(AssetLoader.Open(uri))
-    {
-    }
 
     private GifInstance(Stream currentStream)
     {

@@ -28,25 +28,7 @@ internal class GifCompositionCustomVisualHandler : CompositionCustomVisualHandle
         {
             case
             {
-                HandlerCommand: HandlerCommand.Start, Source: { } uri, IterationCount: { } iteration,
-                Stretch: { } st, StretchDirection: { } sd
-            }:
-            {
-                _gifInstance = new GifInstance(uri);
-
-                _gifInstance.IterationCount = iteration;
-
-                _lastServerTime = CompositionNow;
-                _GifSize = _gifInstance.GifPixelSize.ToSize(1);
-                _running = true;
-                _stretch = st;
-                _stretchDirection = sd;
-                RegisterForNextAnimationFrameUpdate();
-                break;
-                }
-            case
-            {
-                HandlerCommand: HandlerCommand.Start, SourceStream: { } stream, IterationCount: { } iteration,
+                HandlerCommand: HandlerCommand.Start, Source: { } stream, IterationCount: { } iteration,
                 Stretch: { } st, StretchDirection: { } sd
             }:
             {
