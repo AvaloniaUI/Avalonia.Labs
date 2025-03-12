@@ -467,6 +467,9 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
             _lastFocus.Focus(NavigationMethod.Unspecified);
             _lastFocus = null;
         }
+        
+        if(_host is null)
+            return;
 
         var ol = OverlayLayer.GetOverlayLayer(_host!);
         // If OverlayLayer isn't found here, this may be a reentrant call (hit ESC multiple times quickly, etc)
