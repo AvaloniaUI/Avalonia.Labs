@@ -13,6 +13,20 @@ namespace Avalonia.Labs.Controls
             base.OnAttachedToLogicalTree(e);
 
             _flipView = e.Parent as FlipView;
+
+            if (_flipView != null)
+            {
+                _flipView.SizeChanged += FlipView_SizeChanged;
+            }
+        }
+
+        private void FlipView_SizeChanged(object? sender, EventArgs e)
+        {
+            if (_flipView is { } parent)
+            {
+                Height = parent.GetDesiredItemHeight();
+                Width = parent.GetDesiredItemWidth();
+            }
         }
 
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -40,17 +54,12 @@ namespace Avalonia.Labs.Controls
         {
             base.OnDetachedFromLogicalTree(e);
 
-            _flipView = null;
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            if(_flipView is { } parent)
+            if (_flipView != null)
             {
-                Height = parent.GetDesiredItemHeight();
-                Width = parent.GetDesiredItemWidth();
+                _flipView.SizeChanged -= FlipView_SizeChanged;
             }
-            return base.MeasureOverride(availableSize);
+
+            _flipView = null;
         }
     }
 }

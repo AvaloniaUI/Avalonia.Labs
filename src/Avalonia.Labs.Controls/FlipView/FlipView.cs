@@ -6,7 +6,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Labs.Controls.Base;
 using Avalonia.Layout;
 
 namespace Avalonia.Labs.Controls
@@ -129,6 +128,7 @@ namespace Avalonia.Labs.Controls
             if (ScrollViewerPart != null)
             {
                 ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+                ScrollViewerPart.RemoveHandler(FlipViewScrollGestureRecognizer.FlipViewSwipeEvent, FlipViewSwipeEventHandler);
                 ScrollViewerPart.SizeChanged -= ScrollViewerPart_SizeChanged;
             }
 
@@ -137,12 +137,21 @@ namespace Avalonia.Labs.Controls
             if (ScrollViewerPart != null)
             {
                 ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.AddHandler(FlipViewScrollGestureRecognizer.FlipViewSwipeEvent, FlipViewSwipeEventHandler);
                 ScrollViewerPart.SizeChanged += ScrollViewerPart_SizeChanged;
             }
 
             _isApplied = true;
 
             SetButtonsVisibility();
+        }
+
+        private void FlipViewSwipeEventHandler(object? sender, FlipViewSwipeEventArgs e)
+        {
+            if(e.SwipeDirection > 0)
+                MoveNext();
+            else if(e.SwipeDirection < 0)
+                MovePrevious();
         }
 
         private void ScrollViewerPart_SizeChanged(object? sender, SizeChangedEventArgs e)
@@ -243,7 +252,7 @@ namespace Avalonia.Labs.Controls
         {
             if (ItemCount > 0)
             {
-                SetScrollViewerOffset(Math.Min(ItemCount - 1, SelectedIndex + 1));
+                SelectedIndex = Math.Min(ItemCount - 1, SelectedIndex + 1);
             }
         }
 
@@ -251,7 +260,7 @@ namespace Avalonia.Labs.Controls
         {
             if (ItemCount > 0)
             {
-                SetScrollViewerOffset(Math.Max(0, SelectedIndex - 1));
+                SelectedIndex = Math.Max(0, SelectedIndex - 1);
             }
         }
 
@@ -259,7 +268,7 @@ namespace Avalonia.Labs.Controls
         {
             if (ItemCount > 0)
             {
-                SetScrollViewerOffset(0);
+                SelectedIndex = 0;
             }
         }
 
@@ -267,7 +276,7 @@ namespace Avalonia.Labs.Controls
         {
             if (ItemCount > 0)
             {
-                SetScrollViewerOffset(Math.Max(0, ItemCount - 1));
+                SelectedIndex = Math.Max(0, ItemCount - 1);
             }
         }
 
@@ -395,49 +404,10 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        protected Vector IndexToOffset(int index)
-        {
-            var container = ContainerFromIndex(index);
-            var panel = ItemsPanelRoot;
-            var scrollViewer = ScrollViewerPart;
-            if (container == null || panel == null || scrollViewer == null)
-                return default;
-
-            var bounds = container.Bounds;
-            var offset = scrollViewer.Offset;
-
-            if (bounds.Bottom > offset.Y + scrollViewer.Viewport.Height)
-            {
-                offset = offset.WithY((bounds.Bottom - scrollViewer.Viewport.Height) + panel.Margin.Top);
-            }
-
-            if (bounds.Y < offset.Y)
-            {
-                offset = offset.WithY(bounds.Y);
-            }
-
-            if (bounds.Right > offset.X + scrollViewer.Viewport.Width)
-            {
-                offset = offset.WithX((bounds.Right - scrollViewer.Viewport.Width) + panel.Margin.Left);
-            }
-
-            if (bounds.X < offset.X)
-            {
-                offset = offset.WithX(bounds.X);
-            }
-
-            return offset;
-        }
-
         private void SetScrollViewerOffset(int index)
         {
-            var offset = IndexToOffset(index);
-            SetCurrentValue(SelectedIndexProperty, index);
-
-            if (ScrollViewerPart is { } scrollViewer)
-            {
-                scrollViewer.SetCurrentValue(FlipViewScrollViewer.OffsetProperty, offset);
-            }
+            var container = ContainerFromIndex(index);
+            container?.BringIntoView();
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
