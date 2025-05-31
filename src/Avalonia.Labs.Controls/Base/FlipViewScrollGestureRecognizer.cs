@@ -1,29 +1,29 @@
 ﻿using System;
-using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Interactivity;
-using Avalonia.Labs.Controls.Base;
-using Avalonia.Threading;
+using Avalonia.Layout;
 
 namespace Avalonia.Labs.Controls;
 
+internal class FlipViewSwipeEventArgs : RoutedEventArgs
+{
+    public FlipViewSwipeEventArgs(double swipeDirection) : base(FlipViewScrollGestureRecognizer.FlipViewSwipeEvent)
+    {
+        SwipeDirection = swipeDirection;
+    }
+
+    public double SwipeDirection { get; }
+}
+
 public class FlipViewScrollGestureRecognizer : GestureRecognizer
 {
-    public static readonly RoutedEvent<PointerPressedEventArgs> ScrollGesturePointerPressedEvent =
-        RoutedEvent.Register<PointerPressedEventArgs>(
-            "ScrollGesturePointerPressed", RoutingStrategies.Bubble, typeof(FlipViewScrollGestureRecognizer));
-    public static readonly RoutedEvent<PointerReleasedEventArgs> ScrollGesturePointerReleasedEvent =
-        RoutedEvent.Register<PointerReleasedEventArgs>(
-            "ScrollGesturePointerReleased", RoutingStrategies.Bubble, typeof(FlipViewScrollGestureRecognizer));
-    public static readonly RoutedEvent<PointerEventArgs> ScrollGesturePointerLostEvent =
-        RoutedEvent.Register<PointerEventArgs>(
-            "ScrollGesturePointerLost", RoutingStrategies.Bubble, typeof(FlipViewScrollGestureRecognizer));
-
-    /*public static readonly RoutedEvent<ScrollFlickedEventArgs> ScrollFlickedEvent =
-        RoutedEvent.Register<ScrollFlickedEventArgs>(
-            "ScrollFlicked", RoutingStrategies.Bubble, typeof(IInputElement));*/
+    internal static readonly RoutedEvent<FlipViewSwipeEventArgs> FlipViewSwipeEvent =
+        RoutedEvent.Register<FlipViewSwipeEventArgs>(
+            "FlipViewSwipe", RoutingStrategies.Bubble, typeof(FlipViewScrollGestureRecognizer));
 
     // Pixels per second speed that is considered to be the stop of inertial scroll
     internal const double InertialScrollSpeedEnd = 5;
@@ -31,14 +31,20 @@ public class FlipViewScrollGestureRecognizer : GestureRecognizer
 
     private bool _canHorizontallyScroll;
     private bool _canVerticallyScroll;
-    private int _scrollStartDistance = 5;
+    private const int s_defaultScrollStartDistance = 5;
+    private int _scrollStartDistance = s_defaultScrollStartDistance;
 
     private bool _scrolling;
     private Point _trackedRootPoint;
     private IPointer? _tracking;
     private int _gestureId;
     private Point _pointerPressedPoint;
-    private Visual? _rootTarget;
+    private VelocityTracker? _velocityTracker;
+
+    // Movement per second
+    private Vector _inertia;
+    private ulong? _lastMoveTimestamp;
+    private ScrollContentPresenter? _currentTrackingScrollViewer;
 
     /// <summary>
     /// Defines the <see cref="CanHorizontallyScroll"/> property.
@@ -60,7 +66,7 @@ public class FlipViewScrollGestureRecognizer : GestureRecognizer
     public static readonly DirectProperty<FlipViewScrollGestureRecognizer, int> ScrollStartDistanceProperty =
         AvaloniaProperty.RegisterDirect<FlipViewScrollGestureRecognizer, int>(nameof(ScrollStartDistance),
             o => o.ScrollStartDistance, (o, v) => o.ScrollStartDistance = v,
-            unsetValue: 5);
+            unsetValue: s_defaultScrollStartDistance);
 
     /// <summary>
     /// Gets or sets a value indicating whether the content can be scrolled horizontally.
@@ -91,24 +97,36 @@ public class FlipViewScrollGestureRecognizer : GestureRecognizer
 
     protected override void PointerPressed(PointerPressedEventArgs e)
     {
-        e.RoutedEvent = ScrollGesturePointerPressedEvent;
-        Target?.RaiseEvent(e);
+        var point = e.GetCurrentPoint(null);
 
-        if (e.Pointer.Type == PointerType.Touch || e.Pointer.Type == PointerType.Pen)
+        if (e.Pointer.Type is PointerType.Touch or PointerType.Pen
+            && point.Properties.IsLeftButtonPressed)
         {
             EndGesture();
             _tracking = e.Pointer;
             _gestureId = ScrollGestureEventArgs.GetNextFreeId();
-            _rootTarget = TopLevel.GetTopLevel(Target as Visual);
-            _trackedRootPoint = _pointerPressedPoint = e.GetPosition(_rootTarget);
+            _trackedRootPoint = _pointerPressedPoint = point.Position;
+            _velocityTracker = new VelocityTracker();
+            _velocityTracker?.AddPosition(TimeSpan.FromMilliseconds(e.Timestamp), default);
         }
+        AttachScrollViewer();
+    }
+
+    private void AttachScrollViewer()
+    {
+        _currentTrackingScrollViewer = Target as ScrollContentPresenter;
+    }
+
+    private void DetachScrollViewer()
+    {
+        _currentTrackingScrollViewer = null;
     }
 
     protected override void PointerMoved(PointerEventArgs e)
     {
         if (e.Pointer == _tracking)
         {
-            var rootPoint = e.GetPosition(_rootTarget);
+            var rootPoint = e.GetPosition(null);
             if (!_scrolling)
             {
                 if (CanHorizontallyScroll && Math.Abs(_trackedRootPoint.X - rootPoint.X) > ScrollStartDistance)
@@ -129,6 +147,10 @@ public class FlipViewScrollGestureRecognizer : GestureRecognizer
             if (_scrolling)
             {
                 var vector = _trackedRootPoint - rootPoint;
+
+                _velocityTracker?.AddPosition(TimeSpan.FromMilliseconds(e.Timestamp), _pointerPressedPoint - rootPoint);
+
+                _lastMoveTimestamp = e.Timestamp;
                 Target!.RaiseEvent(new ScrollGestureEventArgs(_gestureId, vector));
                 _trackedRootPoint = rootPoint;
                 e.Handled = true;
@@ -138,37 +160,51 @@ public class FlipViewScrollGestureRecognizer : GestureRecognizer
 
     protected override void PointerCaptureLost(IPointer pointer)
     {
-        Target?.RaiseEvent(new RoutedEventArgs(ScrollGesturePointerLostEvent));
-
         if (pointer == _tracking)
             EndGesture();
     }
 
-    void EndGesture(bool setHandled = false)
+    void EndGesture()
     {
         _tracking = null;
         if (_scrolling)
         {
+            _inertia = default;
             _scrolling = false;
-            Target!.RaiseEvent(new ScrollGestureEndedEventArgs(_gestureId)
-            {
-                Handled = setHandled
-            });
+            Target!.RaiseEvent(new ScrollGestureEndedEventArgs(_gestureId));
             _gestureId = 0;
-            _rootTarget = null;
+            _lastMoveTimestamp = null;
         }
+        DetachScrollViewer();
 
     }
 
     protected override void PointerReleased(PointerReleasedEventArgs e)
     {
-        e.RoutedEvent = ScrollGesturePointerReleasedEvent;
-        Target?.RaiseEvent(e);
-
         if (e.Pointer == _tracking && _scrolling)
         {
-            e.Handled = true;
-            EndGesture(true);
+            EndGesture();
+            _inertia = _velocityTracker?.GetFlingVelocity().PixelsPerSecond ?? Vector.Zero;
+            double inertiaDirection = 0;
+            Orientation orientation = Orientation.Horizontal;
+
+            if (_currentTrackingScrollViewer?.HorizontalSnapPointsType != SnapPointsType.None ||
+               _currentTrackingScrollViewer?.VerticalSnapPointsType != SnapPointsType.None)
+            {
+                var presenter = _currentTrackingScrollViewer?.Content as ItemsPresenter;
+                if (presenter?.Panel is StackPanel stackPanel)
+                {
+                    orientation = stackPanel.Orientation;
+                }
+                else if (presenter?.Panel is VirtualizingStackPanel virtualizingStackPanel)
+                {
+                    orientation = virtualizingStackPanel.Orientation;
+                }
+            }
+            inertiaDirection = orientation == Orientation.Horizontal ? _inertia.X : _inertia.Y;
+
+            if (Math.Abs(inertiaDirection) > 1000)
+                Target!.RaiseEvent(new FlipViewSwipeEventArgs(inertiaDirection));
         }
     }
 }
