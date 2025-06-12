@@ -47,8 +47,8 @@ public class GifImage : Control
     /// <summary>
     /// Gets or sets the <see cref="Uri"/> or absolute uri <see cref="string"/> 
     /// pointing to the GIF image resource or
-    /// <see cref="Stream"/> containing the GIF image.
-    /// </summary>
+    /// <see cref="Stream"/> containing the GIF image.<br/>
+    /// For Streams, ensure that they are seekable, and contain valid GIF data starting at position 0. 
     public object Source
     {
         get => GetValue(SourceProperty);
@@ -181,6 +181,10 @@ public class GifImage : Control
         if (Source is Stream s)
         {
             stream = s;
+            if (stream.Position != 0 && stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
         }
         else if (Source is Uri uri)
         {
