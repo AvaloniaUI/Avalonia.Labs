@@ -49,6 +49,7 @@ public class GifImage : Control
     /// pointing to the GIF image resource or
     /// <see cref="Stream"/> containing the GIF image.<br/>
     /// For Streams, ensure that they are seekable, and contain valid GIF data starting at position 0. 
+    /// </summary>
     public object Source
     {
         get => GetValue(SourceProperty);
