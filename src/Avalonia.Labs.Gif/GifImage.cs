@@ -19,6 +19,8 @@ public class GifImage : Control
     private CompositionCustomVisual? _customVisual;
 
     private double _gifWidth, _gifHeight;
+    private Stream? _lastSourceStream = null;
+    private MemoryStream _lastMemoryFromSourceStream = new();
 
     /// <summary>
     /// Defines the <see cref="Source"/> property.
@@ -47,8 +49,7 @@ public class GifImage : Control
     /// <summary>
     /// Gets or sets the <see cref="Uri"/> or absolute uri <see cref="string"/> 
     /// pointing to the GIF image resource or
-    /// <see cref="Stream"/> containing the GIF image.<br/>
-    /// For Streams, ensure that they are seekable, and contain valid GIF data starting at position 0. 
+    /// <see cref="Stream"/> containing the GIF image.
     /// </summary>
     public object Source
     {
@@ -181,10 +182,21 @@ public class GifImage : Control
         Stream stream;
         if (Source is Stream s)
         {
-            stream = s;
-            if (stream.Position != 0 && stream.CanSeek)
+            // only perform the copying if the stream has actually changed. 
+            // if the stream has not changed, seek our internal memory stream that matches the last stream source.
+            // This ensures that the gif data stream is at the right position, even with multiple reads. 
+            if (Object.ReferenceEquals(_lastSourceStream, s))
             {
-                stream.Seek(0, SeekOrigin.Begin);
+                _lastMemoryFromSourceStream.Seek(0, SeekOrigin.Begin);
+                stream = _lastMemoryFromSourceStream;
+            }
+            else
+            {
+                _lastSourceStream = s;
+                _lastMemoryFromSourceStream = new();
+                s.CopyTo(_lastMemoryFromSourceStream);
+                _lastMemoryFromSourceStream.Seek(0, SeekOrigin.Begin);
+                stream = _lastMemoryFromSourceStream;
             }
         }
         else if (Source is Uri uri)
@@ -204,7 +216,7 @@ public class GifImage : Control
             }
         }
         else
-        { 
+        {
             throw new ArgumentException(
                 "Unsupported Source object: only Stream, Uri and absolute uri string are supported.");
         }
@@ -222,7 +234,7 @@ public class GifImage : Control
                 Stretch,
                 StretchDirection,
                 IterationCount));
-        
+
         InvalidateVisual();
     }
 
