@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Avalonia.Labs.Controls.Utils;
 
@@ -21,7 +20,7 @@ internal static class CollectionExtensions
         public static readonly FastRepeat<T> Instance = new();
         public int Count { get; set; }
         public bool IsReadOnly => true;
-        [AllowNull] public T Item { get; set; }
+        public T? Item { get; set; }
         public void Add(T item) => throw new NotImplementedException();
         public void Clear() => throw new NotImplementedException();
         public bool Contains(T item) => throw new NotImplementedException();
@@ -31,6 +30,8 @@ internal static class CollectionExtensions
 
         public void CopyTo(T[] array, int arrayIndex)
         {
+            if (Item is null) throw new InvalidOperationException("Item was null.");
+            
             var end = arrayIndex + Count;
 
             for (var i = arrayIndex; i < end; ++i)

@@ -57,9 +57,6 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
             item.ResetItemSize();
         }
     }
-
-    public ScrollBarVisibility HorizontalScrollBarVisibility => Orientation == Orientation.Vertical ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
-    public ScrollBarVisibility VerticalScrollBarVisibility => Orientation == Orientation.Vertical ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
     
     private Orientation _orientation = Orientation.Horizontal;
 
@@ -69,8 +66,6 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
         set
         {
             this.RaiseAndSetIfChanged(ref _orientation, value);
-            this.RaisePropertyChanged(nameof(HorizontalScrollBarVisibility));
-            this.RaisePropertyChanged(nameof(VerticalScrollBarVisibility));
         }
     }
 

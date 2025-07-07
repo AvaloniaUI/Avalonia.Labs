@@ -4,9 +4,12 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Controls.Utils;
 using Avalonia.Layout;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Controls
@@ -14,7 +17,7 @@ namespace Avalonia.Labs.Controls
     /// <summary>
     /// A implementation of a wrap panel that supports virtualization and can be used in horizontal and vertical orientation.
     /// </summary>
-    public class VirtualizingWrapPanel : VirtualizingPanel
+    public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo
     {
         /// <summary>
         /// Gets an empty size
@@ -30,6 +33,7 @@ namespace Avalonia.Labs.Controls
                 ItemSizeProviderProperty);
 
             AffectsArrange<VirtualizingWrapPanel>(
+                BoundsProperty,
                 SpacingModeProperty,
                 StretchItemsProperty,
                 IsGridLayoutEnabledProperty);
@@ -275,7 +279,8 @@ namespace Avalonia.Labs.Controls
 
                     Size? upfrontKnownItemSize = GetUpfrontKnownItemSize(item);
 
-                    Size childSize = upfrontKnownItemSize ?? _realizedElements.GetElementSize(child) ?? FallbackItemSize;
+                    Size childSize = upfrontKnownItemSize ??
+                                     _realizedElements.GetElementSize(child) ?? FallbackItemSize;
 
                     if (rowChilds.Count > 0 && x + GetWidth(childSize) > GetWidth(finalSize))
                     {
@@ -311,12 +316,28 @@ namespace Avalonia.Labs.Controls
                     _startItemOffsetX = GetX(startPoint);
                     _startItemOffsetY = GetY(startPoint);
 
-                    var rect = Orientation == Orientation.Horizontal
-                        ? new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width,
-                            finalSize.Height)
-                        : new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
+                    var rect = Orientation == Orientation.Horizontal ?
+                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width,
+                            finalSize.Height) :
+                        new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
                             _focusedElement.DesiredSize.Height);
                     _focusedElement.Arrange(rect);
+                }
+
+                // Ensure that the scrollTo element is in the correct position.                
+                if (_scrollToElement is not null && _scrollToIndex >= 0)
+                {
+                    var startPoint = FindItemOffset(_focusedIndex);
+
+                    _startItemOffsetX = GetX(startPoint);
+                    _startItemOffsetY = GetY(startPoint);
+
+                    var rect = Orientation == Orientation.Horizontal ?
+                        new Rect(_startItemOffsetX, _startItemOffsetY, _scrollToElement.DesiredSize.Width,
+                            finalSize.Height) :
+                        new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
+                            _scrollToElement.DesiredSize.Height);
+                    _scrollToElement.Arrange(rect);
                 }
 
                 return finalSize;
@@ -325,7 +346,9 @@ namespace Avalonia.Labs.Controls
             {
                 _isInLayout = false;
 
-                // TODO: RaiseEvent(new RoutedEventArgs(Orientation == Orientation.Horizontal ? HorizontalSnapPointsChangedEvent : VerticalSnapPointsChangedEvent));
+                RaiseEvent(new RoutedEventArgs(Orientation == Orientation.Horizontal ?
+                    HorizontalSnapPointsChangedEvent :
+                    VerticalSnapPointsChangedEvent));
             }
         }
 
@@ -553,6 +576,11 @@ namespace Avalonia.Labs.Controls
                 // hence the width extent should be correct now, and we can try to scroll again.
                 scrollToElement.BringIntoView();
 
+                if (_scrollToElement is not null)
+                {
+                    RecycleElement(_scrollToElement, _scrollToIndex);
+                }
+
                 _scrollToElement = null;
                 _scrollToIndex = -1;
                 return scrollToElement;
@@ -582,12 +610,12 @@ namespace Avalonia.Labs.Controls
 
             var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
 
-            double sizeU = 0d; 
+            double sizeU = 0d;
             if (AllowDifferentSizedItems)
             {
                 double x = 0;
                 double rowHeight = 0;
-                
+
                 foreach (var item in Items)
                 {
                     Size itemSize = GetAssumedItemSize(item);
@@ -602,7 +630,7 @@ namespace Avalonia.Labs.Controls
                     x += GetWidth(itemSize);
                     rowHeight = Math.Max(rowHeight, GetHeight(itemSize));
                 }
-                
+
                 sizeU += rowHeight;
             }
             else
@@ -610,9 +638,9 @@ namespace Avalonia.Labs.Controls
                 sizeU = Math.Ceiling(Items.Count / itemsPerRow) * itemHeight;
             }
 
-            return orientation == Orientation.Horizontal
-                ? new Size(viewportWidth, sizeU)
-                : new Size(sizeU, viewportWidth);
+            return orientation == Orientation.Horizontal ?
+                new Size(viewportWidth, sizeU) :
+                new Size(sizeU, viewportWidth);
         }
 
         /// <summary>
@@ -632,9 +660,9 @@ namespace Avalonia.Labs.Controls
                 var remainingRows = (int)Math.Ceiling(remainingItems / itemsPerRow);
                 var u = GetY(_scrollToElement.Bounds.BottomRight);
                 var sizeU = u + (remainingRows * GetHeight(GetAverageItemSize()));
-                return orientation == Orientation.Horizontal
-                    ? new(sizeU, DesiredSize.Height)
-                    : new(DesiredSize.Width, sizeU);
+                return orientation == Orientation.Horizontal ?
+                    new(sizeU, DesiredSize.Height) :
+                    new(DesiredSize.Width, sizeU);
             }
 
             return DesiredSize;
@@ -643,26 +671,28 @@ namespace Avalonia.Labs.Controls
         /// <inheritdoc />
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnPropertyChanged(change);
 
             if (change.Property == OrientationProperty)
             {
-                // MouseWheelScrollDirection = Orientation == Orientation.Horizontal
-                //     ? ScrollDirection.Vertical
-                //     : ScrollDirection.Horizontal;
-                // SetVerticalOffset(0);
-                // SetHorizontalOffset(0);
+                ScrollIntoView(0);
                 InvalidateMeasure();
                 InvalidateArrange();
             }
 
-            if (change.Property == AllowDifferentSizedItemsProperty || change.Property == ItemSizeProperty)
+            if (change.Property == AllowDifferentSizedItemsProperty || change.Property == ItemSizeProperty ||
+                change.Property == IsGridLayoutEnabledProperty || change.Property == StretchItemsProperty)
             {
                 foreach (var child in Children)
                 {
                     child.InvalidateMeasure();
                 }
+
+                InvalidateMeasure();
+                InvalidateArrange();
             }
+            
+            
+            base.OnPropertyChanged(change);
         }
 
         /// <summary>
@@ -717,7 +747,7 @@ namespace Avalonia.Labs.Controls
                 var itemRowIndex = (int)Math.Floor(itemIndex * 1.0 / itemsPerRow);
                 x = (itemIndex - itemRowIndex) * itemWidth;
                 y = itemRowIndex * itemHeight;
-                return new Point(x, y);
+                return CreatePoint(x, y);
             }
 
             for (int i = 0; i <= itemIndex; i++)
@@ -917,6 +947,7 @@ namespace Avalonia.Labs.Controls
             {
                 return ItemSizeProvider.GetSizeForItem(item);
             }
+
             return upfrontKnownItemSize ?? _realizedElements?.GetElementSize(container) ?? container.DesiredSize;
         }
 
@@ -1033,16 +1064,16 @@ namespace Avalonia.Labs.Controls
             else
             {
                 double childWidth = GetWidth(childSizes[0]);
-                int itemsPerRow = IsGridLayoutEnabled
-                    ? (int)Math.Max(Math.Floor(rowWidth / childWidth), 1)
-                    : children.Count;
+                int itemsPerRow = IsGridLayoutEnabled ?
+                    (int)Math.Max(Math.Floor(rowWidth / childWidth), 1) :
+                    children.Count;
 
                 if (StretchItems)
                 {
                     var firstChild = children[0];
-                    double maxWidth = Orientation == Orientation.Horizontal
-                        ? firstChild.MaxWidth
-                        : firstChild.MaxHeight;
+                    double maxWidth = Orientation == Orientation.Horizontal ?
+                        firstChild.MaxWidth :
+                        firstChild.MaxHeight;
                     double stretchedChildWidth = Math.Min(rowWidth / itemsPerRow, maxWidth);
                     stretchedChildWidth =
                         Math.Max(stretchedChildWidth, childWidth); // ItemSize might be greater than MaxWidth/MaxHeight
@@ -1095,9 +1126,9 @@ namespace Avalonia.Labs.Controls
             }
             else
             {
-                childCount = IsGridLayoutEnabled
-                    ? (int)Math.Max(1, Math.Floor(rowWidth / GetWidth(_sizeOfFirstItem!.Value)))
-                    : children.Count;
+                childCount = IsGridLayoutEnabled ?
+                    (int)Math.Max(1, Math.Floor(rowWidth / GetWidth(_sizeOfFirstItem!.Value))) :
+                    children.Count;
             }
 
             double unusedWidth = Math.Max(0, rowWidth - summedUpChildWidth);
@@ -1247,66 +1278,7 @@ namespace Avalonia.Labs.Controls
                     break;
             }
         }
-
-        // protected override double GetLineUpScrollAmount()
-        // {
-        //     return -Math.Min(GetAverageItemSize().Height * ScrollLineDeltaItem, ViewportSize.Height);
-        // }
-        //
-        // protected override double GetLineDownScrollAmount()
-        // {
-        //     return Math.Min(GetAverageItemSize().Height * ScrollLineDeltaItem, ViewportSize.Height);
-        // }
-        //
-        // protected override double GetLineLeftScrollAmount()
-        // {
-        //     return -Math.Min(GetAverageItemSize().Width * ScrollLineDeltaItem, ViewportSize.Width);
-        // }
-        //
-        // protected override double GetLineRightScrollAmount()
-        // {
-        //     return Math.Min(GetAverageItemSize().Width * ScrollLineDeltaItem, ViewportSize.Width);
-        // }
-        //
-        // protected override double GetMouseWheelUpScrollAmount()
-        // {
-        //     return -Math.Min(GetAverageItemSize().Height * MouseWheelDeltaItem, ViewportSize.Height);
-        // }
-        //
-        // protected override double GetMouseWheelDownScrollAmount()
-        // {
-        //     return Math.Min(GetAverageItemSize().Height * MouseWheelDeltaItem, ViewportSize.Height);
-        // }
-        //
-        // protected override double GetMouseWheelLeftScrollAmount()
-        // {
-        //     return -Math.Min(GetAverageItemSize().Width * MouseWheelDeltaItem, ViewportSize.Width);
-        // }
-        //
-        // protected override double GetMouseWheelRightScrollAmount()
-        // {
-        //     return Math.Min(GetAverageItemSize().Width * MouseWheelDeltaItem, ViewportSize.Width);
-        // }
-        //
-        // protected override double GetPageUpScrollAmount()
-        // {
-        //     return -ViewportSize.Height;
-        // }
-        //
-        // protected override double GetPageDownScrollAmount()
-        // {
-        //     return ViewportSize.Height;
-        // }
-        //
-        // protected override double GetPageLeftScrollAmount()
-        // {
-        //     return -ViewportSize.Width;
-        // }
-        //
-        // protected override double GetPageRightScrollAmount()
-        // {
-        //     return ViewportSize.Width;
-        // }
+        
 
         #endregion
 
@@ -1339,9 +1311,9 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Creates a virtual Size based on the <see cref="Orientation"/> 
         /// </summary>
-        private Size CreateSize(double width, double height) => Orientation == Orientation.Horizontal
-            ? new Size(width, height)
-            : new Size(height, width);
+        private Size CreateSize(double width, double height) => Orientation == Orientation.Horizontal ?
+            new Size(width, height) :
+            new Size(height, width);
 
         /// <summary>
         /// Creates a virtual Rect based on the <see cref="Orientation"/> 
@@ -1360,9 +1332,17 @@ namespace Avalonia.Labs.Controls
         {
             Debug.Assert(ItemContainerGenerator is not null);
 
-            if ((GetRealizedElement(index) ??
-                 GetRealizedElement(index, ref _focusedIndex, ref _focusedElement) ??
-                 GetRealizedElement(index, ref _scrollToIndex, ref _scrollToElement)) is { } realized)
+            if (GetRealizedElement(index, ref _focusedIndex, ref _focusedElement) is { } focusedElement)
+            {
+                return focusedElement;
+            }
+
+            if (GetRealizedElement(index, ref _scrollToIndex, ref _scrollToElement) is { } scrollToElement)
+            {
+                return scrollToElement;
+            }
+
+            if (GetRealizedElement(index) is { } realized)
                 return realized;
 
             var item = items[index];
@@ -1576,6 +1556,216 @@ namespace Avalonia.Labs.Controls
             Debug.Assert(ItemContainerGenerator is not null);
 
             ItemContainerGenerator.ItemContainerIndexChanged(element, oldIndex, newIndex);
+        }
+
+        /// <summary>
+        /// Defines the <see cref="AreHorizontalSnapPointsRegular"/> property.
+        /// </summary>
+        public static readonly StyledProperty<bool> AreHorizontalSnapPointsRegularProperty =
+            StackPanel.AreHorizontalSnapPointsRegularProperty.AddOwner<VirtualizingWrapPanel>();
+
+        /// <summary>
+        /// Defines the <see cref="AreVerticalSnapPointsRegular"/> property.
+        /// </summary>
+        public static readonly StyledProperty<bool> AreVerticalSnapPointsRegularProperty =
+            StackPanel.AreVerticalSnapPointsRegularProperty.AddOwner<VirtualizingWrapPanel>();
+
+        /// <summary>
+        /// Defines the <see cref="HorizontalSnapPointsChanged"/> event.
+        /// </summary>
+        public static readonly RoutedEvent<RoutedEventArgs> HorizontalSnapPointsChangedEvent =
+            RoutedEvent.Register<VirtualizingWrapPanel, RoutedEventArgs>(
+                nameof(HorizontalSnapPointsChanged),
+                RoutingStrategies.Bubble);
+
+        /// <summary>
+        /// Defines the <see cref="VerticalSnapPointsChanged"/> event.
+        /// </summary>
+        public static readonly RoutedEvent<RoutedEventArgs> VerticalSnapPointsChangedEvent =
+            RoutedEvent.Register<VirtualizingWrapPanel, RoutedEventArgs>(
+                nameof(VerticalSnapPointsChanged),
+                RoutingStrategies.Bubble);
+
+        /// <inheritdoc/>
+        public IReadOnlyList<double> GetIrregularSnapPoints(Orientation orientation,
+            SnapPointsAlignment snapPointsAlignment)
+        {
+            var snapPoints = new List<double>();
+            double lineSize = 0;
+
+            switch (orientation)
+            {
+                case Orientation.Horizontal:
+                    if (AreHorizontalSnapPointsRegular)
+                        throw new InvalidOperationException();
+
+                    if (Orientation == Orientation.Horizontal)
+                    {
+                        foreach (var child in VisualChildren)
+                        {
+                            double snapPoint = 0;
+
+                            foreach (var item in Items)
+                            {
+                                if (lineSize + child.Bounds.Height > _viewport.Size.Height && lineSize != 0)
+                                {
+                                    lineSize = 0;
+                                    switch (snapPointsAlignment)
+                                    {
+                                        case SnapPointsAlignment.Near:
+                                            snapPoint = child.Bounds.Left;
+                                            break;
+                                        case SnapPointsAlignment.Center:
+                                            snapPoint = child.Bounds.Center.X;
+                                            break;
+                                        case SnapPointsAlignment.Far:
+                                            snapPoint = child.Bounds.Right;
+                                            break;
+                                    }
+
+                                    snapPoints.Add(snapPoint);
+                                }
+
+                                lineSize += child.Bounds.Height;
+                            }
+                        }
+                    }
+
+                    break;
+
+                case Orientation.Vertical:
+                    if (AreVerticalSnapPointsRegular)
+                        throw new InvalidOperationException();
+                    if (Orientation == Orientation.Vertical)
+                    {
+                        foreach (var child in VisualChildren)
+                        {
+                            double snapPoint = 0;
+
+                            foreach (var item in Items)
+                            {
+                                if (lineSize + child.Bounds.Width > _viewport.Size.Width && lineSize != 0)
+                                {
+                                    lineSize = 0;
+                                    switch (snapPointsAlignment)
+                                    {
+                                        case SnapPointsAlignment.Near:
+                                            snapPoint = child.Bounds.Top;
+                                            break;
+                                        case SnapPointsAlignment.Center:
+                                            snapPoint = child.Bounds.Center.Y;
+                                            break;
+                                        case SnapPointsAlignment.Far:
+                                            snapPoint = child.Bounds.Bottom;
+                                            break;
+                                    }
+
+                                    snapPoints.Add(snapPoint);
+                                }
+
+                                lineSize += child.Bounds.Width;
+                            }
+                        }
+                    }
+
+                    break;
+            }
+
+            return snapPoints;
+        }
+
+        /// <inheritdoc/>
+        public double GetRegularSnapPoints(Orientation orientation, SnapPointsAlignment snapPointsAlignment,
+            out double offset)
+        {
+            offset = 0f;
+            var firstChild = VisualChildren.FirstOrDefault();
+
+            if (firstChild == null)
+            {
+                return 0;
+            }
+
+            double snapPoint = 0;
+
+            switch (Orientation)
+            {
+                case Orientation.Horizontal:
+                    if (!AreHorizontalSnapPointsRegular)
+                        throw new InvalidOperationException();
+
+                    snapPoint = firstChild.Bounds.Width;
+                    switch (snapPointsAlignment)
+                    {
+                        case SnapPointsAlignment.Near:
+                            offset = firstChild.Bounds.Left;
+                            break;
+                        case SnapPointsAlignment.Center:
+                            offset = firstChild.Bounds.Center.X;
+                            break;
+                        case SnapPointsAlignment.Far:
+                            offset = firstChild.Bounds.Right;
+                            break;
+                    }
+
+                    break;
+                case Orientation.Vertical:
+                    if (!AreVerticalSnapPointsRegular)
+                        throw new InvalidOperationException();
+                    snapPoint = firstChild.Bounds.Height;
+                    switch (snapPointsAlignment)
+                    {
+                        case SnapPointsAlignment.Near:
+                            offset = firstChild.Bounds.Top;
+                            break;
+                        case SnapPointsAlignment.Center:
+                            offset = firstChild.Bounds.Center.Y;
+                            break;
+                        case SnapPointsAlignment.Far:
+                            offset = firstChild.Bounds.Bottom;
+                            break;
+                    }
+
+                    break;
+            }
+
+            return snapPoint;
+        }
+
+        /// <summary>
+        /// Occurs when the measurements for horizontal snap points change.
+        /// </summary>
+        public event EventHandler<RoutedEventArgs>? HorizontalSnapPointsChanged
+        {
+            add => AddHandler(HorizontalSnapPointsChangedEvent, value);
+            remove => RemoveHandler(HorizontalSnapPointsChangedEvent, value);
+        }
+
+        /// <summary>
+        /// Occurs when the measurements for vertical snap points change.
+        /// </summary>
+        public event EventHandler<RoutedEventArgs>? VerticalSnapPointsChanged
+        {
+            add => AddHandler(VerticalSnapPointsChangedEvent, value);
+            remove => RemoveHandler(VerticalSnapPointsChangedEvent, value);
+        }
+
+        /// <summary>
+        /// Gets or sets whether the horizontal snap points for the <see cref="StackPanel"/> are equidistant from each other.
+        /// </summary>
+        public bool AreHorizontalSnapPointsRegular
+        {
+            get => GetValue(AreHorizontalSnapPointsRegularProperty);
+            set => SetValue(AreHorizontalSnapPointsRegularProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets whether the vertical snap points for the <see cref="StackPanel"/> are equidistant from each other.
+        /// </summary>
+        public bool AreVerticalSnapPointsRegular
+        {
+            get => GetValue(AreVerticalSnapPointsRegularProperty);
+            set => SetValue(AreVerticalSnapPointsRegularProperty, value);
         }
     }
 }
