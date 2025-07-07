@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
              xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
              xmlns:markupExtensions="clr-namespace:Avalonia.Labs.Catalog.MarkupExtensions"
+             xmlns:conv="clr-namespace:Avalonia.Labs.Catalog.Converters"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -14,61 +15,32 @@
     <viewModels:VirtualizingWrapPanelViewModel />
   </UserControl.DataContext>
 
-  <!-- <Grid ColumnDefinitions="3*, *"> -->
-    <ListBox ItemsSource="{Binding SampleItems}"
-             x:Name="SampleListBox"
-             ScrollViewer.HorizontalScrollBarVisibility="{Binding HorizontalScrollBarVisibility}"
-             ScrollViewer.VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}">
-      <ListBox.ItemsPanel>
-        <ItemsPanelTemplate>
-          <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
-                                          SpacingMode="Uniform"
-                                          IsGridLayoutEnabled="{Binding GridLayout}"
-                                          Orientation="{Binding Orientation}" />
-        </ItemsPanelTemplate>
-      </ListBox.ItemsPanel>
-      <ListBox.ItemTemplate>
-        <DataTemplate DataType="viewModels:WrapPanelItemViewModel">
-          <Panel Width="{Binding ItemWidth}"
-                 Height="{Binding ItemHeight}">
-            <Border Background="LightBlue"
-                    CornerRadius="20"
-                    Margin="5">
-              <TextBlock Text="{Binding Content}"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center">
-              </TextBlock>
-            </Border>
-          </Panel>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
-
-  <!--   <ScrollViewer Grid.Column="1"> -->
-  <!--     <StackPanel Grid.IsSharedSizeScope="True"> -->
-  <!--       <TextBlock Text="Non-unifromItemSize" /> -->
-  <!--       <ToggleSwitch IsChecked="{Binding AllowDifferentItemSizes}"></ToggleSwitch> -->
-  <!--        -->
-  <!--       <TextBlock Text="GridLayout" /> -->
-  <!--       <ToggleSwitch IsChecked="{Binding GridLayout}"></ToggleSwitch> -->
-  <!--        -->
-  <!--       <TextBlock Text="Orientation" /> -->
-  <!--       <ComboBox SelectedItem="{Binding Orientation}" -->
-  <!--                 ItemsSource="{markupExtensions:EnumItemsSource Orientation}"> -->
-  <!--       </ComboBox> -->
-  <!-- -->
-  <!--       <TextBlock Text="SpacingMode" /> -->
-  <!--       <ComboBox SelectedItem="{Binding SpacingMode}" -->
-  <!--                 ItemsSource="{markupExtensions:EnumItemsSource controls:SpacingMode}"> -->
-  <!--       </ComboBox> -->
-  <!-- -->
-  <!--       <Button Content="Randomize ItemSize" -->
-  <!--               Command="{Binding RandomizeItemSizesCommand}"> -->
-  <!--       </Button> -->
-  <!--       <Button Content="Reset ItemSize" -->
-  <!--               Command="{Binding ResetItemSizesCommand}"> -->
-  <!--       </Button> -->
-  <!--     </StackPanel> -->
-  <!--   </ScrollViewer> -->
-  <!-- </Grid> -->
+  <ListBox ItemsSource="{Binding SampleItems}"
+           ScrollViewer.HorizontalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Vertical}}"
+           ScrollViewer.VerticalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Horizontal}}"
+           x:Name="SampleListBox">
+    <ListBox.ItemsPanel>
+      <ItemsPanelTemplate>
+        <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
+                                        SpacingMode="Uniform"
+                                        IsGridLayoutEnabled="{Binding GridLayout}"
+                                        Orientation="{Binding Orientation}" />
+      </ItemsPanelTemplate>
+    </ListBox.ItemsPanel>
+    <ListBox.ItemTemplate>
+      <DataTemplate DataType="viewModels:WrapPanelItemViewModel">
+        <Panel Width="{Binding ItemWidth}"
+               Height="{Binding ItemHeight}">
+          <Border Background="LightBlue"
+                  CornerRadius="20"
+                  Margin="5">
+            <TextBlock Text="{Binding Content}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">
+            </TextBlock>
+          </Border>
+        </Panel>
+      </DataTemplate>
+    </ListBox.ItemTemplate>
+  </ListBox>
 </UserControl>
