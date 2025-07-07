@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Catalog.ViewModels;
 using Avalonia.Labs.Catalog.Views.SamplePageBase;
 using Avalonia.Labs.Controls;
@@ -37,6 +38,24 @@ public class VirtualizingWrapPanelSampleView() : ControlSampleBase(new Virtualiz
         var secondaryContent = new StackPanel();
         secondaryContent.Children.Add(new Button { Content = "Randomize Items", Command = ViewModel.RandomizeItemSizesCommand});
         secondaryContent.Children.Add(new Button { Content = "Reset Items", Command = ViewModel.ResetItemSizesCommand});
+
+        int nextRandom = Random.Shared.Next(1000);
+        var scrollToRandomButton = new Button { Content = $"Scroll to random ({nextRandom})" , Tag = nextRandom };
+        scrollToRandomButton.Click += ScrollToRandom_OnClick;
+        secondaryContent.Children.Add(scrollToRandomButton);
+        
         SecondaryContent = secondaryContent;
+    }
+
+    private void ScrollToRandom_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var btn = (Button)sender!;
+        
+        Sample.SampleListBox.ScrollIntoView((int)btn.Tag);
+        
+        int nextRandom = Random.Shared.Next(1000);
+        btn.Content = $"Scroll to random ({nextRandom})";
+        btn.Tag = nextRandom;
+        
     }
 }
