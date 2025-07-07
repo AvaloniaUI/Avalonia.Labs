@@ -1214,7 +1214,8 @@ namespace Avalonia.Labs.Controls
 
         #region scroll info
 
-        // TODO determine exact scoll amount for item based scrolling when AllowDifferentSizedItems is true
+        // TODO determine exact scoll amount for item based scrolling when AllowDifferentSizedItems is true.
+        // for now, we will just disable jumping rows in this case.
 
         private void NavigateLeft(ref int currentIndex)
         {
@@ -1223,7 +1224,9 @@ namespace Avalonia.Labs.Controls
                 case Orientation.Horizontal:
                     --currentIndex;
                     break;
+                
                 case Orientation.Vertical:
+                    if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
                         (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex -= itemsPerRow;
@@ -1238,7 +1241,9 @@ namespace Avalonia.Labs.Controls
                 case Orientation.Horizontal:
                     ++currentIndex;
                     break;
+                
                 case Orientation.Vertical:
+                    if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
                         (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex += itemsPerRow;
@@ -1254,6 +1259,7 @@ namespace Avalonia.Labs.Controls
                     --currentIndex;
                     break;
                 case Orientation.Horizontal:
+                    if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
                         (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex -= itemsPerRow;
@@ -1269,6 +1275,7 @@ namespace Avalonia.Labs.Controls
                     ++currentIndex;
                     break;
                 case Orientation.Horizontal:
+                    if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
                         (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex += itemsPerRow;
