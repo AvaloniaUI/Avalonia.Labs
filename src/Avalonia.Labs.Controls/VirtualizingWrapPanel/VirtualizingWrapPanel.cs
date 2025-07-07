@@ -33,7 +33,6 @@ namespace Avalonia.Labs.Controls
                 ItemSizeProviderProperty);
 
             AffectsArrange<VirtualizingWrapPanel>(
-                BoundsProperty,
                 SpacingModeProperty,
                 StretchItemsProperty,
                 IsGridLayoutEnabledProperty);
@@ -317,17 +316,15 @@ namespace Avalonia.Labs.Controls
                     _startItemOffsetY = GetY(startPoint);
 
                     var rect = Orientation == Orientation.Horizontal ?
-                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width,
-                            finalSize.Height) :
-                        new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
-                            _focusedElement.DesiredSize.Height);
+                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) :
+                        new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
                     _focusedElement.Arrange(rect);
                 }
 
                 // Ensure that the scrollTo element is in the correct position.                
                 if (_scrollToElement is not null && _scrollToIndex >= 0)
                 {
-                    var startPoint = FindItemOffset(_focusedIndex);
+                    var startPoint = FindItemOffset(_scrollToIndex);
 
                     _startItemOffsetX = GetX(startPoint);
                     _startItemOffsetY = GetY(startPoint);
@@ -745,7 +742,7 @@ namespace Avalonia.Labs.Controls
                 var itemsPerRow = Math.Max(Math.Floor(GetWidth(_viewport.Size) / itemWidth), 1);
 
                 var itemRowIndex = (int)Math.Floor(itemIndex * 1.0 / itemsPerRow);
-                x = (itemIndex - itemRowIndex) * itemWidth;
+                x = (itemIndex - itemRowIndex * itemsPerRow) * itemWidth;
                 y = itemRowIndex * itemHeight;
                 return CreatePoint(x, y);
             }

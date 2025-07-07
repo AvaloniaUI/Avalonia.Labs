@@ -24,7 +24,7 @@
         <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
                                         SpacingMode="Uniform"
                                         IsGridLayoutEnabled="{Binding GridLayout}"
-                                        Orientation="{Binding Orientation}" />
+                                        Orientation="{Binding Orientation, Mode=TwoWay}" />
       </ItemsPanelTemplate>
     </ListBox.ItemsPanel>
     <ListBox.ItemTemplate>

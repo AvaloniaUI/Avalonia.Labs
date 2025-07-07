@@ -142,4 +142,9 @@ public class WrapPanelItemViewModel : ViewModelBase
         ItemWidth = 128; 
         ItemHeight = 128;
     }
+
+    public override string ToString()
+    {
+        return Content;
+    }
 }
