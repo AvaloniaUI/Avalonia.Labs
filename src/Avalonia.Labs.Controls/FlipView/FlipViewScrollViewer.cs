@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Rendering.Composition;
+using Avalonia.Rendering.Composition.Animations;
 
 namespace Avalonia.Labs.Controls
 {
@@ -70,18 +71,20 @@ namespace Avalonia.Labs.Controls
         private Size _viewport;
         private CompositeDisposable? _subscriptions;
         private ScrollContentPresenter? _presenter;
-        private VectorTransition? _offsetTransition;
         private Size _oldExtent;
         private Vector _oldOffset;
         private Size _oldViewport;
+        private Compositor? _compositor;
+        private ImplicitAnimationCollection? _animations;
+        private Vector3KeyFrameAnimation? _offsetKeyFrameAnimation;
 
         /// <inheritdoc/>
         public Control? CurrentAnchor => (Presenter as IScrollAnchorProvider)?.CurrentAnchor;
 
         static FlipViewScrollViewer()
         {
-            EnableTransitionProperty.Changed.AddClassHandler<FlipViewScrollViewer>((x, e) => x.AttachTransitions());
-            TransitionDurationProperty.Changed.AddClassHandler<FlipViewScrollViewer>((x, e) => x.AttachTransitions());
+            EnableTransitionProperty.Changed.AddClassHandler<FlipViewScrollViewer>((x, e) => x.AttachAnimations());
+            TransitionDurationProperty.Changed.AddClassHandler<FlipViewScrollViewer>((x, e) => x.AttachAnimations());
         }
 
         public FlipViewScrollViewer()
@@ -233,7 +236,7 @@ namespace Avalonia.Labs.Controls
                 _presenter.PropertyChanged += Presenter_PropertyChanged;
             }
 
-            AttachTransitions();
+            AttachAnimations();
         }
 
         private void Presenter_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -259,6 +262,15 @@ namespace Avalonia.Labs.Controls
                 _presenter.CoerceValue(ScrollContentPresenter.OffsetProperty);
                 RaiseScrollChanged();
             }
+            else if (e.Property == ContentControl.ContentProperty)
+            {
+                if (_compositor != null && e.OldValue is Control oldControl)
+                {
+                    DetachAnimations(oldControl);
+                }
+
+                AttachAnimations();
+            }
         }
 
         internal static Vector CoerceOffset(AvaloniaObject sender, Vector value)
@@ -276,30 +288,104 @@ namespace Avalonia.Labs.Controls
             return (value < min) ? min : (value > max) ? max : value;
         }
 
-        private void AttachTransitions()
+        private void DetachAnimations(Control control)
+        {
+            if (_offsetKeyFrameAnimation != null)
+            {
+                var visual = ElementComposition.GetElementVisual(control);
+                if (visual != null)
+                {
+                    visual.ImplicitAnimations = null;
+                }
+            }
+
+            _offsetKeyFrameAnimation = null;
+            _animations = null;
+        }
+
+        private void AttachAnimations()
         {
             if (_presenter != null)
-                if (EnableTransition && TransitionDuration is { } timeSpan)
+                if (EnableTransition && TransitionDuration is { } timeSpan && _compositor != null)
                 {
-                    _offsetTransition = new VectorTransition()
+                    if (_animations == null)
                     {
-                        Property = ScrollContentPresenter.OffsetProperty,
-                        Duration = timeSpan,
-                    };
-                    _presenter.Transitions = new Transitions()
+                        _animations = _compositor.CreateImplicitAnimationCollection();
+
+                        _offsetKeyFrameAnimation = _compositor.CreateVector3KeyFrameAnimation();
+                        _offsetKeyFrameAnimation.Target = "Offset";
+                        _offsetKeyFrameAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
+                        _offsetKeyFrameAnimation.Duration = timeSpan;
+
+                        _animations["Offset"] = _offsetKeyFrameAnimation;
+                    }
+
+                    if (Content is Control control)
                     {
-                        _offsetTransition
-                    };
+                        var visual = ElementComposition.GetElementVisual(control);
+                        if (visual != null)
+                        {
+                            visual.ImplicitAnimations = _animations;
+                        }
+                    }
                 }
                 else
                 {
-                    _presenter.Transitions = null;
+                    if (Content is Control control)
+                    {
+                        var visual = ElementComposition.GetElementVisual(control);
+                        if (visual != null)
+                        {
+                            visual.ImplicitAnimations = null;
+                        }
+                    }
                 }
+        }
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            if (e.Pointer.Type is PointerType.Pen or PointerType.Touch)
+                DisableAnimation();
+
+            base.OnPointerPressed(e);
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            if (e.Pointer.Type is PointerType.Pen or PointerType.Touch)
+                EnableAnimation();
+
+            base.OnPointerReleased(e);
+        }
+
+        internal void DisableAnimation()
+        {
+            if (Content is Control control)
+            {
+                var visual = ElementComposition.GetElementVisual(control);
+                if (visual != null)
+                {
+                    visual.ImplicitAnimations = null;
+                }
+            }
+        }
+
+        internal void EnableAnimation()
+        {
+            if (Content is Control control)
+            {
+                var visual = ElementComposition.GetElementVisual(control);
+                if (visual != null)
+                {
+                    visual.ImplicitAnimations = _animations;
+                }
+            }
         }
 
         private void AttachPresenter(ScrollContentPresenter presenter)
         {
             _subscriptions?.Dispose();
+            _compositor = ElementComposition.GetElementVisual(this)?.Compositor;
 
             var subscriptionDisposables = new IDisposable?[]
             {
@@ -319,27 +405,20 @@ namespace Avalonia.Labs.Controls
             presenter.SetCurrentValue(ScrollContentPresenter.CanHorizontallyScrollProperty, true);
             presenter.SetCurrentValue(ScrollContentPresenter.CanVerticallyScrollProperty, true);
 
-            presenter.AddHandler(FlipViewScrollGestureRecognizer.ScrollGesturePointerPressedEvent, OnScrollGesture);
-            AddHandler(FlipViewScrollGestureRecognizer.ScrollGesturePointerReleasedEvent, OnScrollGestureEnded);
+            presenter.AddHandler(Gestures.ScrollGestureEvent, OnScrollGesture);
+            presenter.AddHandler(Gestures.ScrollGestureEndedEvent, OnScrollGestureEnded);
 
             IDisposable? IfUnset<T>(T property, Func<T, IDisposable> func) where T : AvaloniaProperty => presenter.IsSet(property) ? null : func(property);
         }
 
-        private void OnScrollGestureEnded(object? sender, PointerReleasedEventArgs e)
+        private void OnScrollGestureEnded(object? sender, ScrollGestureEndedEventArgs e)
         {
-            if (_offsetTransition != null)
-            {
-                _offsetTransition.Duration = TransitionDuration ?? default;
-                e.Handled = true;
-            }
+            EnableAnimation();
         }
 
-        private void OnScrollGesture(object? sender, PointerPressedEventArgs e)
+        private void OnScrollGesture(object? sender, ScrollGestureEventArgs e)
         {
-            if (_offsetTransition != null)
-            {
-                _offsetTransition.Duration = default;
-            }
+            DisableAnimation();
         }
 
         private void RaiseScrollChanged()

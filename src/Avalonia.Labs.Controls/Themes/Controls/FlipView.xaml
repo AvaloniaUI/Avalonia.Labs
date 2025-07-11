@@ -259,16 +259,8 @@
           <control:FlipViewScrollViewer Name="PART_ScrollViewer"
                         VerticalSnapPointsType="MandatorySingle"
                         HorizontalSnapPointsType="MandatorySingle"
-                                        
-                        ScrollViewer.IsScrollInertiaEnabled="{TemplateBinding (ScrollViewer.IsScrollInertiaEnabled)}"
                         TransitionDuration="{TemplateBinding TransitionDuration}"
                         VerticalAlignment="Stretch">
-            
-            <control:FlipViewScrollViewer.Transitions>
-              <Transitions>
-                <VectorTransition Property="Offset" Duration="00:00:00.5"/>
-              </Transitions>
-            </control:FlipViewScrollViewer.Transitions>
             <ItemsPresenter Name="PART_ItemsPresenter"
                             ItemsPanel="{TemplateBinding ItemsPanel}"/>
           </control:FlipViewScrollViewer>
