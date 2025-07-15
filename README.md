@@ -25,6 +25,7 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
 ## Available Controls
 
  - [AsyncImage](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/AsyncImage)
+ - [CommandManager](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.CommandManager)
  - [FlexPanel](https://github.com/AvaloniaUI/Avalonia.Labs/blob/main/src/Avalonia.Labs.Panels/FlexPanel.cs)
  - [FlipView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/FlipView)
  - [InfoBadge](/src/Avalonia.Labs.Controls/InfoBadge/Readme.md)
@@ -32,7 +33,6 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
  - [Lottie Viewer](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Lottie)
  - [NavigationControl](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/Navigation)
  - [Qr Code Generator](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Qr)
- - [RoutedCommand](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.RoutedCommand)
  - [StepBar](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/StepBar)
  - [SKCanvasView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/SKCanvasView)
  - [SwipeView](https://github.com/AvaloniaUI/Avalonia.Labs/tree/main/src/Avalonia.Labs.Controls/SwipeView)
