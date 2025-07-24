@@ -9,7 +9,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Controls.Utils;
 using Avalonia.Layout;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Controls
@@ -38,28 +37,52 @@ namespace Avalonia.Labs.Controls
                 IsGridLayoutEnabledProperty);
         }
 
+        /// <summary>
+        /// Defines the <see cref="Orientation"/> property
+        /// </summary>
         public static readonly StyledProperty<Orientation> OrientationProperty =
             WrapPanel.OrientationProperty.AddOwner<VirtualizingWrapPanel>(
                 new StyledPropertyMetadata<Orientation>(Orientation.Horizontal));
 
+        /// <summary>
+        /// Defines the <see cref="ItemSize"/> property
+        /// </summary>
         public static readonly StyledProperty<Size> ItemSizeProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, Size>(nameof(ItemSize), EmptySize);
 
+        /// <summary>
+        /// Defines the <see cref="AllowDifferentSizedItems"/> property
+        /// </summary>
         public static readonly StyledProperty<bool> AllowDifferentSizedItemsProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(AllowDifferentSizedItems));
 
+        /// <summary>
+        /// Defines the <see cref="ItemSizeProvider"/> property
+        /// </summary>
         public static readonly StyledProperty<IItemSizeProvider?> ItemSizeProviderProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, IItemSizeProvider?>(nameof(ItemSizeProvider));
 
+        /// <summary>
+        /// Defines the <see cref="SpacingMode"/> property
+        /// </summary>
         public static readonly StyledProperty<SpacingMode> SpacingModeProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, SpacingMode>(nameof(SpacingMode), SpacingMode.Uniform);
 
+        /// <summary>
+        /// Defines the <see cref="StretchItems"/> property
+        /// </summary>
         public static readonly StyledProperty<bool> StretchItemsProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(StretchItems));
 
+        /// <summary>
+        /// Defines the <see cref="IsGridLayoutEnabled"/> property
+        /// </summary>
         public static readonly StyledProperty<bool> IsGridLayoutEnabledProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(IsGridLayoutEnabled), true);
 
+        /// <summary>
+        /// Defines the <c>RecycleKey</c> attached property
+        /// </summary>
         private static readonly AttachedProperty<object?> RecycleKeyProperty =
             AvaloniaProperty.RegisterAttached<VirtualizingStackPanel, Control, object?>("RecycleKey");
 
@@ -79,9 +102,10 @@ namespace Avalonia.Labs.Controls
         private Dictionary<object, Stack<Control>>? _recyclePool;
         private Control? _focusedElement;
         private int _focusedIndex = -1;
-        private Control? _realizingElement;
-        private int _realizingIndex = -1;
 
+        /// <summary>
+        /// Creates a new VirtualizingWrapPanel
+        /// </summary>
         public VirtualizingWrapPanel()
         {
             _recycleElement = RecycleElement;
@@ -315,9 +339,9 @@ namespace Avalonia.Labs.Controls
                     _startItemOffsetX = GetX(startPoint);
                     _startItemOffsetY = GetY(startPoint);
 
-                    var rect = Orientation == Orientation.Horizontal ?
-                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) :
-                        new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
+                    var rect = Orientation == Orientation.Horizontal 
+                        ? new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) 
+                        : new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
                     _focusedElement.Arrange(rect);
                 }
 
@@ -485,8 +509,6 @@ namespace Avalonia.Labs.Controls
                 return _scrollToElement;
             if (_focusedIndex == index)
                 return _focusedElement;
-            if (index == _realizingIndex)
-                return _realizingElement;
             if (GetRealizedElement(index) is { } realized)
                 return realized;
             if (Items[index] is Control c && c.GetValue(RecycleKeyProperty) == s_itemIsItsOwnContainer)
@@ -501,8 +523,6 @@ namespace Avalonia.Labs.Controls
                 return _scrollToIndex;
             if (container == _focusedElement)
                 return _focusedIndex;
-            if (container == _realizingElement)
-                return _realizingIndex;
             return _realizedElements?.GetIndex(container) ?? -1;
         }
 
@@ -668,7 +688,6 @@ namespace Avalonia.Labs.Controls
         /// <inheritdoc />
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-
             if (change.Property == OrientationProperty)
             {
                 ScrollIntoView(0);
@@ -1020,13 +1039,13 @@ namespace Avalonia.Labs.Controls
         private Size GetAssumedItemSize(object? item)
         {
             if (item is null) return EmptySize;
-            var index = Items.IndexOf(item);
 
             if (GetUpfrontKnownItemSize(item) is { } upfrontKnownItemSize)
             {
                 return upfrontKnownItemSize;
             }
 
+            var index = Items.IndexOf(item);
             if (_realizedElements!.GetElementSize(index) is { } cachedItemSize)
             {
                 return cachedItemSize;
@@ -1214,17 +1233,22 @@ namespace Avalonia.Labs.Controls
 
         #region scroll info
 
-        // TODO determine exact scoll amount for item based scrolling when AllowDifferentSizedItems is true.
-        // for now, we will just disable jumping rows in this case.
-
-        private void NavigateLeft(ref int currentIndex)
+        /// <summary>
+        /// This method is called if the user wants to navigate left.
+        /// </summary>
+        /// <param name="currentIndex">the current index. Update this parameter to set the new index.</param>
+        /// <remarks>
+        /// Override this method if you want to configure how navigation works. Especially useful if
+        /// <see cref="AllowDifferentSizedItems"/> is <see langword="true"></see>
+        /// </remarks>
+        protected void NavigateLeft(ref int currentIndex)
         {
             switch (Orientation)
             {
                 case Orientation.Horizontal:
                     --currentIndex;
                     break;
-                
+
                 case Orientation.Vertical:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
@@ -1234,14 +1258,22 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        private void NavigateRight(ref int currentIndex)
+        /// <summary>
+        /// This method is called if the user wants to navigate right.
+        /// </summary>
+        /// <param name="currentIndex">the current index. Update this parameter to set the new index.</param>
+        /// <remarks>
+        /// Override this method if you want to configure how navigation works. Especially useful if
+        /// <see cref="AllowDifferentSizedItems"/> is <see langword="true"></see>
+        /// </remarks>
+        protected void NavigateRight(ref int currentIndex)
         {
             switch (Orientation)
             {
                 case Orientation.Horizontal:
                     ++currentIndex;
                     break;
-                
+
                 case Orientation.Vertical:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
@@ -1251,7 +1283,15 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        private void NavigateUp(ref int currentIndex)
+        /// <summary>
+        /// This method is called if the user wants to navigate up.
+        /// </summary>
+        /// <param name="currentIndex">the current index. Update this parameter to set the new index.</param>
+        /// <remarks>
+        /// Override this method if you want to configure how navigation works. Especially useful if
+        /// <see cref="AllowDifferentSizedItems"/> is <see langword="true"></see>
+        /// </remarks>
+        protected void NavigateUp(ref int currentIndex)
         {
             switch (Orientation)
             {
@@ -1267,7 +1307,15 @@ namespace Avalonia.Labs.Controls
             }
         }
 
-        private void NavigateDown(ref int currentIndex)
+        /// <summary>
+        /// This method is called if the user wants to navigate to the down.
+        /// </summary>
+        /// <param name="currentIndex">the current index. Update this parameter to set the new index.</param>
+        /// <remarks>
+        /// Override this method if you want to configure how navigation works. Especially useful if
+        /// <see cref="AllowDifferentSizedItems"/> is <see langword="true"></see>
+        /// </remarks>
+        protected void NavigateDown(ref int currentIndex)
         {
             switch (Orientation)
             {
@@ -1311,13 +1359,6 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         private Point CreatePoint(double x, double y) =>
             Orientation == Orientation.Horizontal ? new Point(x, y) : new Point(y, x);
-
-        /// <summary>
-        /// Creates a virtual Size based on the <see cref="Orientation"/> 
-        /// </summary>
-        private Size CreateSize(double width, double height) => Orientation == Orientation.Horizontal ?
-            new Size(width, height) :
-            new Size(height, width);
 
         /// <summary>
         /// Creates a virtual Rect based on the <see cref="Orientation"/> 
@@ -1609,29 +1650,26 @@ namespace Avalonia.Labs.Controls
                         {
                             double snapPoint = 0;
 
-                            foreach (var item in Items)
+                            if (lineSize + child.Bounds.Height > _viewport.Size.Height && lineSize != 0)
                             {
-                                if (lineSize + child.Bounds.Height > _viewport.Size.Height && lineSize != 0)
+                                lineSize = 0;
+                                switch (snapPointsAlignment)
                                 {
-                                    lineSize = 0;
-                                    switch (snapPointsAlignment)
-                                    {
-                                        case SnapPointsAlignment.Near:
-                                            snapPoint = child.Bounds.Left;
-                                            break;
-                                        case SnapPointsAlignment.Center:
-                                            snapPoint = child.Bounds.Center.X;
-                                            break;
-                                        case SnapPointsAlignment.Far:
-                                            snapPoint = child.Bounds.Right;
-                                            break;
-                                    }
-
-                                    snapPoints.Add(snapPoint);
+                                    case SnapPointsAlignment.Near:
+                                        snapPoint = child.Bounds.Left;
+                                        break;
+                                    case SnapPointsAlignment.Center:
+                                        snapPoint = child.Bounds.Center.X;
+                                        break;
+                                    case SnapPointsAlignment.Far:
+                                        snapPoint = child.Bounds.Right;
+                                        break;
                                 }
 
-                                lineSize += child.Bounds.Height;
+                                snapPoints.Add(snapPoint);
                             }
+
+                            lineSize += child.Bounds.Height;
                         }
                     }
 
@@ -1646,29 +1684,26 @@ namespace Avalonia.Labs.Controls
                         {
                             double snapPoint = 0;
 
-                            foreach (var item in Items)
+                            if (lineSize + child.Bounds.Width > _viewport.Size.Width && lineSize != 0)
                             {
-                                if (lineSize + child.Bounds.Width > _viewport.Size.Width && lineSize != 0)
+                                lineSize = 0;
+                                switch (snapPointsAlignment)
                                 {
-                                    lineSize = 0;
-                                    switch (snapPointsAlignment)
-                                    {
-                                        case SnapPointsAlignment.Near:
-                                            snapPoint = child.Bounds.Top;
-                                            break;
-                                        case SnapPointsAlignment.Center:
-                                            snapPoint = child.Bounds.Center.Y;
-                                            break;
-                                        case SnapPointsAlignment.Far:
-                                            snapPoint = child.Bounds.Bottom;
-                                            break;
-                                    }
-
-                                    snapPoints.Add(snapPoint);
+                                    case SnapPointsAlignment.Near:
+                                        snapPoint = child.Bounds.Top;
+                                        break;
+                                    case SnapPointsAlignment.Center:
+                                        snapPoint = child.Bounds.Center.Y;
+                                        break;
+                                    case SnapPointsAlignment.Far:
+                                        snapPoint = child.Bounds.Bottom;
+                                        break;
                                 }
 
-                                lineSize += child.Bounds.Width;
+                                snapPoints.Add(snapPoint);
                             }
+
+                            lineSize += child.Bounds.Width;
                         }
                     }
 
