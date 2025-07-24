@@ -11,7 +11,7 @@ internal static class CollectionExtensions
         var repeat = FastRepeat<T>.Instance;
         repeat.Count = count;
         repeat.Item = item;
-        list.InsertRange(index, FastRepeat<T>.Instance);
+        list.InsertRange(index, repeat);
         repeat.Item = default;
     }
     
