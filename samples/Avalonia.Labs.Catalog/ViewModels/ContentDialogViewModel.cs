@@ -69,6 +69,14 @@ internal class ContentDialogViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _defaultButton, value);
     }
 
+    public ContentDialogButtonsOrder[] ContentDialogButtonsOrders { get; } = Enum.GetValues<ContentDialogButtonsOrder>();
+
+    public ContentDialogButtonsOrder ContentDialogButtonsOrder
+    {
+        get => _buttonsOrder;
+        set => this.RaiseAndSetIfChanged(ref _buttonsOrder, value);
+    }
+
     public bool IsPrimaryButtonEnabled
     {
         get => _primaryEnabled;
@@ -94,7 +102,8 @@ internal class ContentDialogViewModel : ViewModelBase
                     Title = "Let's go ...",
                     PrimaryButtonText = "Ok :-)",
                     SecondaryButtonText = "Not OK :-(",
-                    CloseButtonText = "Leave me alone!"
+                    CloseButtonText = "Leave me alone!",
+                    ButtonsOrder = ContentDialogButtonsOrder
                 };
 
                 var viewModel = new CustomContentDialogViewModel(dialog);
@@ -115,7 +124,8 @@ internal class ContentDialogViewModel : ViewModelBase
                     IsPrimaryButtonEnabled = IsPrimaryButtonEnabled,
                     IsSecondaryButtonEnabled = IsSecondaryButtonEnabled,
                     DefaultButton = ContentDialogDefaultButton,
-                    FullSizeDesired = FullSizeDesired
+                    FullSizeDesired = FullSizeDesired,
+                    ButtonsOrder = ContentDialogButtonsOrder
                 };
                 hasDeferral = parameter is DialogMode.Deferal;
                 break;
@@ -150,6 +160,7 @@ internal class ContentDialogViewModel : ViewModelBase
     private string _closeText = "Close Button";
     private bool _fullSize;
     private ContentDialogButton _defaultButton;
+    private ContentDialogButtonsOrder _buttonsOrder;
     private bool _primaryEnabled = true;
     private bool _secondaryEnabled = true;
     private string? _dialogTitle = "Title Here";

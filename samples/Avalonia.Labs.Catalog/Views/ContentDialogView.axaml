@@ -12,9 +12,12 @@
                 MaxWidth="250"
                 DockPanel.Dock="Right">
       <Expander Header="Enabled Buttons" IsExpanded="True">
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" Spacing="4">
           <CheckBox Content="IsPrimaryButtonEnabled" IsChecked="{Binding IsPrimaryButtonEnabled}"/>
           <CheckBox Content="IsSecondaryButtonEnabled" IsChecked="{Binding IsSecondaryButtonEnabled}"/>
+          <ComboBox Name="ButtonOrderSelector" MinWidth="90"
+                    ItemsSource="{Binding ContentDialogButtonsOrders}"
+                    SelectedItem="{Binding ContentDialogButtonsOrder}" />
         </StackPanel>
       </Expander>
       <Expander Header="Default Button">

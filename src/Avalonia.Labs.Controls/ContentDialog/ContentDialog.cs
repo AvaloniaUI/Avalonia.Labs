@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Presenters;
@@ -7,7 +8,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Logging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 
@@ -41,8 +41,8 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _closeButton = e.NameScope.Get<Button>(s_tpCloseButton);
         _closeButton.Click += OnButtonClick;
 
-        // v2- Removed this as I don't think its necessary anymore (called from ShowAsync)
-        //SetupDialog();
+        EnsureDefaultButton();
+        EnsureButtonsOrder();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -53,13 +53,28 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         {
             OnFullSizedDesiredChanged(change);
         }
+        else if (change.Property == DefaultButtonProperty)
+        {
+            EnsureDefaultButton();
+        }
+        else if (change.Property == ButtonsOrderProperty)
+        {
+            EnsureButtonsOrder();
+        }
+        else if (change.Property == PrimaryButtonTextProperty
+                 || change.Property == SecondaryButtonTextProperty
+                 || change.Property == CloseButtonTextProperty)
+        {
+            PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
+            PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
+            PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
+        }
     }
 
     protected override bool RegisterContentPresenter(ContentPresenter presenter)
     {
-        if (presenter.Name == "Content")
+        if (presenter.Name is "PART_ContentPresenter" or "PART_TitlePresenter")
             return true;
-
         return base.RegisterContentPresenter(presenter);
     }
 
@@ -89,17 +104,19 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                 {
                     case ContentDialogButton.Primary:
                         OnButtonClick(_primaryButton, null);
+                        e.Handled = true;
                         break;
 
                     case ContentDialogButton.Secondary:
                         OnButtonClick(_secondaryButton, null);
+                        e.Handled = true;
                         break;
 
                     case ContentDialogButton.Close:
                         OnButtonClick(_closeButton, null);
+                        e.Handled = true;
                         break;
                 }
-                e.Handled = true;
 
                 break;
         }
@@ -184,7 +201,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         IsVisible = true;
         ol.UpdateLayout();
         ShowCore();
-        SetupDialog();
         return await _tcs.Task;
 
         static TopLevel GetTopLevel(Window? window)
@@ -323,117 +339,66 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         args.DecrementDeferralCount();
     }
 
-    // Internal only for UnitTests
-    internal void SetupDialog()
+    /// <inheritdoc />
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        if (_primaryButton == null)
-            ApplyTemplate();
+        base.OnLoaded(e);
 
-        PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
-        PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
-        PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
-
-        var curFocus = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Control;
-        bool setFocus = false;
-        if (curFocus.FindAncestorOfType<ContentDialog>() == null)
+        if (!IsKeyboardFocusWithin)
         {
-            // Only set the focus if user didn't handle doing that in Opened handler,
-            // since this is called after
-            setFocus = true;
-        }
-        IInputElement? inputElement = null;
-        var p = Presenter;
-        switch (DefaultButton)
-        {
-            case ContentDialogButton.Primary:
-                if (_primaryButton is { IsVisible: false })
-                    break;
+            var inputElement = DefaultButton switch
+            {
+                ContentDialogButton.Primary => _primaryButton,
+                ContentDialogButton.Secondary => _secondaryButton,
+                ContentDialogButton.Close => _closeButton,
+                _ => (IInputElement?)null
+            };
 
-                _primaryButton?.Classes.Add(SharedPseudoclasses.s_cAccent);
-                _secondaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-                _closeButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-
-                if (setFocus)
-                {
-                    inputElement = _primaryButton;
-#if DEBUG
-                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to PrimaryButton");
-#endif
-                }
-
-                break;
-
-            case ContentDialogButton.Secondary:
-                if (_secondaryButton is { IsVisible: false })
-                    break;
-
-                _secondaryButton?.Classes.Add(SharedPseudoclasses.s_cAccent);
-                _primaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-                _closeButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-
-                if (setFocus)
-                {
-                    inputElement = _secondaryButton;
-#if DEBUG
-                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to SecondaryButton");
-#endif
-                }
-
-                break;
-
-            case ContentDialogButton.Close:
-                if (_closeButton is { IsVisible: false })
-                    break;
-
-                _closeButton?.Classes.Add(SharedPseudoclasses.s_cAccent);
-                _primaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-                _secondaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-
-                if (setFocus)
-                {
-                    inputElement = _closeButton;
-#if DEBUG
-                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to CloseButton");
-#endif
-                }
-
-                break;
-
-            default:
-                _closeButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-                _primaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-                _secondaryButton?.Classes.Remove(SharedPseudoclasses.s_cAccent);
-
-                break;
-        }
-
-        if (setFocus)
-        {
+            if (inputElement?.IsEffectivelyVisible == false)
+            {
+                inputElement = null;
+            }
 
             inputElement ??= KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next) ?? this;
 
             if (!this.IsLoaded)
             {
-                EventHandler<RoutedEventArgs>? lh = default;
-                lh = async (s, e) =>
+                void OnThisLoaded(object? s, RoutedEventArgs _)
                 {
-                    this.Loaded -= lh;
+                    this.Loaded -= OnThisLoaded;
                     inputElement?.Focus();
                 };
-                this.Loaded += lh;
+                this.Loaded += OnThisLoaded;
             }
             else
             {
-                Avalonia.Threading.Dispatcher.UIThread.Post(state =>
+                Dispatcher.UIThread.Post(static state =>
                 {
                     var next = state as IInputElement;
                     next?.Focus();
-#if DEBUG
-                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to {next}", next);
-#endif
                 }, inputElement);
             }
         }
+    }
+
+    private void EnsureDefaultButton()
+    {
+        var defaultButton = DefaultButton;
+        _primaryButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Primary);
+        _secondaryButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Secondary);
+        _closeButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Close);
+    }
+
+    private void EnsureButtonsOrder()
+    {
+        var buttonsOrder = ButtonsOrder switch
+        {
+            ContentDialogButtonsOrder.Auto => RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
+                ContentDialogButtonsOrder.PrimaryLast :
+                ContentDialogButtonsOrder.PrimaryFirst,
+            var value => value
+        };
+        PseudoClasses.Set(s_pcPrimaryFirst, buttonsOrder == ContentDialogButtonsOrder.PrimaryFirst);
     }
 
     // This is the exit point for the ContentDialog
