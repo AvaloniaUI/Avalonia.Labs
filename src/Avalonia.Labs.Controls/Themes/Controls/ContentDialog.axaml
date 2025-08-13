@@ -55,28 +55,18 @@
                             <Setter Property="TextWrapping" Value="Wrap"/>
                           </Style>
                         </Grid.Styles>
-                        <ContentControl Name="Title"
-                                        Margin="{StaticResource ContentDialogTitleMargin}"
-                                        Content="{TemplateBinding Title}"
-                                        ContentTemplate="{TemplateBinding TitleTemplate}"
-                                        FontSize="20"
-                                        FontFamily="Default"
-                                        FontWeight="SemiBold"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Top">
-                          <ContentControl.Template>
-                            <ControlTemplate>
-                              <ContentPresenter Content="{TemplateBinding Content}"
-                                                ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                Margin="{TemplateBinding Padding}"
-                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                            </ControlTemplate>
-                          </ContentControl.Template>
-                        </ContentControl>
+                        <ContentPresenter Name="PART_TitlePresenter"
+                                          Margin="{StaticResource ContentDialogTitleMargin}"
+                                          Content="{TemplateBinding Title}"
+                                          ContentTemplate="{TemplateBinding TitleTemplate}"
+                                          FontSize="20"
+                                          FontFamily="Default"
+                                          FontWeight="SemiBold"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Top" />
 
-                        <ContentPresenter Name="Content"
+                        <ContentPresenter Name="PART_ContentPresenter"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
                                           Content="{TemplateBinding Content}"
                                           FontSize="{StaticResource ControlContentThemeFontSize}"

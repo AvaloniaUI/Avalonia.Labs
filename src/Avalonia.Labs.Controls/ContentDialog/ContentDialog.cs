@@ -68,9 +68,8 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
 
     protected override bool RegisterContentPresenter(ContentPresenter presenter)
     {
-        if (presenter.Name == "Content")
+        if (presenter.Name is "PART_ContentPresenter" or "PART_TitlePresenter")
             return true;
-
         return base.RegisterContentPresenter(presenter);
     }
 
