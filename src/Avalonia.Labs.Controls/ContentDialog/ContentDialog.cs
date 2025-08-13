@@ -335,6 +335,12 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
         PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
         PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
+    }
+
+    /// <inheritdoc />
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
 
         if (!IsKeyboardFocusWithin)
         {
@@ -355,12 +361,12 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
 
             if (!this.IsLoaded)
             {
-                void OnInitialized(object? s, RoutedEventArgs e)
+                void OnThisLoaded(object? s, RoutedEventArgs _)
                 {
-                    this.Loaded -= OnInitialized;
+                    this.Loaded -= OnThisLoaded;
                     inputElement?.Focus();
                 };
-                this.Loaded += OnInitialized;
+                this.Loaded += OnThisLoaded;
             }
             else
             {
