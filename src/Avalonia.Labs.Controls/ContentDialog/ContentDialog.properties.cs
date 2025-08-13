@@ -361,9 +361,9 @@ public partial class ContentDialog
     public event EventHandler<ContentDialogButtonClickEventArgs>? CloseButtonClick;
 
 
-    private const string s_tpPrimaryButton = "PrimaryButton";
-    private const string s_tpSecondaryButton = "SecondaryButton";
-    private const string s_tpCloseButton = "CloseButton";
+    private const string s_tpPrimaryButton = "PART_PrimaryButton";
+    private const string s_tpSecondaryButton = "PART_SecondaryButton";
+    private const string s_tpCloseButton = "PART_CloseButton";
 
     private const string s_pcPrimary = ":primary";
     private const string s_pcSecondary = ":secondary";
