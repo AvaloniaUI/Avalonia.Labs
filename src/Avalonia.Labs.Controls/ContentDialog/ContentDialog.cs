@@ -104,17 +104,19 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                 {
                     case ContentDialogButton.Primary:
                         OnButtonClick(_primaryButton, null);
+                        e.Handled = true;
                         break;
 
                     case ContentDialogButton.Secondary:
                         OnButtonClick(_secondaryButton, null);
+                        e.Handled = true;
                         break;
 
                     case ContentDialogButton.Close:
                         OnButtonClick(_closeButton, null);
+                        e.Handled = true;
                         break;
                 }
-                e.Handled = true;
 
                 break;
         }
