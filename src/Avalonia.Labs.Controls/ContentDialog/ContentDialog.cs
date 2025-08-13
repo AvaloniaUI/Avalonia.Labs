@@ -56,6 +56,14 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         {
             EnsureDefaultButton();
         }
+        else if (change.Property == PrimaryButtonTextProperty
+                 || change.Property == SecondaryButtonTextProperty
+                 || change.Property == CloseButtonTextProperty)
+        {
+            PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
+            PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
+            PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
+        }
     }
 
     protected override bool RegisterContentPresenter(ContentPresenter presenter)
@@ -187,7 +195,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         IsVisible = true;
         ol.UpdateLayout();
         ShowCore();
-        SetupDialog();
         return await _tcs.Task;
 
         static TopLevel GetTopLevel(Window? window)
@@ -324,17 +331,6 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         args.IncrementDeferralCount();
         OnClosing(args);
         args.DecrementDeferralCount();
-    }
-
-    // Internal only for UnitTests
-    private void SetupDialog()
-    {
-        if (_primaryButton == null)
-            ApplyTemplate();
-
-        PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
-        PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
-        PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
     }
 
     /// <inheritdoc />
