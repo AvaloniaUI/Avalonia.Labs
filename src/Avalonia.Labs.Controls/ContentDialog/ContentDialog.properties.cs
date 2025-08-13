@@ -8,7 +8,7 @@ namespace Avalonia.Labs.Controls;
 
 [PseudoClasses(SharedPseudoclasses.s_pcHidden, SharedPseudoclasses.s_pcOpen)]
 [PseudoClasses(s_pcPrimary, s_pcSecondary, s_pcClose)]
-[PseudoClasses(s_pcFullSize)]
+[PseudoClasses(s_pcFullSize, s_pcPrimaryFirst)]
 [TemplatePart(s_tpPrimaryButton, typeof(Button))]
 [TemplatePart(s_tpSecondaryButton, typeof(Button))]
 [TemplatePart(s_tpCloseButton, typeof(Button))]
@@ -103,6 +103,12 @@ public partial class ContentDialog
     /// </summary>
     public static readonly StyledProperty<bool> FullSizeDesiredProperty =
         AvaloniaProperty.Register<ContentDialog, bool>(nameof(FullSizeDesired));
+
+    /// <summary>
+    /// Defines the <see cref="ButtonsOrder"/> property
+    /// </summary>
+    public static readonly StyledProperty<ContentDialogButtonsOrder> ButtonsOrderProperty =
+        AvaloniaProperty.Register<ContentDialog, ContentDialogButtonsOrder>(nameof(ButtonsOrder));
 
     /// <summary>
     /// Gets or sets the command to invoke when the close button is tapped.
@@ -326,6 +332,15 @@ public partial class ContentDialog
     }
 
     /// <summary>
+    /// Gets or sets visual order of the dialog buttons.
+    /// </summary>
+    public ContentDialogButtonsOrder ButtonsOrder
+    {
+        get => GetValue(ButtonsOrderProperty);
+        set => SetValue(ButtonsOrderProperty, value);
+    }
+
+    /// <summary>
     /// Occurs before the dialog is opened
     /// </summary>
     public event EventHandler<EventArgs>? Opening;
@@ -369,4 +384,5 @@ public partial class ContentDialog
     private const string s_pcSecondary = ":secondary";
     private const string s_pcClose = ":close";
     private const string s_pcFullSize = ":fullsize";
+    private const string s_pcPrimaryFirst = ":primary-first";
 }

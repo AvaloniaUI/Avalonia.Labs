@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Presenters;
@@ -7,7 +8,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Logging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 
@@ -42,6 +42,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _closeButton.Click += OnButtonClick;
 
         EnsureDefaultButton();
+        EnsureButtonsOrder();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -55,6 +56,10 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         else if (change.Property == DefaultButtonProperty)
         {
             EnsureDefaultButton();
+        }
+        else if (change.Property == ButtonsOrderProperty)
+        {
+            EnsureButtonsOrder();
         }
         else if (change.Property == PrimaryButtonTextProperty
                  || change.Property == SecondaryButtonTextProperty
@@ -380,6 +385,18 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _primaryButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Primary);
         _secondaryButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Secondary);
         _closeButton?.Classes.Set(SharedPseudoclasses.s_cAccent, defaultButton == ContentDialogButton.Close);
+    }
+
+    private void EnsureButtonsOrder()
+    {
+        var buttonsOrder = ButtonsOrder switch
+        {
+            ContentDialogButtonsOrder.Auto => RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
+                ContentDialogButtonsOrder.PrimaryLast :
+                ContentDialogButtonsOrder.PrimaryFirst,
+            var value => value
+        };
+        PseudoClasses.Set(s_pcPrimaryFirst, buttonsOrder == ContentDialogButtonsOrder.PrimaryFirst);
     }
 
     // This is the exit point for the ContentDialog

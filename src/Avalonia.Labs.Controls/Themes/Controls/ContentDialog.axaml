@@ -214,43 +214,35 @@
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
     </Style>
-    <Style Selector="^:primary /template/ Button#PART_SecondaryButton">
-      <Setter Property="IsVisible" Value="False"/>
-    </Style>
-    <Style Selector="^:primary /template/ Button#PART_CloseButton">
+    <Style Selector="^:primary /template/ Button#PART_SecondaryButton, ^:primary /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
 
     <!-- Secondary Button Only -->
-    <Style Selector="^:secondary /template/ Button#PART_PrimaryButton">
-      <Setter Property="IsVisible" Value="False"/>
-    </Style>
     <Style Selector="^:secondary /template/ Button#PART_SecondaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
     </Style>
-    <Style Selector="^:secondary /template/ Button#PART_CloseButton">
+    <Style Selector="^:secondary /template/ Button#PART_PrimaryButton, ^:secondary /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
 
     <!-- Close Button Only -->
-    <Style Selector="^:close /template/ Button#PART_PrimaryButton">
-      <Setter Property="IsVisible" Value="False"/>
-    </Style>
-    <Style Selector="^:close /template/ Button#PART_SecondaryButton">
-      <Setter Property="IsVisible" Value="False"/>
-    </Style>
     <Style Selector="^:close /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
     </Style>
+    <Style Selector="^:close /template/ Button#PART_PrimaryButton, ^:close /template/ Button#PART_SecondaryButton">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
 
     <!-- Margins are defined by ContentDialogButtonSpacing (8) -->
 
     <!-- Primary and Secondary -->
-    <Style Selector="^:primary:secondary /template/ Button#PART_PrimaryButton">
+    <Style Selector="^:primary:secondary:primary-first /template/ Button#PART_PrimaryButton,
+                     ^:primary:secondary:not(:primary-first) /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="0" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
@@ -262,12 +254,14 @@
       <Setter Property="Grid.ColumnSpan" Value="2" />
       <Setter Property="Margin" Value="4 0 0 0" />
     </Style>
-    <Style Selector="^:primary:secondary /template/ Button#PART_CloseButton">
+    <Style Selector="^:primary:secondary:primary-first /template/ Button#PART_CloseButton,
+                     ^:primary:secondary:not(:primary-first) /template/ Button#PART_PrimaryButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
 
     <!-- Primary and Close Buttons -->
-    <Style Selector="^:primary:close /template/ Button#PART_PrimaryButton">
+    <Style Selector="^:primary:close:primary-first /template/ Button#PART_PrimaryButton,
+                     ^:primary:close:not(:primary-first) /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="0" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
@@ -276,15 +270,17 @@
     <Style Selector="^:primary:close /template/ Button#PART_SecondaryButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
-    <Style Selector="^:primary:close /template/ Button#PART_CloseButton">
+    <Style Selector="^:primary:close:primary-first /template/ Button#PART_CloseButton,
+                     ^:primary:close:not(:primary-first) /template/ Button#PART_PrimaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
       <Setter Property="Margin" Value="4 0 0 0" />
     </Style>
-
+    
     <!-- Primary and Secondary Buttons -->
-    <Style Selector="^:primary:secondary /template/ Button#PART_PrimaryButton">
+    <Style Selector="^:primary:secondary:primary-first /template/ Button#PART_PrimaryButton,
+                     ^:primary:secondary:not(:primary-first) /template/ Button#PART_SecondaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="0" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
@@ -293,15 +289,16 @@
     <Style Selector="^:primary:secondary /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
-    <Style Selector="^:primary:secondary /template/ Button#PART_SecondaryButton">
+    <Style Selector="^:primary:secondary:primary-first /template/ Button#PART_SecondaryButton,
+                     ^:primary:secondary:not(:primary-first) /template/ Button#PART_PrimaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
-      <Setter Property="Margin" Value="4 0 0 0" />
     </Style>
 
     <!-- Secondary and Close Buttons -->
-    <Style Selector="^:secondary:close /template/ Button#PART_SecondaryButton">
+    <Style Selector="^:secondary:close:primary-first /template/ Button#PART_SecondaryButton,
+                     ^:secondary:close:not(:primary-first) /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="0" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
@@ -310,7 +307,8 @@
     <Style Selector="^:secondary:close /template/ Button#PART_PrimaryButton">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
-    <Style Selector="^:secondary:close /template/ Button#PART_CloseButton">
+    <Style Selector="^:secondary:close:primary-first /template/ Button#PART_CloseButton,
+                     ^:secondary:close:not(:primary-first) /template/ Button#PART_SecondaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="2" />
       <Setter Property="Grid.ColumnSpan" Value="2" />
@@ -319,7 +317,8 @@
 
 
     <!-- All Buttons -->
-    <Style Selector="^:primary:secondary:close /template/ Button#PART_PrimaryButton">
+    <Style Selector="^:primary:secondary:close:primary-first /template/ Button#PART_PrimaryButton,
+                     ^:primary:secondary:close:not(:primary-first) /template/ Button#PART_CloseButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="0" />
       <Setter Property="Grid.ColumnSpan" Value="1" />
@@ -331,7 +330,8 @@
       <Setter Property="Grid.ColumnSpan" Value="2" />
       <Setter Property="Margin" Value="4 0 4 0" />
     </Style>
-    <Style Selector="^:primary:secondary:close /template/ Button#PART_CloseButton">
+    <Style Selector="^:primary:secondary:close:primary-first /template/ Button#PART_CloseButton,
+                     ^:primary:secondary:close:not(:primary-first) /template/ Button#PART_PrimaryButton">
       <Setter Property="IsVisible" Value="True"/>
       <Setter Property="Grid.Column" Value="3" />
       <Setter Property="Grid.ColumnSpan" Value="1" />
