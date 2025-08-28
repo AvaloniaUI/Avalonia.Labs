@@ -22,6 +22,7 @@ namespace Avalonia.Labs.Notifications.Linux
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
         public NotificationChannelManager ChannelManager { get; } = new();
+        public bool ClearOnClose { get; set; }
 
         public async void Initialize(AppNotificationOptions? options)
         {
@@ -118,6 +119,9 @@ namespace Avalonia.Labs.Notifications.Linux
         /// <inheritdoc />
         public void Dispose()
         {
+            if (ClearOnClose)
+                CloseAll();
+
             _signalWatcher?.Dispose();
         }
 

@@ -55,6 +55,8 @@ namespace Avalonia.Labs.Notifications
                 notificationManager.ChannelManager.AddChannel(channel);
             }
 
+            notificationManager.ClearOnClose = options?.ClearOnAppClose ?? false;
+
             return appBuilder.AfterSetup((a) =>
             {
                 notificationManager.Initialize(options);

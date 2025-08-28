@@ -24,6 +24,7 @@ namespace Avalonia.Labs.Notifications.Windows
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
         public NotificationChannelManager ChannelManager { get; }
+        public bool ClearOnClose { get; set; }
         public NativeNotificationManager()
         {
             ChannelManager = new NotificationChannelManager();
@@ -158,7 +159,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
             _notifications.Clear();
 
-            if (!DesktopBridgeHelpers.HasPackage())
+            if (ClearOnClose)
             {
                 CloseAll();
             }
