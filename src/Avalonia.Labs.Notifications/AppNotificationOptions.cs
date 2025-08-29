@@ -46,4 +46,9 @@ public class AppNotificationOptions
 #endif
 
     public IReadOnlyList<NotificationChannel>? Channels { get; init; }
+
+    /// <summary>
+    /// Clears all notifications when the Avalonia app shutdowns
+    /// </summary>
+    public bool ClearOnAppClose { get; set; }
 }
