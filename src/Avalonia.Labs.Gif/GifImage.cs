@@ -25,8 +25,8 @@ public class GifImage : Control
     /// <summary>
     /// Defines the <see cref="Source"/> property.
     /// </summary>
-    public static readonly StyledProperty<object> SourceProperty =
-        AvaloniaProperty.Register<GifImage, object>(nameof(Source));
+    public static readonly StyledProperty<object?> SourceProperty =
+        AvaloniaProperty.Register<GifImage, object?>(nameof(Source));
 
     /// <summary>
     /// Defines the <see cref="IterationCount"/> property.
@@ -51,7 +51,7 @@ public class GifImage : Control
     /// pointing to the GIF image resource or
     /// <see cref="Stream"/> containing the GIF image.
     /// </summary>
-    public object Source
+    public object? Source
     {
         get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
@@ -179,8 +179,14 @@ public class GifImage : Control
 
         _customVisual.Size = new Vector2((float)Bounds.Size.Width, (float)Bounds.Size.Height);
 
-        Stream stream;
-        if (Source is Stream s)
+        Stream? stream;
+        if (Source is null)
+        {
+            stream = null;
+            _gifHeight = 0;
+            _gifWidth = 0;
+        }
+        else if (Source is Stream s)
         {
             // only perform the copying if the stream has actually changed. 
             // if the stream has not changed, seek our internal memory stream that matches the last stream source.
@@ -215,15 +221,28 @@ public class GifImage : Control
                     "Unsupported Source object: only Stream, Uri and absolute uri string are supported.");
             }
         }
-        else
+        else 
         {
             throw new ArgumentException(
                 "Unsupported Source object: only Stream, Uri and absolute uri string are supported.");
         }
 
-        using var tempGifDecoder = new GifDecoder(stream, CancellationToken.None);
-        _gifHeight = tempGifDecoder.Size.Height;
-        _gifWidth = tempGifDecoder.Size.Width;
+
+        if (stream is not null)
+        {
+            try
+            {
+                using var tempGifDecoder = new GifDecoder(stream, CancellationToken.None);
+                _gifHeight = tempGifDecoder.Size.Height;
+                _gifWidth = tempGifDecoder.Size.Width;
+            }
+            catch (InvalidGifStreamException) 
+            {
+                stream = null;
+                _gifHeight = 0;
+                _gifWidth = 0;
+            }
+        }
 
         _customVisual?.SendHandlerMessage(
             new GifDrawPayload(
