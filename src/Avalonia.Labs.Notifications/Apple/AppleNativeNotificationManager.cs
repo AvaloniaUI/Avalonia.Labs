@@ -23,6 +23,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, 
     }
 
     public AppleNotificationChannelManager ChannelManager { get; }
+    public bool ClearOnClose { get; set; }
     NotificationChannelManager INativeNotificationManagerImpl.ChannelManager => ChannelManager;
 
     public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications =>
@@ -77,6 +78,9 @@ internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, 
 
     public void Dispose()
     {
+        if (ClearOnClose)
+            CloseAll();
+
         _notificationDelegate.DidReceiveNotificationResponse -= NotificationDelegateOnDidReceiveNotificationResponse;
         UNUserNotificationCenter.Current.Delegate = null;
     }

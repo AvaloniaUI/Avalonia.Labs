@@ -9,10 +9,6 @@ namespace Avalonia.Labs.Controls;
 /// <summary>
 /// Special control to host a <see cref="ContentDialog"/>/>
 /// </summary>
-/// <remarks>
-/// This class should generally not be used outside of FluentAvalonia, and is
-/// only public for Xaml styling support
-/// </remarks>
 public class DialogHost : ContentControl
 {
     public DialogHost()

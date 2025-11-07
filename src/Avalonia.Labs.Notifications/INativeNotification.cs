@@ -53,6 +53,7 @@ namespace Avalonia.Labs.Notifications
     {
         void Initialize(AppNotificationOptions? options);
         NotificationChannelManager ChannelManager { get; }
+        bool ClearOnClose { get; set; }
     }
 
     public class NativeNotificationCompletedEventArgs : EventArgs

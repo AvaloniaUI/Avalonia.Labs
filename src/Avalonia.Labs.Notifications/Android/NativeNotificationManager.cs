@@ -20,6 +20,7 @@ namespace Avalonia.Labs.Notifications.Android
 
         public AndroidNotificationChannelManager ChannelManager { get; }
         NotificationChannelManager INativeNotificationManagerImpl.ChannelManager => ChannelManager;
+        public bool ClearOnClose { get; set; }
 
         public event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
 
@@ -127,7 +128,8 @@ namespace Avalonia.Labs.Notifications.Android
 
         public void Dispose()
         {
-            // no-op
+            if (ClearOnClose)
+                CloseAll();
         }
     }
 }
