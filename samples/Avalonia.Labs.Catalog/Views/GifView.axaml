@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="using:Avalonia.Labs.Catalog.Converters"
              xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels" 
              xmlns:gif="clr-namespace:Avalonia.Labs.Gif;assembly=Avalonia.Labs.Gif"
              mc:Ignorable="d"
@@ -17,6 +18,7 @@
   <UserControl.Resources>
     <StreamGeometry x:Key="PreviousIcon">M2.75 20a1 1 0 1 0 2 0V4a1 1 0 1 0-2 0v16ZM20.75 19.053c0 1.424-1.612 2.252-2.77 1.422L7.51 12.968a1.75 1.75 0 0 1 .075-2.895l10.47-6.716c1.165-.748 2.695.089 2.695 1.473v14.223Z</StreamGeometry>
     <StreamGeometry x:Key="NextIcon">M21 4a1 1 0 1 0-2 0v16a1 1 0 1 0 2 0V4ZM3 4.947c0-1.424 1.612-2.252 2.77-1.422l10.47 7.507a1.75 1.75 0 0 1-.075 2.895l-10.47 6.716C4.53 21.39 3 20.554 3 19.17V4.947Z</StreamGeometry>
+    <converters:GifSourceConverter x:Key="GifSourceConverter" />
   </UserControl.Resources>
   <Panel>
     <Panel IsVisible="{Binding EnableCheckerboard}">
@@ -95,7 +97,7 @@
                   Content="Checkerboard" />
       </WrapPanel>
 
-      <gif:GifImage Source="{Binding SelectedAsset.Path, FallbackValue={x:Null}}"
+      <gif:GifImage Source="{Binding SelectedAsset.Path, Converter={StaticResource GifSourceConverter}, FallbackValue={x:Null}}"
                     Stretch="{Binding SelectedStretch}"
                     StretchDirection="Both" />
 
