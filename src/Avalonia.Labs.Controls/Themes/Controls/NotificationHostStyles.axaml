@@ -1,0 +1,17 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Avalonia.Labs.Controls">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->
+      <controls:NotificationHost />
+    </Border>
+  </Design.PreviewWith>
+  
+  <!-- This style ensures that notifications are never wider than 800px. You can copy this style to override the maxwidth-->
+  <Style Selector="controls|NotificationHost /template/ ItemsControl /template/ StackPanel">
+    <Setter Property="MaxWidth" Value="800" />
+  </Style>
+  
+</Styles>
+
