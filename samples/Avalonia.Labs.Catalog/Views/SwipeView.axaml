@@ -43,6 +43,26 @@
                 </StackPanel>
               </DataTemplate>
             </labs:Swipe.Left>
+            <labs:Swipe.Top>
+              <DataTemplate>
+                <Border Background="Orange" Padding="10">
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Top Items" VerticalAlignment="Center" Margin="5"/>
+                    <Button Classes="accent" Click="CloseSwipe" Content="Close" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </labs:Swipe.Top>
+            <labs:Swipe.Bottom>
+              <DataTemplate>
+                <Border Background="Purple" Padding="10">
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Bottom Items" VerticalAlignment="Center" Margin="5" Foreground="White"/>
+                    <Button Classes="accent" Click="CloseSwipe" Content="Close" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </labs:Swipe.Bottom>
           </labs:Swipe>
         </DataTemplate>
       </ItemsControl.ItemTemplate>

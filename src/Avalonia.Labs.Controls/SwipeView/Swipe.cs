@@ -36,6 +36,30 @@ public class Swipe : Grid
         set => SetValue(LeftTemplateProperty, value);
     }
 
+    public static readonly StyledProperty<DataTemplate> TopTemplateProperty =
+        AvaloniaProperty.Register<Swipe, DataTemplate>(nameof(Top));
+
+    /// <summary>
+    /// DataTemplate for the top side
+    /// </summary>
+    public DataTemplate Top
+    {
+        get => GetValue(TopTemplateProperty);
+        set => SetValue(TopTemplateProperty, value);
+    }
+
+    public static readonly StyledProperty<DataTemplate> BottomTemplateProperty =
+        AvaloniaProperty.Register<Swipe, DataTemplate>(nameof(Bottom));
+
+    /// <summary>
+    /// DataTemplate for the bottom side
+    /// </summary>
+    public DataTemplate Bottom
+    {
+        get => GetValue(BottomTemplateProperty);
+        set => SetValue(BottomTemplateProperty, value);
+    }
+
     public static readonly StyledProperty<Control> ContentProperty =
         AvaloniaProperty.Register<Swipe, Control>(nameof(Content));
 
@@ -62,14 +86,24 @@ public class Swipe : Grid
 
     private readonly ContentPresenter _rightContainer;
     private readonly ContentPresenter _leftContainer;
+    private readonly ContentPresenter _topContainer;
+    private readonly ContentPresenter _bottomContainer;
     private readonly ContentPresenter _bodyContainer;
     private readonly TransformOperationsTransition _transition;
+    private readonly PanGestureRecognizer _panGestureRecognizer;
 
     private double _initialX;
     private double _currentX;
+    private double _initialY;
+    private double _currentY;
+    private bool _isHorizontalSwipe;
+    private bool _isVerticalSwipe;
 
     public Swipe()
     {
+        // Prevent content overflow
+        ClipToBounds = true;
+
         _rightContainer = new ContentPresenter
         {
             IsVisible = false, HorizontalAlignment = HorizontalAlignment.Right
@@ -78,6 +112,20 @@ public class Swipe : Grid
         _leftContainer = new ContentPresenter
         {
             IsVisible = false, HorizontalAlignment = HorizontalAlignment.Left
+        };
+
+        _topContainer = new ContentPresenter
+        {
+            IsVisible = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Top
+        };
+
+        _bottomContainer = new ContentPresenter
+        {
+            IsVisible = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Bottom
         };
 
         _bodyContainer = new ContentPresenter
@@ -92,17 +140,20 @@ public class Swipe : Grid
             Easing = new CubicEaseOut()
         };
 
-        var panGestureRecognizer = new PanGestureRecognizer
+        _panGestureRecognizer = new PanGestureRecognizer
         {
-            Direction = PanDirection.Left | PanDirection.Right, Threshold = 10,
+            Direction = PanDirection.Left | PanDirection.Right | PanDirection.Up | PanDirection.Down,
+            Threshold = 10,
         };
 
-        panGestureRecognizer.OnPan += PanUpdated;
+        _panGestureRecognizer.OnPan += PanUpdated;
 
-        _bodyContainer.GestureRecognizers.Add(panGestureRecognizer);
+        _bodyContainer.GestureRecognizers.Add(_panGestureRecognizer);
 
         Children.Add(_rightContainer);
         Children.Add(_leftContainer);
+        Children.Add(_topContainer);
+        Children.Add(_bottomContainer);
         Children.Add(_bodyContainer);
     }
 
@@ -111,35 +162,62 @@ public class Swipe : Grid
     {
         base.OnPropertyChanged(e);
 
-        if (nameof(Content) == e.Property.Name)
+        if (e.Property == ContentProperty)
         {
             _bodyContainer.Content = e.NewValue;
             return;
         }
 
-        if (nameof(SwipeState) == e.Property.Name)
+        if (e.Property == SwipeStateProperty)
         {
             ProcessSwipe(SwipeState);
         }
     }
 
-    private SwipeState CalculateState(double translationX)
+    private SwipeState CalculateState(double translationX, double translationY)
     {
-        var stepSize = translationX < 0
-            ? _rightContainer.Bounds.Width
-            : _leftContainer.Bounds.Width;
+        // Determine if this is primarily horizontal or vertical swipe
+        var absX = Math.Abs(translationX);
+        var absY = Math.Abs(translationY);
 
-        if (stepSize > Math.Abs(translationX))
+        if (absX > absY)
         {
-            return SwipeState.Hidden;
+            // Horizontal swipe
+            var stepSize = translationX < 0
+                ? _rightContainer.Bounds.Width
+                : _leftContainer.Bounds.Width;
+
+            if (stepSize > absX)
+            {
+                return SwipeState.Hidden;
+            }
+
+            return translationX switch
+            {
+                < 0 => SwipeState.RightVisible,
+                > 0 => SwipeState.LeftVisible,
+                _ => SwipeState.Hidden
+            };
         }
-
-        return translationX switch
+        else
         {
-            < 0 => SwipeState.RightVisible,
-            > 0 => SwipeState.LeftVisible,
-            _ => SwipeState.Hidden
-        };
+            // Vertical swipe
+            var stepSize = translationY < 0
+                ? _bottomContainer.Bounds.Height
+                : _topContainer.Bounds.Height;
+
+            if (stepSize > absY)
+            {
+                return SwipeState.Hidden;
+            }
+
+            return translationY switch
+            {
+                < 0 => SwipeState.BottomVisible,
+                > 0 => SwipeState.TopVisible,
+                _ => SwipeState.Hidden
+            };
+        }
     }
 
     private void ProcessSwipe(SwipeState state)
@@ -149,42 +227,93 @@ public class Swipe : Grid
             case SwipeState.RightVisible:
                 _rightContainer.IsVisible = true;
                 MaterializeDataTemplate(_rightContainer, Right);
-                SetTranslate(-_rightContainer.Bounds.Width);
-
+                SetTranslate(-_rightContainer.Bounds.Width, 0);
                 break;
+
             case SwipeState.LeftVisible:
                 _leftContainer.IsVisible = true;
                 MaterializeDataTemplate(_leftContainer, Left);
-                SetTranslate(_leftContainer.Bounds.Width);
-
+                SetTranslate(_leftContainer.Bounds.Width, 0);
                 break;
+
+            case SwipeState.TopVisible:
+                _topContainer.IsVisible = true;
+                MaterializeDataTemplate(_topContainer, Top);
+                SetTranslate(0, _topContainer.Bounds.Height);
+                break;
+
+            case SwipeState.BottomVisible:
+                _bottomContainer.IsVisible = true;
+                MaterializeDataTemplate(_bottomContainer, Bottom);
+                SetTranslate(0, -_bottomContainer.Bounds.Height);
+                break;
+
             case SwipeState.Hidden:
             default:
-                SetTranslate(0);
+                SetTranslate(0, 0);
                 break;
         }
     }
 
-    private void SetTranslate(double x)
+    private void SetTranslate(double x, double y)
     {
         _currentX = x;
+        _currentY = y;
+
         var transformOperation = TransformOperations.CreateBuilder(1);
-        transformOperation.AppendTranslate(x, 0);
+        transformOperation.AppendTranslate(x, y);
 
         _bodyContainer.SetValue(RenderTransformProperty, transformOperation.Build());
-        _rightContainer.IsVisible = x < 0;
-        _leftContainer.IsVisible = x > 0;
+
+        // Update visibility, only show one direction at a time
+        var absX = Math.Abs(x);
+        var absY = Math.Abs(y);
+
+        if (absX > absY)
+        {
+            // Horizontal swipe, show left or right only
+            _rightContainer.IsVisible = x < 0;
+            _leftContainer.IsVisible = x > 0;
+            _topContainer.IsVisible = false;
+            _bottomContainer.IsVisible = false;
+        }
+        else if (absY > absX)
+        {
+            // Vertical swipe, show top or bottom only
+            _rightContainer.IsVisible = false;
+            _leftContainer.IsVisible = false;
+            _topContainer.IsVisible = y > 0;
+            _bottomContainer.IsVisible = y < 0;
+        }
+        else
+        {
+            // At origin, hide all
+            _rightContainer.IsVisible = false;
+            _leftContainer.IsVisible = false;
+            _topContainer.IsVisible = false;
+            _bottomContainer.IsVisible = false;
+        }
     }
 
     private void MaterializeDataTemplate(ContentPresenter contentView, DataTemplate? dataTemplate)
     {
-        if (contentView.Content is not null || dataTemplate is null)
+        if (contentView?.Content is not null || dataTemplate is null)
         {
             return;
         }
 
-        var view = dataTemplate.Build(DataContext);
-        contentView.Content = view;
+        try
+        {
+            var view = dataTemplate.Build(DataContext);
+            if (contentView != null)
+            {
+                contentView.Content = view;
+            }
+        }
+        catch
+        {
+            // Silently catch template building errors
+        }
     }
 
     private void PanUpdated(object? sender, PanUpdatedEventArgs e)
@@ -193,21 +322,51 @@ public class Swipe : Grid
         {
             case PanGestureStatus.Started:
                 _initialX = _currentX;
+                _initialY = _currentY;
                 _bodyContainer.Transitions!.Remove(_transition);
+
+                // Reset direction locks
+                _isHorizontalSwipe = false;
+                _isVerticalSwipe = false;
+
+                // Materialize all templates upfront
                 MaterializeDataTemplate(_rightContainer, Right);
                 MaterializeDataTemplate(_leftContainer, Left);
-
+                MaterializeDataTemplate(_topContainer, Top);
+                MaterializeDataTemplate(_bottomContainer, Bottom);
                 break;
+
             case PanGestureStatus.Running:
-                var x = _initialX + e.TotalX;
+                var absX = Math.Abs(e.TotalX);
+                var absY = Math.Abs(e.TotalY);
 
-                SetTranslate(x);
+                // Determine direction on first significant movement (threshold of 5 pixels)
+                if (!_isHorizontalSwipe && !_isVerticalSwipe && (absX > 5 || absY > 5))
+                {
+                    if (absX > absY)
+                    {
+                        _isHorizontalSwipe = true;
+                    }
+                    else
+                    {
+                        _isVerticalSwipe = true;
+                    }
+                }
 
+                // Apply movement only in the locked direction
+                var x = _isHorizontalSwipe ? _initialX + e.TotalX : _initialX;
+                var y = _isVerticalSwipe ? _initialY + e.TotalY : _initialY;
 
+                SetTranslate(x, y);
                 break;
+
             case PanGestureStatus.Completed:
                 _bodyContainer.Transitions!.Add(_transition);
-                var newState = CalculateState(_initialX + e.TotalX);
+
+                var finalX = _isHorizontalSwipe ? _initialX + e.TotalX : _initialX;
+                var finalY = _isVerticalSwipe ? _initialY + e.TotalY : _initialY;
+                var newState = CalculateState(finalX, finalY);
+
                 if (SwipeState == newState)
                 {
                     ProcessSwipe(newState);
@@ -215,7 +374,28 @@ public class Swipe : Grid
                 }
 
                 SwipeState = newState;
+
+                // Reset direction locks
+                _isHorizontalSwipe = false;
+                _isVerticalSwipe = false;
                 break;
+        }
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+
+        // Unsubscribe events
+        if (_panGestureRecognizer != null)
+        {
+            _panGestureRecognizer.OnPan -= PanUpdated;
+        }
+
+        // Clear transformations
+        if (_bodyContainer != null)
+        {
+            _bodyContainer.RenderTransform = null;
         }
     }
 }
