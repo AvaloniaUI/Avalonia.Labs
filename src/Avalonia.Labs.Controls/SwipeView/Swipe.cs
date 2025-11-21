@@ -116,6 +116,36 @@ public class Swipe : Grid
         remove => RemoveHandler(CloseRequestedEvent, value);
     }
 
+    /// <summary>
+    /// Routed event for when a swipe gesture starts
+    /// </summary>
+    public static readonly RoutedEvent<SwipeStartedEventArgs> SwipeStartedEvent =
+        RoutedEvent.Register<Swipe, SwipeStartedEventArgs>(nameof(SwipeStarted), RoutingStrategies.Bubble);
+
+    /// <summary>
+    /// Occurs when a swipe gesture begins
+    /// </summary>
+    public event EventHandler<SwipeStartedEventArgs>? SwipeStarted
+    {
+        add => AddHandler(SwipeStartedEvent, value);
+        remove => RemoveHandler(SwipeStartedEvent, value);
+    }
+
+    /// <summary>
+    /// Routed event for when a swipe gesture ends
+    /// </summary>
+    public static readonly RoutedEvent<SwipeEndedEventArgs> SwipeEndedEvent =
+        RoutedEvent.Register<Swipe, SwipeEndedEventArgs>(nameof(SwipeEnded), RoutingStrategies.Bubble);
+
+    /// <summary>
+    /// Occurs when a swipe gesture completes
+    /// </summary>
+    public event EventHandler<SwipeEndedEventArgs>? SwipeEnded
+    {
+        add => AddHandler(SwipeEndedEvent, value);
+        remove => RemoveHandler(SwipeEndedEvent, value);
+    }
+
     private readonly ContentPresenter _rightContainer;
     private readonly ContentPresenter _leftContainer;
     private readonly ContentPresenter _topContainer;
@@ -130,6 +160,7 @@ public class Swipe : Grid
     private double _currentY;
     private bool _isHorizontalSwipe;
     private bool _isVerticalSwipe;
+    private SwipeDirection _swipeDirection;
 
     public Swipe()
     {
@@ -395,11 +426,17 @@ public class Swipe : Grid
                     if (absX > absY)
                     {
                         _isHorizontalSwipe = true;
+                        _swipeDirection = e.TotalX > 0 ? SwipeDirection.Right : SwipeDirection.Left;
                     }
                     else
                     {
                         _isVerticalSwipe = true;
+                        _swipeDirection = e.TotalY > 0 ? SwipeDirection.Down : SwipeDirection.Up;
                     }
+
+                    // Raise SwipeStarted event
+                    var swipeStartedArgs = new SwipeStartedEventArgs(SwipeStartedEvent, _swipeDirection);
+                    RaiseEvent(swipeStartedArgs);
                 }
 
                 // Apply movement only in the locked direction
@@ -419,10 +456,16 @@ public class Swipe : Grid
                 if (SwipeState == newState)
                 {
                     ProcessSwipe(newState);
-                    return;
+                }
+                else
+                {
+                    SwipeState = newState;
                 }
 
-                SwipeState = newState;
+                // Raise SwipeEnded event
+                var isOpen = newState != SwipeState.Hidden;
+                var swipeEndedArgs = new SwipeEndedEventArgs(SwipeEndedEvent, _swipeDirection, isOpen);
+                RaiseEvent(swipeEndedArgs);
 
                 // Reset direction locks
                 _isHorizontalSwipe = false;

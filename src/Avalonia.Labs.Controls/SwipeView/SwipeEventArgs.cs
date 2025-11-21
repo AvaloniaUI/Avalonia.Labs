@@ -46,3 +46,52 @@ public class CloseRequestedEventArgs : RoutedEventArgs
     {
     }
 }
+
+/// <summary>
+/// Provides data for the SwipeStarted event
+/// </summary>
+public class SwipeStartedEventArgs : RoutedEventArgs
+{
+    /// <summary>
+    /// Gets the direction of the swipe gesture
+    /// </summary>
+    public SwipeDirection SwipeDirection { get; }
+
+    public SwipeStartedEventArgs(SwipeDirection swipeDirection)
+    {
+        SwipeDirection = swipeDirection;
+    }
+
+    public SwipeStartedEventArgs(RoutedEvent? routedEvent, SwipeDirection swipeDirection) : base(routedEvent)
+    {
+        SwipeDirection = swipeDirection;
+    }
+}
+
+/// <summary>
+/// Provides data for the SwipeEnded event
+/// </summary>
+public class SwipeEndedEventArgs : RoutedEventArgs
+{
+    /// <summary>
+    /// Gets the direction of the swipe gesture
+    /// </summary>
+    public SwipeDirection SwipeDirection { get; }
+
+    /// <summary>
+    /// Gets whether the swipe items remain visible after the gesture completes
+    /// </summary>
+    public bool IsOpen { get; }
+
+    public SwipeEndedEventArgs(SwipeDirection swipeDirection, bool isOpen)
+    {
+        SwipeDirection = swipeDirection;
+        IsOpen = isOpen;
+    }
+
+    public SwipeEndedEventArgs(RoutedEvent? routedEvent, SwipeDirection swipeDirection, bool isOpen) : base(routedEvent)
+    {
+        SwipeDirection = swipeDirection;
+        IsOpen = isOpen;
+    }
+}
