@@ -233,4 +233,89 @@ public class SwipeTests
         swipe.Close();
         Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
     }
+
+    [Fact]
+    public void OpenRequested_Event_Fires_When_Opening()
+    {
+        var swipe = new Swipe();
+        OpenRequestedEventArgs? capturedArgs = null;
+        swipe.OpenRequested += (sender, e) => capturedArgs = e;
+
+        swipe.Open(OpenSwipeItem.LeftItems);
+
+        Assert.NotNull(capturedArgs);
+        Assert.Equal(OpenSwipeItem.LeftItems, capturedArgs.OpenSwipeItem);
+    }
+
+    [Fact]
+    public void OpenRequested_Event_Fires_With_Correct_Direction()
+    {
+        var swipe = new Swipe();
+        OpenRequestedEventArgs? capturedArgs = null;
+        swipe.OpenRequested += (sender, e) => capturedArgs = e;
+
+        swipe.Open(OpenSwipeItem.RightItems);
+
+        Assert.NotNull(capturedArgs);
+        Assert.Equal(OpenSwipeItem.RightItems, capturedArgs.OpenSwipeItem);
+    }
+
+    [Fact]
+    public void OpenRequested_Event_Can_Cancel_Opening()
+    {
+        var swipe = new Swipe();
+        // Ensure starting from Hidden state
+        swipe.SwipeState = SwipeState.Hidden;
+
+        swipe.OpenRequested += (sender, e) => e.Cancel = true;
+
+        swipe.Open(OpenSwipeItem.LeftItems);
+
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void CloseRequested_Event_Fires_When_Closing()
+    {
+        var swipe = new Swipe();
+        swipe.SwipeState = SwipeState.LeftVisible;
+
+        bool eventFired = false;
+        swipe.CloseRequested += (sender, e) => eventFired = true;
+
+        swipe.Close();
+
+        Assert.True(eventFired);
+    }
+
+    [Fact]
+    public void CloseRequested_Event_Can_Cancel_Closing()
+    {
+        var swipe = new Swipe();
+        swipe.SwipeState = SwipeState.LeftVisible;
+        swipe.CloseRequested += (sender, e) => e.Cancel = true;
+
+        swipe.Close();
+
+        Assert.Equal(SwipeState.LeftVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void OpenRequested_Event_Fires_For_All_Directions()
+    {
+        var swipe = new Swipe();
+        var capturedDirections = new System.Collections.Generic.List<OpenSwipeItem>();
+        swipe.OpenRequested += (sender, e) => capturedDirections.Add(e.OpenSwipeItem);
+
+        swipe.Open(OpenSwipeItem.LeftItems);
+        swipe.Open(OpenSwipeItem.RightItems);
+        swipe.Open(OpenSwipeItem.TopItems);
+        swipe.Open(OpenSwipeItem.BottomItems);
+
+        Assert.Equal(4, capturedDirections.Count);
+        Assert.Contains(OpenSwipeItem.LeftItems, capturedDirections);
+        Assert.Contains(OpenSwipeItem.RightItems, capturedDirections);
+        Assert.Contains(OpenSwipeItem.TopItems, capturedDirections);
+        Assert.Contains(OpenSwipeItem.BottomItems, capturedDirections);
+    }
 }

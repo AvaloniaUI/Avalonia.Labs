@@ -16,16 +16,25 @@
       <StackPanel Spacing="10">
         <TextBlock Text="Programmatic Control" FontSize="16" FontWeight="Bold"/>
 
-        <labs:Swipe x:Name="DemoSwipe" Margin="0,5">
+        <labs:Swipe x:Name="DemoSwipe" Margin="0,5"
+                    OpenRequested="DemoSwipe_OpenRequested"
+                    CloseRequested="DemoSwipe_CloseRequested">
           <labs:Swipe.Content>
             <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
                     Padding="20"
                     CornerRadius="4"
                     BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
                     BorderThickness="1">
-              <TextBlock Text="Swipe me or use the buttons below"
-                         VerticalAlignment="Center"
-                         HorizontalAlignment="Center"/>
+              <StackPanel Spacing="5">
+                <TextBlock Text="Swipe me or use the buttons below"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+                <TextBlock x:Name="EventLog"
+                           Text="Event log will appear here"
+                           FontSize="10"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           HorizontalAlignment="Center"/>
+              </StackPanel>
             </Border>
           </labs:Swipe.Content>
           <labs:Swipe.Right>

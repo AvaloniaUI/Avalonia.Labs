@@ -3,6 +3,7 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Controls.Base.Pan;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
@@ -83,6 +84,36 @@ public class Swipe : Grid
     {
         get => GetValue(SwipeStateProperty);
         set => SetValue(SwipeStateProperty, value);
+    }
+
+    /// <summary>
+    /// Routed event for when an open is requested
+    /// </summary>
+    public static readonly RoutedEvent<OpenRequestedEventArgs> OpenRequestedEvent =
+        RoutedEvent.Register<Swipe, OpenRequestedEventArgs>(nameof(OpenRequested), RoutingStrategies.Bubble);
+
+    /// <summary>
+    /// Occurs when the swipe is about to open
+    /// </summary>
+    public event EventHandler<OpenRequestedEventArgs>? OpenRequested
+    {
+        add => AddHandler(OpenRequestedEvent, value);
+        remove => RemoveHandler(OpenRequestedEvent, value);
+    }
+
+    /// <summary>
+    /// Routed event for when a close is requested
+    /// </summary>
+    public static readonly RoutedEvent<CloseRequestedEventArgs> CloseRequestedEvent =
+        RoutedEvent.Register<Swipe, CloseRequestedEventArgs>(nameof(CloseRequested), RoutingStrategies.Bubble);
+
+    /// <summary>
+    /// Occurs when the swipe is about to close
+    /// </summary>
+    public event EventHandler<CloseRequestedEventArgs>? CloseRequested
+    {
+        add => AddHandler(CloseRequestedEvent, value);
+        remove => RemoveHandler(CloseRequestedEvent, value);
     }
 
     private readonly ContentPresenter _rightContainer;
@@ -407,6 +438,16 @@ public class Swipe : Grid
     /// <param name="animated">Whether to animate the opening (default: true)</param>
     public void Open(OpenSwipeItem openSwipeItem, bool animated = true)
     {
+        // Raise OpenRequested event
+        var eventArgs = new OpenRequestedEventArgs(OpenRequestedEvent, openSwipeItem);
+        RaiseEvent(eventArgs);
+
+        // Check if the open was cancelled
+        if (eventArgs.Cancel)
+        {
+            return;
+        }
+
         // Set animation state
         if (animated && !_bodyContainer.Transitions!.Contains(_transition))
         {
@@ -442,6 +483,16 @@ public class Swipe : Grid
     /// <param name="animated">Whether to animate the closing (default: true)</param>
     public void Close(bool animated = true)
     {
+        // Raise CloseRequested event
+        var eventArgs = new CloseRequestedEventArgs(CloseRequestedEvent);
+        RaiseEvent(eventArgs);
+
+        // Check if the close was cancelled
+        if (eventArgs.Cancel)
+        {
+            return;
+        }
+
         // Set animation state
         if (animated && !_bodyContainer.Transitions!.Contains(_transition))
         {
