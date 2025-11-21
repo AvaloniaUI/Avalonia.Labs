@@ -3,8 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Controls;
 using Avalonia.Labs.Controls.Base;
-using Avalonia.Visuals;
-using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Catalog.Views
 {
@@ -26,10 +24,35 @@ namespace Avalonia.Labs.Catalog.Views
 
         private void CloseSwipe(object? sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.GetVisualAncestors().OfType<Swipe>().FirstOrDefault() is Labs.Controls.Swipe swipe)
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
             {
-                swipe.SwipeState = SwipeState.Hidden;
+                demoSwipe.Close();
             }
+        }
+
+        private void OpenLeft(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            demoSwipe?.Open(OpenSwipeItem.LeftItems);
+        }
+
+        private void OpenRight(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            demoSwipe?.Open(OpenSwipeItem.RightItems);
+        }
+
+        private void OpenTop(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            demoSwipe?.Open(OpenSwipeItem.TopItems);
+        }
+
+        private void OpenBottom(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            demoSwipe?.Open(OpenSwipeItem.BottomItems);
         }
     }
 }

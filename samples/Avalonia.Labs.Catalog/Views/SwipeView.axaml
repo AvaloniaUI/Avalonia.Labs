@@ -10,10 +10,86 @@
              x:Class="Avalonia.Labs.Catalog.Views.SwipeView"
              x:DataType="viewModels:SwipeViewModel">
   <ScrollViewer>
-    <ItemsControl ItemsSource="{Binding Items}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <labs:Swipe Margin="5">
+    <StackPanel Spacing="15" Margin="5">
+
+      <!-- Programmatic Control Demo Section -->
+      <StackPanel Spacing="10">
+        <TextBlock Text="Programmatic Control" FontSize="16" FontWeight="Bold"/>
+
+        <labs:Swipe x:Name="DemoSwipe" Margin="0,5">
+          <labs:Swipe.Content>
+            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                    Padding="20"
+                    CornerRadius="4"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="1">
+              <TextBlock Text="Swipe me or use the buttons below"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Center"/>
+            </Border>
+          </labs:Swipe.Content>
+          <labs:Swipe.Right>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <Border Background="Blue" Width="64" Height="64" CornerRadius="4">
+                  <TextBlock Text="R" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+                <Border Background="Blue" Width="64" Height="64" CornerRadius="4">
+                  <TextBlock Text="R" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+              </StackPanel>
+            </DataTemplate>
+          </labs:Swipe.Right>
+          <labs:Swipe.Left>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <Border Background="Green" Width="64" Height="64" CornerRadius="4">
+                  <TextBlock Text="L" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+                <Border Background="Green" Width="64" Height="64" CornerRadius="4">
+                  <TextBlock Text="L" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+              </StackPanel>
+            </DataTemplate>
+          </labs:Swipe.Left>
+          <labs:Swipe.Top>
+            <DataTemplate>
+              <Border Background="Orange" Padding="10" CornerRadius="4">
+                <TextBlock Text="Top Items"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+              </Border>
+            </DataTemplate>
+          </labs:Swipe.Top>
+          <labs:Swipe.Bottom>
+            <DataTemplate>
+              <Border Background="Purple" Padding="10" CornerRadius="4">
+                <TextBlock Text="Bottom Items"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+              </Border>
+            </DataTemplate>
+          </labs:Swipe.Bottom>
+        </labs:Swipe>
+
+        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <Button Content="Open Left" Click="OpenLeft" />
+          <Button Content="Open Right" Click="OpenRight" />
+          <Button Content="Open Top" Click="OpenTop" />
+          <Button Content="Open Bottom" Click="OpenBottom" />
+          <Button Content="Close" Click="CloseSwipe" />
+        </WrapPanel>
+      </StackPanel>
+
+      <!-- Swipe List Demo Section -->
+      <StackPanel Spacing="10">
+        <TextBlock Text="Swipe List" FontSize="16" FontWeight="Bold"/>
+
+        <ItemsControl ItemsSource="{Binding Items}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <labs:Swipe Margin="5">
             <labs:Swipe.Content>
               <StackPanel Orientation="Horizontal" Spacing="5" Background="Transparent">
                 <StackPanel.GestureRecognizers>
@@ -67,6 +143,9 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
+      </StackPanel>
+
+    </StackPanel>
   </ScrollViewer>
 
 </UserControl>

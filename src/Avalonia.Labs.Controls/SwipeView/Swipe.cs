@@ -7,6 +7,7 @@ using Avalonia.Labs.Controls.Base.Pan;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media.Transformation;
+using Avalonia.Threading;
 
 namespace Avalonia.Labs.Controls;
 
@@ -227,31 +228,48 @@ public class Swipe : Grid
             case SwipeState.RightVisible:
                 _rightContainer.IsVisible = true;
                 MaterializeDataTemplate(_rightContainer, Right);
-                SetTranslate(-_rightContainer.Bounds.Width, 0);
+                ApplySwipeTransform(() => SetTranslate(-_rightContainer.Bounds.Width, 0), _rightContainer);
                 break;
 
             case SwipeState.LeftVisible:
                 _leftContainer.IsVisible = true;
                 MaterializeDataTemplate(_leftContainer, Left);
-                SetTranslate(_leftContainer.Bounds.Width, 0);
+                ApplySwipeTransform(() => SetTranslate(_leftContainer.Bounds.Width, 0), _leftContainer);
                 break;
 
             case SwipeState.TopVisible:
                 _topContainer.IsVisible = true;
                 MaterializeDataTemplate(_topContainer, Top);
-                SetTranslate(0, _topContainer.Bounds.Height);
+                ApplySwipeTransform(() => SetTranslate(0, _topContainer.Bounds.Height), _topContainer);
                 break;
 
             case SwipeState.BottomVisible:
                 _bottomContainer.IsVisible = true;
                 MaterializeDataTemplate(_bottomContainer, Bottom);
-                SetTranslate(0, -_bottomContainer.Bounds.Height);
+                ApplySwipeTransform(() => SetTranslate(0, -_bottomContainer.Bounds.Height), _bottomContainer);
                 break;
 
             case SwipeState.Hidden:
             default:
                 SetTranslate(0, 0);
                 break;
+        }
+    }
+
+    private void ApplySwipeTransform(Action transformAction, ContentPresenter container)
+    {
+        if (container.Bounds.Width > 0 || container.Bounds.Height > 0)
+        {
+            // Apply transform immediately
+            transformAction();
+        }
+        else
+        {
+            // Bounds not available yet, wait for next layout pass
+            Dispatcher.UIThread.Post(() =>
+            {
+                transformAction();
+            }, DispatcherPriority.Render);
         }
     }
 
@@ -379,6 +397,67 @@ public class Swipe : Grid
                 _isHorizontalSwipe = false;
                 _isVerticalSwipe = false;
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Opens the swipe to reveal items in the specified direction
+    /// </summary>
+    /// <param name="openSwipeItem">The direction to open the swipe</param>
+    /// <param name="animated">Whether to animate the opening (default: true)</param>
+    public void Open(OpenSwipeItem openSwipeItem, bool animated = true)
+    {
+        // Set animation state
+        if (animated && !_bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Add(_transition);
+        }
+        else if (!animated && _bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Remove(_transition);
+        }
+
+        // Map OpenSwipeItem to SwipeState
+        var newState = openSwipeItem switch
+        {
+            OpenSwipeItem.LeftItems => SwipeState.LeftVisible,
+            OpenSwipeItem.TopItems => SwipeState.TopVisible,
+            OpenSwipeItem.RightItems => SwipeState.RightVisible,
+            OpenSwipeItem.BottomItems => SwipeState.BottomVisible,
+            _ => SwipeState.Hidden
+        };
+
+        SwipeState = newState;
+
+        // Restore animation state if it was disabled
+        if (!animated && !_bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Add(_transition);
+        }
+    }
+
+    /// <summary>
+    /// Closes the swipe to hide all swipe items
+    /// </summary>
+    /// <param name="animated">Whether to animate the closing (default: true)</param>
+    public void Close(bool animated = true)
+    {
+        // Set animation state
+        if (animated && !_bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Add(_transition);
+        }
+        else if (!animated && _bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Remove(_transition);
+        }
+
+        SwipeState = SwipeState.Hidden;
+
+        // Restore animation state if it was disabled
+        if (!animated && !_bodyContainer.Transitions!.Contains(_transition))
+        {
+            _bodyContainer.Transitions!.Add(_transition);
         }
     }
 

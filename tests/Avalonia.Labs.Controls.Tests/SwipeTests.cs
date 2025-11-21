@@ -1,7 +1,6 @@
-using Xunit;
-using Avalonia.Labs.Controls;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml.Templates;
+using Xunit;
 
 namespace Avalonia.Labs.Controls.Tests;
 
@@ -91,7 +90,7 @@ public class SwipeTests
     [Fact]
     public void SwipeState_Enum_Has_Correct_Values()
     {
-        var values = System.Enum.GetValues<SwipeState>();
+        var values = Enum.GetValues<SwipeState>();
 
         Assert.Contains(SwipeState.Hidden, values);
         Assert.Contains(SwipeState.LeftVisible, values);
@@ -132,5 +131,106 @@ public class SwipeTests
 
         Assert.NotNull(property);
         Assert.IsAssignableFrom<StyledProperty<SwipeState>>(property);
+    }
+
+    [Fact]
+    public void Open_Sets_SwipeState_To_LeftVisible()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.LeftItems);
+
+        Assert.Equal(SwipeState.LeftVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Open_Sets_SwipeState_To_RightVisible()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.RightItems);
+
+        Assert.Equal(SwipeState.RightVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Open_Sets_SwipeState_To_TopVisible()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.TopItems);
+
+        Assert.Equal(SwipeState.TopVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Open_Sets_SwipeState_To_BottomVisible()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.BottomItems);
+
+        Assert.Equal(SwipeState.BottomVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Close_Sets_SwipeState_To_Hidden()
+    {
+        var swipe = new Swipe();
+        swipe.SwipeState = SwipeState.LeftVisible;
+
+        swipe.Close();
+
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Open_With_Animation_False_Opens_Without_Animation()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.RightItems, animated: false);
+
+        Assert.Equal(SwipeState.RightVisible, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void Close_With_Animation_False_Closes_Without_Animation()
+    {
+        var swipe = new Swipe();
+        swipe.SwipeState = SwipeState.RightVisible;
+
+        swipe.Close(animated: false);
+
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
+    }
+
+    [Fact]
+    public void OpenSwipeItem_Enum_Has_Correct_Values()
+    {
+        var values = System.Enum.GetValues<OpenSwipeItem>();
+
+        Assert.Contains(OpenSwipeItem.LeftItems, values);
+        Assert.Contains(OpenSwipeItem.RightItems, values);
+        Assert.Contains(OpenSwipeItem.TopItems, values);
+        Assert.Contains(OpenSwipeItem.BottomItems, values);
+    }
+
+    [Fact]
+    public void Multiple_Open_Close_Cycles_Work_Correctly()
+    {
+        var swipe = new Swipe();
+
+        swipe.Open(OpenSwipeItem.LeftItems);
+        Assert.Equal(SwipeState.LeftVisible, swipe.SwipeState);
+
+        swipe.Close();
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
+
+        swipe.Open(OpenSwipeItem.RightItems);
+        Assert.Equal(SwipeState.RightVisible, swipe.SwipeState);
+
+        swipe.Close();
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
     }
 }
