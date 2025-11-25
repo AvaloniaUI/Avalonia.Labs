@@ -339,9 +339,11 @@ namespace Avalonia.Labs.Controls
                     _startItemOffsetX = GetX(startPoint);
                     _startItemOffsetY = GetY(startPoint);
 
-                    var rect = Orientation == Orientation.Horizontal 
-                        ? new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) 
-                        : new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
+                    var rect = Orientation == Orientation.Horizontal ?
+                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width,
+                            _focusedElement.DesiredSize.Height) :
+                        new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width,
+                            _focusedElement.DesiredSize.Height);
                     _focusedElement.Arrange(rect);
                 }
 
@@ -706,8 +708,8 @@ namespace Avalonia.Labs.Controls
                 InvalidateMeasure();
                 InvalidateArrange();
             }
-            
-            
+
+
             base.OnPropertyChanged(change);
         }
 
@@ -1197,17 +1199,23 @@ namespace Avalonia.Labs.Controls
         private void OnEffectiveViewportChanged(object? sender, EffectiveViewportChangedEventArgs e)
         {
             // var vertical = Orientation == Orientation.Vertical;
-            var oldViewportStart = GetY(_viewport.TopLeft); // vertical ? ScrollOffset.Top : _viewport.Left;
-            var oldViewportEnd = GetY(_viewport.BottomRight); // vertical ? _viewport.Bottom : _viewport.Right;
+            var oldViewportStartX = GetX(_viewport.TopLeft);
+            var oldViewportStartY = GetY(_viewport.TopLeft); // vertical ? ScrollOffset.Top : _viewport.Left;
+            var oldViewportEndX = GetX(_viewport.BottomRight);
+            var oldViewportEndY = GetY(_viewport.BottomRight); // vertical ? _viewport.Bottom : _viewport.Right;
 
             _viewport = e.EffectiveViewport.Intersect(new(Bounds.Size));
             _isWaitingForViewportUpdate = false;
 
-            var newViewportStart = GetY(_viewport.TopLeft); // vertical ? _viewport.Top : _viewport.Left;
-            var newViewportEnd = GetY(_viewport.BottomRight); // ? _viewport.Bottom : _viewport.Right);
+            var newViewportStartX = GetX(_viewport.TopLeft);
+            var newViewportStartY = GetY(_viewport.TopLeft); // vertical ? _viewport.Top : _viewport.Left;
+            var newViewportEndX = GetX(_viewport.BottomRight);
+            var newViewportEndY = GetY(_viewport.BottomRight); // ? _viewport.Bottom : _viewport.Right);
 
-            if (!oldViewportStart.IsCloseTo(newViewportStart) ||
-                !oldViewportEnd.IsCloseTo(newViewportEnd))
+            if (!oldViewportStartX.IsCloseTo(newViewportStartX) ||
+                !oldViewportEndX.IsCloseTo(newViewportEndX) ||
+                !oldViewportStartY.IsCloseTo(newViewportStartY) ||
+                !oldViewportEndY.IsCloseTo(newViewportEndY))
             {
                 InvalidateMeasure();
             }
@@ -1330,7 +1338,6 @@ namespace Avalonia.Labs.Controls
                     break;
             }
         }
-        
 
         #endregion
 
