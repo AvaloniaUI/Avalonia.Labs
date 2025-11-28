@@ -12,7 +12,7 @@
   <ScrollViewer>
     <StackPanel Spacing="15" Margin="5">
 
-      <!-- Programmatic Control Demo Section -->
+      <!-- Programmatic Control -->
       <StackPanel Spacing="10">
         <TextBlock Text="Programmatic Control" FontSize="16" FontWeight="Bold"/>
 
@@ -91,7 +91,7 @@
         </WrapPanel>
       </StackPanel>
 
-      <!-- Swipe List Demo Section -->
+      <!-- Swipe List -->
       <StackPanel Spacing="10">
         <TextBlock Text="Swipe List" FontSize="16" FontWeight="Bold"/>
 
