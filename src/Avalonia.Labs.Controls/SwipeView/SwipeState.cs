@@ -6,6 +6,11 @@ namespace Avalonia.Labs.Controls;
 public enum SwipeState
 {
     /// <summary>
+    /// Means that all sides are hidden (Default/0)
+    /// </summary>
+    Hidden = 0,
+
+    /// <summary>
     /// Means that the right side is visible
     /// </summary>
     RightVisible,
@@ -23,10 +28,5 @@ public enum SwipeState
     /// <summary>
     /// Means that the bottom side is visible
     /// </summary>
-    BottomVisible,
-
-    /// <summary>
-    /// Means that all sides are hidden
-    /// </summary>
-    Hidden
+    BottomVisible
 }

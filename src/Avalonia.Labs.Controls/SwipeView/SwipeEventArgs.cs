@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Interactivity;
 
 namespace Avalonia.Labs.Controls;
@@ -65,6 +66,28 @@ public class SwipeStartedEventArgs : RoutedEventArgs
     public SwipeStartedEventArgs(RoutedEvent? routedEvent, SwipeDirection swipeDirection) : base(routedEvent)
     {
         SwipeDirection = swipeDirection;
+    }
+}
+
+/// <summary>
+/// Provides data for the SwipeChanging event.
+/// </summary>
+public class SwipeChangingEventArgs : EventArgs
+{
+    /// <summary>
+    /// Gets the direction of the swipe gesture.
+    /// </summary>
+    public SwipeDirection SwipeDirection { get; set; }
+
+    /// <summary>
+    /// Gets the current offset of the swipe in pixels.
+    /// </summary>
+    public double Offset { get; set; }
+
+    public SwipeChangingEventArgs(SwipeDirection swipeDirection, double offset)
+    {
+        SwipeDirection = swipeDirection;
+        Offset = offset;
     }
 }
 
