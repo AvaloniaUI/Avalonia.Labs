@@ -27,32 +27,44 @@ namespace Avalonia.Labs.Catalog.Views
             var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
             if (demoSwipe != null)
             {
-                demoSwipe.Close();
+                demoSwipe.SwipeState = SwipeState.Hidden;
             }
         }
 
         private void OpenLeft(object? sender, RoutedEventArgs e)
         {
             var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
-            demoSwipe?.Open(OpenSwipeItem.LeftItems);
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.LeftVisible;
+            }
         }
 
         private void OpenRight(object? sender, RoutedEventArgs e)
         {
             var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
-            demoSwipe?.Open(OpenSwipeItem.RightItems);
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.RightVisible;
+            }
         }
 
         private void OpenTop(object? sender, RoutedEventArgs e)
         {
             var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
-            demoSwipe?.Open(OpenSwipeItem.TopItems);
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.TopVisible;
+            }
         }
 
         private void OpenBottom(object? sender, RoutedEventArgs e)
         {
             var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
-            demoSwipe?.Open(OpenSwipeItem.BottomItems);
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.BottomVisible;
+            }
         }
 
         private void DemoSwipe_OpenRequested(object? sender, OpenRequestedEventArgs e)
