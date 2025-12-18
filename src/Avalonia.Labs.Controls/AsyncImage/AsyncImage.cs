@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
@@ -136,7 +137,9 @@ namespace Avalonia.Labs.Controls
                 {
                     try
                     {
-                        AttachSource(new Bitmap(AssetLoader.Open(uri)));
+                        Bitmap img = new(AssetLoader.Open(uri));
+                        Bitmap scaledimg = await ScaleImageAsync(WithScale(uri, ScaleWidth, ScaleHeight), img);
+                        AttachSource(scaledimg);
                     }
                     catch (Exception ex)
                     {
@@ -147,7 +150,9 @@ namespace Avalonia.Labs.Controls
                 }
                 else if (uri.Scheme == "file" && File.Exists(uri.LocalPath))
                 {
-                    AttachSource(new Bitmap(uri.LocalPath));
+                    Bitmap img = new(uri.LocalPath);
+                    Bitmap scaledimg = await ScaleImageAsync(WithScale(uri, ScaleWidth, ScaleHeight), img);
+                    AttachSource(scaledimg);
                 }
                 else
                 {
@@ -188,10 +193,13 @@ namespace Avalonia.Labs.Controls
 
         private async Task<Bitmap> LoadImageAsync(Uri? url, CancellationToken token)
         {
-            if(await ProvideCachedResourceAsync(url, token) is { } bitmap)
-            {
-                return bitmap;
-            }
+
+            Uri scaledUri = WithScale(url!, ScaleWidth, ScaleHeight);
+
+            if (await ImageCache.Instance.IsUriCachedAsync(scaledUri))
+                return (await ProvideCachedResourceAsync(scaledUri, token))!;
+
+
 #if NET6_0_OR_GREATER
             using var client = new HttpClient();
             var stream = await client.GetStreamAsync(url, token).ConfigureAwait(false);
@@ -208,7 +216,66 @@ namespace Avalonia.Labs.Controls
 #endif
 
             memoryStream.Position = 0;
-            return new Bitmap(memoryStream);
+
+            Bitmap image = new(memoryStream);
+
+
+            return await ScaleImageAsync(url!, image);
+        }
+
+        private async Task<Bitmap> ScaleImageAsync(Uri uri, Bitmap image)
+        {
+            int originalWidth = image.PixelSize.Width;
+            int originalHeight = image.PixelSize.Height;
+
+            (int targetWidth, int targetHeight) = CalculateTargetDimensions(originalWidth, originalHeight);
+
+            Uri scaledUri = WithScale(uri, ScaleWidth, ScaleHeight);
+
+            // No scaling
+            if (ScaleHeight == null && ScaleWidth == null) return image;
+
+
+            var constraints = new PixelSize(targetWidth, targetHeight);
+            Bitmap scaledImage = image.CreateScaledBitmap(constraints);
+
+            await ImageCache.Instance.SaveToInMemoryCacheAsync(scaledImage, scaledUri);
+            return scaledImage;
+        }
+
+
+        public Uri WithScale(Uri baseUri, int? width = null, int? height = null)
+        {
+            var ub = new UriBuilder(baseUri);
+            var query = HttpUtility.ParseQueryString(ub.Query);
+            query["scaleW"] = width?.ToString();
+            query["scaleH"] = height?.ToString();
+            ub.Query = query.ToString();
+            return ub.Uri;
+        }
+
+        private (int width, int height) CalculateTargetDimensions(int origW, int origH)
+        {
+            if (ScaleWidth.HasValue && ScaleHeight.HasValue)
+            {
+                return (ScaleWidth.Value, ScaleHeight.Value);
+            }
+
+            if (ScaleWidth.HasValue)
+            {
+                double ratio = (double)origH / origW;
+                int h = (int)Math.Ceiling(ScaleWidth.Value * ratio);
+                return (ScaleWidth.Value, h);
+            }
+
+            if (ScaleHeight.HasValue)
+            {
+                double ratio = (double)origW / origH;
+                int w = (int)Math.Ceiling(ScaleHeight.Value * ratio);
+                return (w, ScaleHeight.Value);
+            }
+
+            return (origW, origH);
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
