@@ -362,6 +362,37 @@ namespace Avalonia.Labs.Controls.Cache
 
             return instance;
         }
+        public async Task SaveToInMemoryCacheAsync(T item, Uri uri)
+        {
+            if (_inMemoryFileStorage?.MaxItemCount < 0) return;
+         
+            var msi = new InMemoryStorageItem<T>(CreateHash64(uri.AbsoluteUri).ToString(), DateTime.Now, item);
+            _inMemoryFileStorage?.SetItem(msi);
+        }
+
+        public async Task<bool> IsUriCachedAsync(Uri uri)
+        {
+            if (uri == null)
+                return false;
+
+            string id = CreateHash64(uri.AbsoluteUri).ToString();
+
+            // 1. Memory cache check
+            if (_inMemoryFileStorage?.MaxItemCount > 0)
+            {
+                var item = _inMemoryFileStorage.GetItem(id, CacheDuration);
+                if (item != null)
+                    return true;
+            }
+
+            // 2. Disk check
+            var folder = await GetCacheFolderAsync().ConfigureAwait(false);
+            if (folder == null)
+                return false;
+
+            string baseFile = Path.Combine(folder, id);
+            return File.Exists(baseFile);
+        }
 
         private async Task<T?> GetFromCacheOrDownloadAsync(Uri uri, string fileName, bool preCacheOnly, CancellationToken cancellationToken)
         {

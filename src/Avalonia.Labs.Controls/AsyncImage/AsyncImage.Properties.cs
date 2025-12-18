@@ -49,7 +49,20 @@ namespace Avalonia.Labs.Controls
         /// </summary>
         public static readonly DirectProperty<AsyncImage,bool> IsCacheEnabledProperty =
             AvaloniaProperty.RegisterDirect<AsyncImage, bool>(nameof(IsCacheEnabled), o => o.IsCacheEnabled, (o, v) => o.IsCacheEnabled = v);
+
+        public static readonly DirectProperty<AsyncImage, int?> ScaleHeightProperty =
+            AvaloniaProperty.RegisterDirect<AsyncImage, int?>(nameof(ScaleHeight), 
+                o => o._scaleHeight, 
+                (o, v) => o._scaleHeight = v);
+
+        public static readonly DirectProperty<AsyncImage, int?> ScaleWidthProperty =
+            AvaloniaProperty.RegisterDirect<AsyncImage, int?>(nameof(ScaleWidth),
+                o => o._scaleWidth,
+                (o, v) => o._scaleWidth = v);
+
         private bool _isCacheEnabled;
+        private int? _scaleHeight;
+        private int? _scaleWidth;
 
         /// <summary>
         /// Gets or sets the placeholder image.
@@ -67,6 +80,18 @@ namespace Avalonia.Labs.Controls
         {
             get => GetValue(SourceProperty);
             set => SetValue(SourceProperty, value);
+        }
+
+        public int? ScaleHeight
+        {
+            get => _scaleHeight;
+            set => SetAndRaise(ScaleHeightProperty, ref _scaleHeight, value);
+        }
+
+        public int? ScaleWidth
+        {
+            get => _scaleWidth;
+            set => SetAndRaise(ScaleWidthProperty, ref _scaleWidth, value);
         }
 
         /// <summary>
