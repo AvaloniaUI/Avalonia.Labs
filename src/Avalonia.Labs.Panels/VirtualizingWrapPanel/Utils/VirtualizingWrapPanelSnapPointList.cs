@@ -7,7 +7,7 @@ using Avalonia.Layout;
 
 namespace Avalonia.Labs.Controls.Utils;
 
-  internal class VirtualizingSnapPointsList : IReadOnlyList<double>
+  internal class VirtualizingWrapPanelSnapPointList : IReadOnlyList<double>
     {
         private const int ExtraCount = 2;
         private readonly RealizedWrapElements _realizedElements;
@@ -18,13 +18,16 @@ namespace Avalonia.Labs.Controls.Utils;
         private readonly int _start = -1;
         private readonly int _end;
 
-        public VirtualizingSnapPointsList(RealizedWrapElements realizedElements, int count, Orientation orientation, Orientation parentOrientation, SnapPointsAlignment snapPointsAlignment, double size, IItemSizeProvider? itemSizeProvider)
+        private readonly IItemSizeProvider? _itemSizeProvider;
+
+        public VirtualizingWrapPanelSnapPointList(RealizedWrapElements realizedElements, int count, Orientation orientation, Orientation parentOrientation, SnapPointsAlignment snapPointsAlignment, double size, IItemSizeProvider? itemSizeProvider)
         {
             _realizedElements = realizedElements;
             _orientation = orientation;
             _parentOrientation = parentOrientation;
             _snapPointsAlignment = snapPointsAlignment;
             _size = size;
+            _itemSizeProvider = itemSizeProvider;
             if (parentOrientation == orientation)
             {
                 _start = Math.Max(0, _realizedElements.FirstIndex - ExtraCount);

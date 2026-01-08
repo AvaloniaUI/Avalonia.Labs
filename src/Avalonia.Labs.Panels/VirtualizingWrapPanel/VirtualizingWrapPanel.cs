@@ -29,7 +29,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     private double _startItemOffsetX;
     private double _startItemOffsetY;
 
-    private double _knownExtendX;
+    private double _knownExtentX;
         
     /// <summary>
     /// Gets an empty size
@@ -320,6 +320,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
         }
     }
 
+    private readonly List<Control> _rowChildrenReuse = new();
+    private readonly List<Size> _childSizesReuse = new();
+
     /// <inheritdoc />
     protected override Size ArrangeOverride(Size finalSize)
     {
@@ -347,10 +350,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             var finalWidth = GetWidth(finalSize);
             var items = Items;
 
-            // Pre-allocate with estimated capacity to reduce reallocations
-            var estimatedItemsPerRow = Math.Max(1, (_endItemIndex - _startItemIndex + 1) / 10);
-            var rowChilds = new List<Control>(estimatedItemsPerRow);
-            var childSizes = new List<Size>(estimatedItemsPerRow);
+            _rowChildrenReuse.Clear();
+            _childSizesReuse.Clear();
+            double summedUpChildWidth = 0;
 
             for (int i = _startItemIndex; i <= _endItemIndex; i++)
             {
@@ -362,45 +364,47 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
                 Size childSize = upfrontKnownItemSize ??
                                  _realizedElements.GetElementSize(child) ?? _FallbackItemSize;
 
-                if (rowChilds.Count > 0 && x + GetWidth(childSize) > finalWidth)
+                if (_rowChildrenReuse.Count > 0 && x + GetWidth(childSize) > finalWidth)
                 {
-                    ArrangeRow(finalWidth, rowChilds, childSizes, y);
+                    ArrangeRow(finalWidth, _rowChildrenReuse, _childSizesReuse, y, summedUpChildWidth);
                     x = 0;
                     // Calculate max height directly instead of using LINQ
                     if (AllowDifferentSizedItems)
                     {
                         maxRowHeight = 0;
-                        for (int j = 0; j < childSizes.Count; j++)
+                        for (int j = 0; j < _childSizesReuse.Count; j++)
                         {
-                            var height = GetHeight(childSizes[j]);
+                            var height = GetHeight(_childSizesReuse[j]);
                             if (height > maxRowHeight)
                                 maxRowHeight = height;
                         }
                     }
                     else
                     {
-                        maxRowHeight = GetHeight(childSizes[0]);
+                        maxRowHeight = GetHeight(_childSizesReuse[0]);
                     }
                     y += maxRowHeight;
                     rowHeight = 0;
-                    rowChilds.Clear();
-                    childSizes.Clear();
+                    _rowChildrenReuse.Clear();
+                    _childSizesReuse.Clear();
+                    summedUpChildWidth = 0;
                 }
 
                 x += GetWidth(childSize);
                 rowHeight = Math.Max(rowHeight, GetHeight(childSize));
                 if (child != null)
                 {
-                    rowChilds.Add(child);
-                    childSizes.Add(childSize);
+                    _rowChildrenReuse.Add(child);
+                    _childSizesReuse.Add(childSize);
+                    summedUpChildWidth += GetWidth(childSize);
 
                     _scrollAnchorProvider?.RegisterAnchorCandidate(child);
                 }
             }
 
-            if (rowChilds.Count > 0)
+            if (_rowChildrenReuse.Count > 0)
             {
-                ArrangeRow(finalWidth, rowChilds, childSizes, y);
+                ArrangeRow(finalWidth, _rowChildrenReuse, _childSizesReuse, y, summedUpChildWidth);
             }
 
             // Ensure that the focused element is in the correct position.
@@ -462,6 +466,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     /// <inheritdoc />
     protected override void OnItemsChanged(IReadOnlyList<object?> items, NotifyCollectionChangedEventArgs e)
     {
+        _averageItemSizeCache = null;
         ClearRowCache();
         InvalidateMeasure();
 
@@ -843,9 +848,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     }
 
     /// <summary>
-    /// Calculates the predicted avarage item size
+    /// Calculates the predicted average item size
     /// </summary>
-    /// <returns>the estimated avarage Size</returns>
+    /// <returns>the estimated average Size</returns>
     private Size GetAverageItemSize()
     {
         if (!ItemSize.NearlyEquals(_EmptySize))
@@ -1096,13 +1101,17 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
         if (_startItemIndex == -1)
         {
             _endItemIndex = -1;
-            _knownExtendX = 0;
+            _knownExtentX = 0;
             return;
         }
 
-        // Clear the row cache if we're not starting from the first item.
-        // This is safer to avoid stale entries or duplication when scrolling/realizing a new window.
-        _rowCache.Clear();
+        // Only clear the row cache if we're starting from the first item or if the cache is potentially invalid.
+        // If we're realizing items in the middle (e.g., during scrolling), we want to keep the existing cache
+        // to aid FindStartIndexAndOffset in future passes.
+        if (_startItemIndex == 0)
+        {
+            _rowCache.Clear();
+        }
 
         int newEndItemIndex = Items.Count - 1;
         bool endItemIndexFound = false;
@@ -1117,7 +1126,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
         bool endRowReached = false;
         int extraRowsToRealize = Math.Max(0, CacheRows);
 
-        _knownExtendX = 0;
+        _knownExtentX = 0;
 
 
         for (int itemIndex = _startItemIndex; itemIndex <= newEndItemIndex; itemIndex++)
@@ -1153,7 +1162,11 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
             var containerSize = DetermineContainerSize(item, container, upfrontKnownItemSize);
 
-            _measureElements!.Add(itemIndex, container, containerSize);
+            if (_measureElements!.GetElement(itemIndex) == null)
+            {
+                _averageItemSizeCache = null;
+                _measureElements!.Add(itemIndex, container, containerSize);
+            }
 
             if (AllowDifferentSizedItems == false && _sizeOfFirstItem is null)
             {
@@ -1184,7 +1197,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             }
 
             x += GetWidth(containerSize);
-            _knownExtendX = Math.Max(x, _knownExtendX);
+            _knownExtentX = Math.Max(x, _knownExtentX);
             rowHeight = Math.Max(rowHeight, GetHeight(containerSize));
             currentRowCount++;
 
@@ -1334,23 +1347,16 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     /// </summary>
     /// <param name="rowWidth">the available row width</param>
     /// <param name="children">the children to arrange</param>
-    /// <param name="childSizes">the sizes of the childres</param>
+    /// <param name="childSizes">the sizes of the children</param>
     /// <param name="y">the y offset of the row</param>
-    private void ArrangeRow(double rowWidth, List<Control> children, List<Size> childSizes, double y)
+    /// <param name="summedUpChildWidth">the pre-calculated sum of all children's width</param>
+    private void ArrangeRow(double rowWidth, List<Control> children, List<Size> childSizes, double y, double summedUpChildWidth)
     {
-        double summedUpChildWidth;
         double extraWidth = 0;
         var childCount = children.Count;
 
         if (AllowDifferentSizedItems)
         {
-            // Replace LINQ Sum with direct loop
-            summedUpChildWidth = 0;
-            for (int i = 0; i < childSizes.Count; i++)
-            {
-                summedUpChildWidth += GetWidth(childSizes[i]);
-            }
-
             if (StretchItems)
             {
                 double unusedWidth = rowWidth - summedUpChildWidth;
@@ -1483,9 +1489,9 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     }
 
     /// <summary>
-    /// Calculates the avarage item size of all realized items
+    /// Calculates the average item size of all realized items
     /// </summary>
-    /// <returns>the avarage item size or <see cref="_FallbackItemSize"/> if no items are available</returns>
+    /// <returns>the average item size or <see cref="_FallbackItemSize"/> if no items are available</returns>
     private Size CalculateAverageItemSize()
     {
         var sizes = _realizedElements!.Sizes;
@@ -1767,7 +1773,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     }
 
     /// <summary>
-    /// Prepares a container if the item is it's own container
+    /// Prepares a container if the item is its own container
     /// </summary>
     /// <param name="item">the item to use</param>
     /// <param name="index">the item index</param>
@@ -1973,13 +1979,13 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             return Array.Empty<double>();
         }
 
-        return new VirtualizingSnapPointsList(
+        return new VirtualizingWrapPanelSnapPointList(
             _realizedElements,
             Items.Count,
             orientation,
             Orientation,
             snapPointsAlignment,
-            GetWidth(GetAverageItemSize()), // This is slightly wrong as it depends on orientation, but VirtualizingSnapPointsList seems to want one size
+            GetWidth(GetAverageItemSize()), // This is slightly wrong as it depends on orientation, but VirtualizingWrapPanelSnapPointList seems to want one size
             this as IItemSizeProvider);
     }
 
