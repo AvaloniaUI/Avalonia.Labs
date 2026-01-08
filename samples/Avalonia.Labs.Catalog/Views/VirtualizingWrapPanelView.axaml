@@ -3,9 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
-             xmlns:controls="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
-             xmlns:markupExtensions="clr-namespace:Avalonia.Labs.Catalog.MarkupExtensions"
              xmlns:conv="clr-namespace:Avalonia.Labs.Catalog.Converters"
+             xmlns:panels="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Panels"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -21,7 +20,7 @@
            x:Name="SampleListBox">
     <ListBox.ItemsPanel>
       <ItemsPanelTemplate>
-        <controls:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
+        <panels:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
                                         SpacingMode="Uniform"
                                         IsGridLayoutEnabled="{Binding GridLayout}"
                                         Orientation="{Binding Orientation, Mode=TwoWay}" />
