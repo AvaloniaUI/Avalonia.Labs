@@ -1,0 +1,562 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
+using Avalonia.Input;
+using Avalonia.Labs.Controls;
+using Avalonia.Layout;
+using Avalonia.VisualTree;
+using Xunit;
+using Avalonia.Themes.Fluent;
+
+[assembly: AvaloniaTestApplication(typeof(Avalonia.Labs.Controls.Tests.VirtualizingWrapPanelTests))]
+
+namespace Avalonia.Labs.Controls.Tests;
+
+public class TestApp : Application
+{
+    public override void Initialize()
+    {
+        Avalonia.Themes.Fluent.FluentTheme fluentTheme = new();
+        Styles.Add(fluentTheme);
+    }
+}
+
+public class TestVirtualizingWrapPanel : VirtualizingWrapPanel
+{
+    public new Control? ScrollIntoView(int index) => base.ScrollIntoView(index);
+    public new Control? ContainerFromIndex(int index) => base.ContainerFromIndex(index);
+    public new IInputElement? GetControl(NavigationDirection direction, IInputElement? from, bool wrap) => base.GetControl(direction, from, wrap);
+}
+
+public class VirtualizingWrapPanelTests
+{
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<TestApp>()
+        .UseHeadless(new AvaloniaHeadlessPlatformOptions());
+    [AvaloniaFact]
+    public void Items_Are_Realized_When_In_Viewport()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+        
+        // 100x100 viewport, 50x50 items -> 2x2 = 4 items should be realized
+        Assert.Equal(0, target.FirstRealizedIndex);
+        Assert.True(target.LastRealizedIndex >= 3);
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            ItemSize = new Size(50, 50)
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 100).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        Assert.True(target.IsEffectivelyVisible, "Panel should be effectively visible");
+        Assert.Equal(0, target.FirstRealizedIndex);
+
+        // Scroll to item 50
+        target.ScrollIntoView(50);
+        window.UpdateLayout();
+
+        // Verify that item 50 is realized
+        Assert.True(target.FirstRealizedIndex <= 50, $"FirstRealizedIndex was {target.FirstRealizedIndex}");
+        Assert.True(target.LastRealizedIndex >= 50, $"LastRealizedIndex was {target.LastRealizedIndex}");
+        
+        var container = target.ContainerFromIndex(50);
+        Assert.NotNull(container);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        // Check if container is within viewport (approx)
+        var transform = container.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container.Bounds.Size).TransformToAABB(transform.Value);
+        
+        Assert.True(rect.Top >= -1, $"rect.Top was {rect.Top}");
+        Assert.True(rect.Bottom <= scrollViewer.Bounds.Height + 1, $"rect.Bottom was {rect.Bottom}, viewport height was {scrollViewer.Bounds.Height}");
+    }
+
+    [AvaloniaFact]
+    public void AllowDifferentSizedItems_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        var items = new List<Size>
+        {
+            new Size(50, 50),
+            new Size(60, 50),
+            new Size(100, 50), // Should wrap to next row
+            new Size(50, 60),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            Padding = new Thickness(0),
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height, Background = null }, true)
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        var container0 = target.ContainerFromIndex(0);
+        var container1 = target.ContainerFromIndex(1);
+        var container2 = target.ContainerFromIndex(2);
+        
+        Assert.NotNull(container0);
+        Assert.NotNull(container1);
+        Assert.NotNull(container2);
+
+        Assert.Equal(0, container0.Bounds.Y);
+        Assert.Equal(50, container1.Bounds.Y);
+        Assert.Equal(100, container2.Bounds.Y);
+    }
+
+    [AvaloniaFact]
+    public void Vertical_Orientation_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            Orientation = Orientation.Vertical,
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // 100x100 viewport, 50x50 items -> 2x2 = 4 items should be realized
+        Assert.Equal(0, target.FirstRealizedIndex);
+        Assert.True(target.LastRealizedIndex >= 3);
+        
+        var container0 = target.ContainerFromIndex(0);
+        var container1 = target.ContainerFromIndex(1);
+        var container2 = target.ContainerFromIndex(2);
+        
+        Assert.NotNull(container0);
+        Assert.NotNull(container1);
+        Assert.NotNull(container2);
+
+        // Vertical: item 0 at (0,0), item 1 at (0,50), item 2 at (50,0)
+        Assert.Equal(0, container0.Bounds.X);
+        Assert.Equal(0, container0.Bounds.Y);
+        Assert.Equal(0, container1.Bounds.X);
+        Assert.Equal(50, container1.Bounds.Y);
+        Assert.Equal(50, container2.Bounds.X);
+        Assert.Equal(0, container2.Bounds.Y);
+    }
+
+    private class TestItemSizeProvider : IItemSizeProvider
+    {
+        public Size GetSizeForItem(object item)
+        {
+            return (int)item % 2 == 0 ? new Size(50, 50) : new Size(60, 50);
+        }
+    }
+
+    [AvaloniaFact]
+    public void ItemSizeProvider_Works()
+    {
+        var provider = new TestItemSizeProvider();
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            ItemSizeProvider = provider,
+            SpacingMode = SpacingMode.None
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).ToList(),
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        var container0 = target.ContainerFromIndex(0); // 50x50
+        var container1 = target.ContainerFromIndex(1); // 60x50 -> should wrap
+        
+        Assert.NotNull(container0);
+        Assert.NotNull(container1);
+
+        Assert.Equal(0, container0.Bounds.Y);
+        Assert.Equal(50, container1.Bounds.Y);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_DifferentSizedItems_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Layout:
+        // Row 0: [0: 50x50] [1: 40x50] -> Total Width 90
+        // Row 1: [2: 30x50] [3: 60x50] -> Total Width 90
+        // Row 2: [4: 100x50]           -> Wraps
+        var items = new List<Size>
+        {
+            new Size(50, 50),
+            new Size(40, 50),
+            new Size(30, 50),
+            new Size(60, 50),
+            new Size(100, 50),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container0 = target.ContainerFromIndex(0);
+        var container1 = target.ContainerFromIndex(1);
+        var container2 = target.ContainerFromIndex(2);
+        var container3 = target.ContainerFromIndex(3);
+        var container4 = target.ContainerFromIndex(4);
+
+        // Verify layout
+        Assert.Equal(0, container0.Bounds.X); Assert.Equal(0, container0.Bounds.Y);
+        Assert.Equal(50, container1.Bounds.X); Assert.Equal(0, container1.Bounds.Y);
+        Assert.Equal(0, container2.Bounds.X); Assert.Equal(50, container2.Bounds.Y);
+        Assert.Equal(30, container3.Bounds.X); Assert.Equal(50, container3.Bounds.Y);
+        Assert.Equal(0, container4.Bounds.X); Assert.Equal(100, container4.Bounds.Y);
+
+        // Down from 0 (x=0, mid=25) should go to 2 (x=0, mid=15) because it's closer than 3 (x=30, mid=60)
+        var next = target.GetControl(NavigationDirection.Down, container0, false);
+        Assert.Equal(container2, next);
+
+        // Down from 1 (x=50, mid=70) should go to 3 (x=30, mid=60)
+        next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(container3, next);
+
+        // Up from 3 (x=30, mid=60) should go to 1 (x=50, mid=70)
+        next = target.GetControl(NavigationDirection.Up, container3, false);
+        Assert.Equal(container1, next);
+
+        // Up from 2 (x=0, mid=15) should go to 0 (x=0, mid=25)
+        next = target.GetControl(NavigationDirection.Up, container2, false);
+        Assert.Equal(container0, next);
+
+        // Down from 3 (x=30, mid=60) should go to 4 (x=0, mid=50)
+        next = target.GetControl(NavigationDirection.Down, container3, false);
+        Assert.Equal(container4, next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_DriftPrevention_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Layout:
+        // Row 0: [0: 100x50] (mid 50)
+        // Row 1: [1: 40x50] [2: 60x50] (mid 20, 70)
+        // Row 2: [3: 100x50] (mid 50)
+        var items = new List<Size>
+        {
+            new Size(100, 50),
+            new Size(40, 50),
+            new Size(60, 50),
+            new Size(100, 50),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container0 = target.ContainerFromIndex(0);
+        var container1 = target.ContainerFromIndex(1);
+        var container2 = target.ContainerFromIndex(2);
+        var container3 = target.ContainerFromIndex(3);
+
+        // 1. Down from 0 (mid 50). 
+        // Row 1 midpoints are 20 and 70. Both are equally far (30).
+        // Overlap of 0 [0-100] with 1 [0-40] is 40. Overlap with 2 [40-100] is 60.
+        // So it should pick 2.
+        var next = target.GetControl(NavigationDirection.Down, container0, false);
+        Assert.Equal(container2, next);
+
+        // 2. Down again to Row 2.
+        // If we drift to 2's midpoint (70), we'd use 70 for the next move.
+        // But we should use the original anchor (50).
+        // Row 2 has item 3 [0-100] (mid 50).
+        // 50 is closer to 50 than 70 is (though 3 covers both).
+        next = target.GetControl(NavigationDirection.Down, container2, false);
+        Assert.Equal(container3, next);
+
+        // 3. Up from 3 (using anchor 50).
+        // Row 1 midpoints 20, 70. Both are dist 30 from 50.
+        // Overlap of 3 [0-100] with 1 [0-40] is 40, with 2 [40-100] is 60.
+        // Should pick 2.
+        next = target.GetControl(NavigationDirection.Up, container3, false);
+        Assert.Equal(container2, next);
+
+        // 4. Up from 2 (using anchor 50).
+        // Row 0 has item 0 [0-100] (mid 50).
+        next = target.GetControl(NavigationDirection.Up, container2, false);
+        Assert.Equal(container0, next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_EndRow_Down_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.Uniform,
+            StretchItems = true
+        };
+
+        // Layout:
+        // Width = 100.
+        // Row 0: [0: 40x50] [1: 40x50]. Sum=80. 
+        // With Stretch: extra = (100-80)/2 = 10. Items are 50x50.
+        // Row 0: [0: 50x50 at X=0] [1: 50x50 at X=50]. Midpoints 25, 75.
+        // Row 1: [2: 40x50]. Sum=40.
+        // With Stretch: Item 2 becomes 100x50? Or 40+60=100?
+        // Wait, GetRowLayout logic:
+        // extraWidthPerItem = (rowWidth - summedUpChildWidth) / actualChildCount;
+        // extra = (100-40)/1 = 60. Item 2 becomes 100x50. Midpoint 50.
+        var items = new List<Size>
+        {
+            new Size(40, 50),
+            new Size(40, 50),
+            new Size(40, 50),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1); // Row 0, end (mid 75)
+        var container2 = target.ContainerFromIndex(2); // Row 1, only item (mid 50)
+
+        // Down from 1 (mid 75) should go to 2 (mid 50)
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(container2, next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_EndRow_To_ShorterRow_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Width 100
+        // Row 0: [0: 50x50] [1: 50x50]. 1 ends at 100, mid 75.
+        // Row 1: [2: 30x50]. Ends at 30, mid 15.
+        var items = new List<Size>
+        {
+            new Size(50, 50),
+            new Size(50, 50),
+            new Size(30, 50),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1); // Row 0, end (mid 75, span 50-100)
+        var container2 = target.ContainerFromIndex(2); // Row 1, only item (mid 15, span 0-30)
+
+        // Down from 1 should go to 2
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(container2, next);
+        
+        // Add more items to Row 1 to see if it still catches the last one if we were at the end
+        // Row 1: [2: 20x50] [3: 20x50] [4: 20x50] (mid 10, 30, 50). Total width 60.
+        // If we are at Row 0 Item 1 (mid 75, span 50-100).
+        // Item 4 (mid 50) is closest to 75.
+        items = new List<Size>
+        {
+            new Size(50, 50),
+            new Size(50, 50),
+            new Size(20, 50),
+            new Size(20, 50),
+            new Size(20, 50),
+        };
+        itemsControl.ItemsSource = Enumerable.Range(0, items.Count).ToList();
+        window.UpdateLayout();
+
+        container1 = target.ContainerFromIndex(1);
+        var container4 = target.ContainerFromIndex(4);
+        
+        next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(container4, next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_StretchAndSpacing_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.BetweenItemsOnly,
+            StretchItems = true
+        };
+
+        // Width 100
+        // Row 0: [0: 20x50] [1: 60x50]. Sum=80. 
+        // StretchItems: extraWidthPerItem = (100-80)/2 = 10.
+        // Row 0 Items:
+        // 0: width 30, X=0, Mid=15
+        // 1: width 70, X=30, Mid=65
+
+        // Row 1: [2: 20x50] [3: 20x50] [4: 20x50]. Sum=60.
+        // StretchItems: extraWidthPerItem = (100-60)/3 = 13.33.
+        // Row 1 Items:
+        // 2: width 33.33, X=0, Mid=16.66
+        // 3: width 33.33, X=33.33, Mid=50
+        // 4: width 33.33, X=66.66, Mid=83.33
+
+        var items = new List<Size>
+        {
+            new Size(20, 50),
+            new Size(60, 50),
+            new Size(20, 50),
+            new Size(20, 50),
+            new Size(20, 50),
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1); // Row 0, item 1 (Mid 65)
+        var container3 = target.ContainerFromIndex(3); // Row 1, item 3 (Mid 50) - Distance 15
+        var container4 = target.ContainerFromIndex(4); // Row 1, item 4 (Mid 83.33) - Distance 18.33
+
+        // Down from 1 should go to 3
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(container3, next);
+
+        // From 3, go down again to no row below
+        next = target.GetControl(NavigationDirection.Down, (IInputElement)container3, false);
+        Assert.Equal(container3, next);
+    }
+}
