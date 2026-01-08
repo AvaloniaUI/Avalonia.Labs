@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="11.0.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.Controls\Avalonia.Labs.Controls.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj" />
