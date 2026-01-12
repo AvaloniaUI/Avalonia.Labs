@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia.Controls.Primitives;
@@ -31,6 +31,12 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
             .Select(x => new WrapPanelItemViewModel($"Item {x:N0}"))
             .ToArray();
 
+    public WrapPanelItemViewModel? SelectedItem
+    {
+        get => field;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+    
     private bool _allowDifferentItemSizes;
 
     public bool AllowDifferentItemSizes

@@ -30,6 +30,8 @@ public class TestVirtualizingWrapPanel : VirtualizingWrapPanel
     public new Control? ScrollIntoView(int index) => base.ScrollIntoView(index);
     public new Control? ContainerFromIndex(int index) => base.ContainerFromIndex(index);
     public new IInputElement? GetControl(NavigationDirection direction, IInputElement? from, bool wrap) => base.GetControl(direction, from, wrap);
+    public new int IndexFromContainer(Control container) => base.IndexFromContainer(container);
+    public int LastNavigationIndexPublic => base.LastNavigationIndex;
 }
 
 public class VirtualizingWrapPanelTests
@@ -558,5 +560,198 @@ public class VirtualizingWrapPanelTests
         // From 3, go down again to no row below
         next = target.GetControl(NavigationDirection.Down, (IInputElement)container3, false);
         Assert.Equal(container3, next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_Down_WithAnchor_ShouldStayOnRightSide()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Width 100
+        // Row 0: [0: 80x50] [1: 20x50]. X: 0, 80. Mid: 40, 90.
+        // Row 1: [2: 100x50]. X: 0. Mid: 50.
+        // Row 2: [3: 80x50] [4: 20x50]. X: 0, 80. Mid: 40, 90.
+        
+        var items = new List<Size>
+        {
+            new Size(80, 50), new Size(20, 50),
+            new Size(100, 50),
+            new Size(80, 50), new Size(20, 50)
+        };
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 300,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1); // Row 0, index 1 (Mid 90)
+        
+        // 1. Down to Row 1 (Item 2). Anchor should be set to 90.
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.Equal(target.ContainerFromIndex(2), next);
+
+        // 2. Down to Row 2. Should use anchor 90, so it should pick Item 4 (Mid 90).
+        next = target.GetControl(NavigationDirection.Down, next, false);
+        Assert.Equal(target.ContainerFromIndex(4), next);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_Down_ToOffscreenRow_ShouldStayOnRightSide()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Viewport height: 100
+        // Each item: 50x50
+        // Row 0: 0, 1 (mid 25, 75)
+        // Row 1: 2, 3 (mid 25, 75)
+        // Row 2: 4, 5 (mid 25, 75) - initially offscreen (Y=100)
+        
+        var items = Enumerable.Range(0, 20).Select(_ => new Size(50, 50)).ToList();
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            Padding = new Thickness(0),
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        // Start at item 1 (Row 0, Right side, Mid 75)
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        // 1. Down to Row 1 (Item 3). Anchor should be set to 75.
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.NotNull(next);
+        Assert.Equal(3, target.LastNavigationIndexPublic);
+
+        // 2. Down to Row 2 (Item 5). This row was offscreen.
+        next = target.GetControl(NavigationDirection.Down, (IInputElement)next!, false);
+        Assert.NotNull(next);
+        Assert.Equal(5, target.LastNavigationIndexPublic);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_Down_WithFractionalSizes_ShouldStayOnRightSide()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Viewport width: 100. Item width: 50.4.
+        // Two items should NOT fit in one row (50.4 + 50.4 = 100.8 > 100).
+        // Each item should be in its own row.
+        // Row 0: item 0 (mid 25.2)
+        // Row 1: item 1 (mid 25.2)
+        // ...
+        
+        // HOWEVER, if CalculateAverageItemSize rounds 50.4 to 50.0.
+        // Then for virtualized items, it will think 50 + 50 = 100 fits!
+        // So it will think item 0 and 1 are in Row 0.
+        
+        var items = Enumerable.Range(0, 50).Select(_ => new Size(50.4, 50)).ToList();
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 100,
+            Height = 100,
+            Padding = new Thickness(0),
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        // Start at item 0 (Row 0)
+        var container0 = target.ContainerFromIndex(0);
+        Assert.NotNull(container0);
+        
+        // Down should go to item 1 (Row 1).
+        var next = target.GetControl(NavigationDirection.Down, container0, false);
+        Assert.NotNull(next);
+        Assert.Equal(1, target.LastNavigationIndexPublic);
+
+        // Down again should go to item 2 (Row 2).
+        next = target.GetControl(NavigationDirection.Down, (IInputElement)next!, false);
+        Assert.NotNull(next);
+        Assert.Equal(2, target.LastNavigationIndexPublic);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_Down_CumulativeDrift_ShouldStayOnRightSide()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Viewport width: 1000. Item width: 333.4.
+        // 3 items per row: 333.4 * 3 = 1000.2 > 1000. -> Only 2 items fit?
+        // Wait, 1000.2 is very close to 1000. EPSILON is 0.00001. So 1000.2 > 1000.00001 is true.
+        // So 2 items fit per row. Row 0: [0, 1]. Row 1: [2, 3].
+        
+        // If AverageItemSize rounds 333.4 to 333.0.
+        // Then 333 * 3 = 999 <= 1000. -> It thinks 3 items fit!
+        // Row 0: [0, 1, 2]. Row 1: [3, 4, 5].
+        
+        var items = Enumerable.Range(0, 100).Select(_ => new Size(333.4, 50)).ToList();
+
+        var itemsControl = new ItemsControl
+        {
+            Width = 1000,
+            Height = 200, // Show about 4 rows
+            Padding = new Thickness(0),
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        // Start at item 1 (Row 0, Right side, Mid 166.7 + 333.4 = 500.1)
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        // Down should go to item 3 (Row 1, Right side).
+        // Actual Row 1 is [2, 3]. Item 3 mid: 333.4 + 166.7 = 500.1. Correct.
+        
+        // IF it thought 3 items per row:
+        // Row 0: [0, 1, 2]. Item 1 is in the middle.
+        // Row 1: [3, 4, 5]. Item 4 is in the middle.
+        // It might pick item 4 instead of 3 if it thinks item 1 is at 500 and item 4 is at 500.
+        
+        var next = target.GetControl(NavigationDirection.Down, container1, false);
+        Assert.NotNull(next);
+        Assert.Equal(3, target.LastNavigationIndexPublic);
     }
 }

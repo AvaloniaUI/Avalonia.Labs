@@ -141,6 +141,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     private int _focusedIndex = -1;
     private double? _navigationAnchor;
     private int _lastNavigationIndex = -1;
+    protected int LastNavigationIndex => _lastNavigationIndex;
 
     private void ClearRowCache()
     {
@@ -1162,10 +1163,19 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
                 }
                 else
                 {
-                    // Item is beyond this row, continue linear scan from the next item
-                    y += rowHeight;
+                    // Item is beyond this row. 
+                    // If it's the last row in cache, it might be partial, so we start linear scan from its start.
+                    if (best == _rowCache.Count - 1)
+                    {
+                        startIndex = row.StartIndex;
+                        y = row.Y;
+                    }
+                    else
+                    {
+                        y += rowHeight;
+                        startIndex = row.StartIndex + row.Count;
+                    }
                     rowHeight = 0;
-                    startIndex = row.StartIndex + row.Count;
                 }
             }
         }
@@ -1790,8 +1800,8 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             }
 
             return new Size(
-                Math.Round(totalWidth / count),
-                Math.Round(totalHeight / count));
+                totalWidth / count,
+                totalHeight / count);
         }
 
         return _FallbackItemSize;
@@ -2007,6 +2017,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
         if (_navigationAnchor.HasValue)
         {
             currentMidX = _navigationAnchor.Value;
+            currentWidth = 0; // Use a zero-width span when we have an anchor to avoid wide-item drift
         }
         else
         {
@@ -2086,6 +2097,12 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
             double sourceStart = currentMidX - currentWidth / 2;
             double sourceEnd = currentMidX + currentWidth / 2;
+
+            if (currentWidth.IsAlmostZero())
+            {
+                sourceStart -= EPSILON;
+                sourceEnd += EPSILON;
+            }
 
             for (int i = 0; i < targetRowCount; i++)
             {
