@@ -1,0 +1,50 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:samplePageBase="clr-namespace:Avalonia.Labs.Catalog.Views.SamplePageBase">
+  <samplePageBase:ValueTemplate x:Key="FallbackValueTemplate"></samplePageBase:ValueTemplate>
+  <ControlTheme TargetType="samplePageBase:ControlSampleBase"
+                x:Key="{x:Type samplePageBase:ControlSampleBase}">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*, 3, 300">
+          <ContentPresenter Grid.Column="0"
+                            Content="{TemplateBinding Content}" />
+
+          <GridSplitter Grid.Column="1"
+                        Width="3"
+                        VerticalAlignment="Stretch" />
+
+          <ScrollViewer Grid.Column="2">
+            <StackPanel Grid.IsSharedSizeScope="True">
+              <ContentControl Content="{TemplateBinding SecondaryContent}" />
+              <ItemsControl ItemsSource="{TemplateBinding SampleProperties}"
+                            x:DataType="samplePageBase:PropertyGridItem">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"
+                                          SharedSizeGroup="PropertyName" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock x:DataType="samplePageBase:PropertyGridItem"
+                                 Text="{Binding Name}"
+                                 VerticalAlignment="Center"
+                                 Margin="2,0" />
+                      <ContentControl Grid.Column="1"
+                                      x:DataType="samplePageBase:PropertyGridItem"
+                                      Content="{Binding}"
+                                      ContentTemplate="{ Binding ValueTemplate}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </ScrollViewer>
+
+
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>
