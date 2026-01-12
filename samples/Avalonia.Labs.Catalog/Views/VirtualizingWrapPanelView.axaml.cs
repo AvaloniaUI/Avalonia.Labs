@@ -39,7 +39,7 @@ public class VirtualizingWrapPanelSampleView() : ControlSampleBase(new Virtualiz
         secondaryContent.Children.Add(new Button { Content = "Randomize Items", Command = ViewModel.RandomizeItemSizesCommand});
         secondaryContent.Children.Add(new Button { Content = "Reset Items", Command = ViewModel.ResetItemSizesCommand});
 
-        int nextRandom = Random.Shared.Next(1000);
+        int nextRandom = Random.Shared.Next(ViewModel.SampleItems.Length);
         var scrollToRandomButton = new Button { Content = $"Scroll to random ({nextRandom})" , Tag = nextRandom };
         scrollToRandomButton.Click += ScrollToRandom_OnClick;
         secondaryContent.Children.Add(scrollToRandomButton);
@@ -52,6 +52,7 @@ public class VirtualizingWrapPanelSampleView() : ControlSampleBase(new Virtualiz
         var btn = (Button)sender!;
         
         Sample.SampleListBox.ScrollIntoView((int)btn.Tag);
+        ViewModel.SelectedItem = ViewModel.SampleItems[(int)btn.Tag];
         
         int nextRandom = Random.Shared.Next(1000);
         btn.Content = $"Scroll to random ({nextRandom})";

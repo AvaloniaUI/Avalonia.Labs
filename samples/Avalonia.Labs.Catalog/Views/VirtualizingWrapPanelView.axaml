@@ -15,6 +15,7 @@
   </UserControl.DataContext>
 
   <ListBox ItemsSource="{Binding SampleItems}"
+           SelectedItem="{Binding SelectedItem}"
            ScrollViewer.HorizontalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Vertical}}"
            ScrollViewer.VerticalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Horizontal}}"
            x:Name="SampleListBox">
@@ -22,6 +23,7 @@
       <ItemsPanelTemplate>
         <panels:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
                                         SpacingMode="Uniform"
+                                        AllowDifferentSizedItems="{Binding AllowDifferentItemSizes, Mode=TwoWay}"
                                         IsGridLayoutEnabled="{Binding GridLayout}"
                                         Orientation="{Binding Orientation, Mode=TwoWay}" />
       </ItemsPanelTemplate>
