@@ -259,6 +259,74 @@ public class VirtualizingWrapPanelTests
     }
 
     [AvaloniaFact]
+    public void GetControl_Up_When_From_Is_Not_In_Panel_Does_Not_Crash()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            Orientation = Orientation.Horizontal,
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        var externalControl = new Button();
+
+        // This should not throw IndexOutOfRangeException
+        var result = target.GetControl(NavigationDirection.Up, externalControl, false);
+
+        Assert.Null(result);
+    }
+
+    [AvaloniaFact]
+    public void GetControl_Down_When_From_Is_Not_In_Panel_Does_Not_Crash()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            Orientation = Orientation.Horizontal,
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Content = itemsControl
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        var externalControl = new Button();
+
+        // This should not throw IndexOutOfRangeException
+        var result = target.GetControl(NavigationDirection.Down, externalControl, false);
+
+        Assert.Null(result);
+    }
+
+    [AvaloniaFact]
     public void KeyboardNavigation_DifferentSizedItems_Works()
     {
         var target = new TestVirtualizingWrapPanel
@@ -753,5 +821,465 @@ public class VirtualizingWrapPanelTests
         var next = target.GetControl(NavigationDirection.Down, container1, false);
         Assert.NotNull(next);
         Assert.Equal(3, target.LastNavigationIndexPublic);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_RightEdge_Horizontal_Next_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            Orientation = Orientation.Horizontal,
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ListBox
+        {
+            Width = 100, // 2 items per row
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        // Item 1 is at the right edge of Row 0
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        // NavigationDirection.Next from 1 should go to 2 (start of Row 1)
+        var next = target.GetControl(NavigationDirection.Next, container1, false);
+        Assert.NotNull(next);
+        Assert.Equal(2, target.LastNavigationIndexPublic);
+    }
+
+    [AvaloniaFact]
+    public void KeyboardNavigation_RightEdge_Horizontal_Right_Works()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            Orientation = Orientation.Horizontal,
+            ItemSize = new Size(50, 50)
+        };
+
+        var itemsControl = new ListBox
+        {
+            Width = 100, // 2 items per row
+            Height = 200,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 10).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window { Content = itemsControl };
+        window.Show();
+        window.UpdateLayout();
+
+        // Item 1 is at the right edge of Row 0
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        // NavigationDirection.Right from 1 should go to 2 (start of Row 1)
+        var next = target.GetControl(NavigationDirection.Right, container1, false);
+        Assert.NotNull(next);
+        Assert.Equal(2, target.LastNavigationIndexPublic);
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_Is_Visible()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            ItemSize = new Size(50, 50),
+            SpacingMode = SpacingMode.None
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100, // Exactly 2 items per row
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 100).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Scroll to item 1 (right edge of first row)
+        target.ScrollIntoView(1);
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container1.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container1.Bounds.Size).TransformToAABB(transform.Value);
+        
+        // Item 1 should be at X=50, Width=50. In a 100 width viewport, it should be fully visible.
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 1 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+        Assert.True(rect.Top >= -1 && rect.Bottom <= scrollViewer.Bounds.Height + 1, 
+            $"Item 1 not vertically visible. Rect: {rect}, Viewport Height: {scrollViewer.Bounds.Height}");
+
+        // Scroll to item 3 (right edge of second row)
+        target.ScrollIntoView(3);
+        window.UpdateLayout();
+
+        var container3 = target.ContainerFromIndex(3);
+        Assert.NotNull(container3);
+        
+        transform = container3.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        rect = new Rect(container3.Bounds.Size).TransformToAABB(transform.Value);
+
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 3 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+        Assert.True(rect.Top >= -1 && rect.Bottom <= scrollViewer.Bounds.Height + 1, 
+            $"Item 3 not vertically visible. Rect: {rect}, Viewport Height: {scrollViewer.Bounds.Height}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_Is_Visible_WithSpacing()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            ItemSize = new Size(40, 50),
+            SpacingMode = SpacingMode.Uniform,
+            StretchItems = true
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100, 
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, 100).Select(i => i.ToString()).ToList(),
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Row layout for 100 width, 2 items of 40 width:
+        // extra = (100 - 80) / 2 = 10. Items become 50 width.
+        // Item 0: X=0, W=50. Item 1: X=50, W=50.
+
+        // Scroll to item 1
+        target.ScrollIntoView(1);
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container1.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container1.Bounds.Size).TransformToAABB(transform.Value);
+        
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 1 not horizontally visible with spacing. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_DifferentSizes_Is_Visible()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Row 0: 50, 40 (Total 90) -> Item 1 is at X=50, ends at 90.
+        // Row 1: 100 (Total 100) -> Item 2 is at X=0, ends at 100.
+        // Row 2: 30, 65 (Total 95) -> Item 4 is at X=30, ends at 95.
+        var items = new List<Size>
+        {
+            new Size(50, 50), new Size(40, 50),
+            new Size(100, 50),
+            new Size(30, 50), new Size(65, 50),
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Scroll to item 4 (ends at 95, near right edge of 100)
+        target.ScrollIntoView(4);
+        window.UpdateLayout();
+
+        var container4 = target.ContainerFromIndex(4);
+        Assert.NotNull(container4);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container4.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container4.Bounds.Size).TransformToAABB(transform.Value);
+        
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 4 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_Extreme_DifferentSizes_Is_Visible()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Row 0: 50, 49.9 (Total 99.9) -> Item 1 is at X=50, ends at 99.9.
+        var items = new List<Size>
+        {
+            new Size(50, 50), new Size(49.9, 50),
+            new Size(100, 50),
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Scroll to item 1 (ends at 99.9, extremely close to right edge of 100)
+        target.ScrollIntoView(1);
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container1.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container1.Bounds.Size).TransformToAABB(transform.Value);
+        
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 1 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_WithRoundingIssue_Is_Visible()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Item 0: 50.0001, Item 1: 49.9999. Total 100.0.
+        // If EPSILON is 0.001, 50.0001 + 49.9999 = 100.0 <= 100 + 0.001.
+        // They should be in the same row.
+        var items = new List<Size>
+        {
+            new Size(50.0001, 50), new Size(49.9999, 50),
+            new Size(100, 50),
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Scroll to item 1 (ends exactly at 100.0)
+        target.ScrollIntoView(1);
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container1.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container1.Bounds.Size).TransformToAABB(transform.Value);
+        
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 1 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_StretchedItem_Is_Fully_Visible()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            StretchItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Row 0: Item 0 (40x50), Item 1 (40x50). Total 80.
+        // Stretched to 100: Item 0 (50x50), Item 1 (50x50).
+        var items = new List<Size>
+        {
+            new Size(40, 50), new Size(40, 50),
+            new Size(100, 50),
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Viewport width 100. 
+        // We make the Viewport slightly smaller than the items row to force it to be "partially visible" if it was not stretched.
+        // But here items are stretched to fill 100.
+        
+        // Actually, let's make the ListBox Width 90.
+        // Items (40+40=80) stretched to 90 -> 45 each.
+        // Item 1 ends at 90.
+        listBox.Width = 90;
+        window.UpdateLayout();
+
+        // Scroll to item 1.
+        target.ScrollIntoView(1);
+        window.UpdateLayout();
+
+        var container1 = target.ContainerFromIndex(1);
+        Assert.NotNull(container1);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container1.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container1.Bounds.Size).TransformToAABB(transform.Value);
+        
+        // It should be fully visible [45, 90] in a [0, 90] viewport.
+        Assert.True(rect.Left >= -1 && rect.Right <= scrollViewer.Bounds.Width + 1, 
+            $"Item 1 not horizontally visible. Rect: {rect}, Viewport Width: {scrollViewer.Bounds.Width}");
+    }
+
+    [AvaloniaFact]
+    public void ScrollIntoView_RightEdge_Item_Width_Greater_Than_Viewport()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+
+        // Item 0: 150x50. ListBox Width: 100.
+        // Item 0 is wider than viewport.
+        var items = new List<Size>
+        {
+            new Size(150, 50),
+        };
+
+        var listBox = new ListBox
+        {
+            Width = 100,
+            Height = 100,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = Enumerable.Range(0, items.Count).ToList(),
+            ItemTemplate = new FuncDataTemplate<int>((i, _) => new Canvas { Width = items[i].Width, Height = items[i].Height }, true)
+        };
+
+        var window = new Window
+        {
+            Width = 200,
+            Height = 200,
+            Content = listBox
+        };
+
+        window.Show();
+        window.UpdateLayout();
+
+        // Scroll to item 0.
+        target.ScrollIntoView(0);
+        window.UpdateLayout();
+
+        var container0 = target.ContainerFromIndex(0);
+        Assert.NotNull(container0);
+        
+        var scrollViewer = listBox.FindDescendantOfType<ScrollViewer>();
+        Assert.NotNull(scrollViewer);
+        
+        var transform = container0.TransformToVisual(scrollViewer);
+        Assert.True(transform.HasValue);
+        var rect = new Rect(container0.Bounds.Size).TransformToAABB(transform.Value);
+        
+        // When item is wider than viewport, BringIntoView typically aligns it to the left.
+        Assert.True(rect.Left >= -1, 
+            $"Item 0 left not visible. Rect: {rect}");
     }
 }
