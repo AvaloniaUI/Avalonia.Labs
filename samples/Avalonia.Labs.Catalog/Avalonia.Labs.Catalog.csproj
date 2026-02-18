@@ -8,7 +8,14 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <CompilerVisibleProperty Include="AvaloniaAssetLocation" />
+    <CompilerVisibleProperty Include="AvaloniaAssetRootClass" />
   </ItemGroup>
+  <PropertyGroup>
+    <AvaloniaAssetRootClass>Assets</AvaloniaAssetRootClass>
+    <AdditionalFileItemNames>$(AdditionalFileItemNames);AvaloniaResource</AdditionalFileItemNames>
+    <AvaloniaAssetLocation>Assets</AvaloniaAssetLocation>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaSampleVersion)" />
@@ -27,6 +34,7 @@
     <ProjectReference Include="..\..\src\Avalonia.Labs.Qr\Avalonia.Labs.Qr.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.CommandManager\Avalonia.Labs.CommandManager.csproj" />
     <ProjectReference Include="..\..\src\Avalonia.Labs.ExpressionBuilder\Avalonia.Labs.ExpressionBuilder.csproj" />
+    <ProjectReference Include="..\..\src\Avalonia.Labs.ResourceSourceGenerator\Avalonia.Labs.ResourceSourceGenerator.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

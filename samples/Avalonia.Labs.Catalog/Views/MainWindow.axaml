@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Avalonia.Labs.Catalog.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:assets="using:Avalonia.Labs.Catalog.Assets"
+        xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
         x:Class="Avalonia.Labs.Catalog.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="{x:Static assets:Assets.Accept_arrows}"
         Title="Avalonia.Labs.Catalog">
-        <views:MainView />
+  <views:MainView />
 </Window>

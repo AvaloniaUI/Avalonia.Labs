@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <AdditionalFileItemNames>$(AdditionalFileItemNames);AvaloniaResource</AdditionalFileItemNames>
+
+  </PropertyGroup>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="AvaloniaAssetLocation" />
+    <CompilerVisibleProperty Include="AvaloniaAssetRootClass" />
+  </ItemGroup>
+</Project>
