@@ -8,14 +8,14 @@ namespace Avalonia.Labs.Notifications
     {
         public static AppBuilder WithAppNotifications(this AppBuilder appBuilder
 #if ANDROID
-            , global::Android.App.Activity activity
+            , global::Android.Content.Context context
 #endif
             , AppNotificationOptions? options = null
             )
         {
             INativeNotificationManagerImpl notificationManager;
 #if ANDROID
-            notificationManager = new Android.NativeNotificationManager(activity);
+            notificationManager = new Android.NativeNotificationManager(context);
 #else
             if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS())
             {

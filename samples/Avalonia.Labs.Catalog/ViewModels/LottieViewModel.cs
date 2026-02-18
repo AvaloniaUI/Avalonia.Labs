@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System;
+using System.IO;
+using System.Linq;
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Platform;
-using System.Linq;
-using System.IO;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public class LottieViewModel : ViewModelBase
+    public partial class LottieViewModel : ViewModelBase
     {
         static LottieViewModel()
         {
@@ -31,25 +31,13 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
         private readonly ObservableCollection<AssetModel> _assets;
 
-        private AssetModel? _selectedAsset;
-        private bool _enableCheckerboard;
-
         public IReadOnlyList<AssetModel> Assets => _assets;
 
-        public AssetModel? SelectedAsset
-        {
-            get => _selectedAsset; set
-            {
-                this.RaiseAndSetIfChanged(ref _selectedAsset, value);
-            }
-        }
-        public bool EnableCheckerboard
-        {
-            get => _enableCheckerboard; set
-            {
-                this.RaiseAndSetIfChanged(ref _enableCheckerboard, value);
-            }
-        }
+        [ObservableProperty]
+        public partial AssetModel? SelectedAsset { get; set; }
+
+        [ObservableProperty]
+        public partial bool EnableCheckerboard { get; set; }
 
         public void Add(string path)
         {
@@ -91,29 +79,17 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
     public partial class AssetModel : ViewModelBase
     {
-        private string _name;
-        private string _path;
-
         public AssetModel(string name, string path)
         {
             Name = name;
             Path = path;
         }
 
-        public string Name
-        {
-            get => _name; set
-            {
-                this.RaiseAndSetIfChanged(ref _name, value);
-            }
-        }
-        public string Path
-        {
-            get => _path; set
-            {
-                this.RaiseAndSetIfChanged(ref _path, value);
-            }
-        }
+        [ObservableProperty]
+        public partial string Name { get; set; }
+
+        [ObservableProperty]
+        public partial string Path { get; set; }
 
         public override string ToString() => Name;
     }

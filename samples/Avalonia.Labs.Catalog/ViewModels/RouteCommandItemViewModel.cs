@@ -1,28 +1,30 @@
-﻿using ReactiveUI;
+﻿using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-public class RouteCommandItemViewModel : ViewModelBase
+public partial class RouteCommandItemViewModel : ViewModelBase
 {
-    private string? _text;
-    private bool _hasChanges;
-
-    public string? Text
-    {
-        get => _text;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _text, value);
-            HasChanges = true;
-        }
-    }
+    [ObservableProperty]
+    public partial string? Text { get; set; }
 
     public int Id { get; internal set; }
 
-    public bool HasChanges { get => _hasChanges; private set => this.RaiseAndSetIfChanged(ref _hasChanges, value); }
+    [ObservableProperty]
+    public partial bool HasChanges { get; set; }
 
     public void Accept()
     {
         HasChanges = false;
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == nameof(Text))
+        {
+            HasChanges = true;
+        }
     }
 }

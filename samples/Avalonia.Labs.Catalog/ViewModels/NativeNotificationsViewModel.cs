@@ -1,32 +1,24 @@
 ﻿using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Notifications;
 using Avalonia.Platform;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public class NativeNotificationsViewModel : ViewModelBase
+    public partial class NativeNotificationsViewModel : ViewModelBase
     {
         static NativeNotificationsViewModel()
         {
             ViewLocator.Register(typeof(NativeNotificationsViewModel), () => new NativeNotificationsView());
         }
 
-        private string _customCaption = "";
-        private string _response = "";
         private INativeNotification? _currentNotification;
 
-        public string CustomCaption
-        {
-            get => _customCaption;
-            set => this.RaiseAndSetIfChanged(ref _customCaption, value);
-        }
+        [ObservableProperty]
+        public partial string CustomCaption { get; set; } = "";
 
-        public string Response
-        {
-            get => _response;
-            set => this.RaiseAndSetIfChanged(ref _response, value);
-        }
+        [ObservableProperty]
+        public partial string Response { get; set; } = "";
 
         public NativeNotificationsViewModel()
         {
@@ -98,7 +90,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
                 notification.Message = "Hello, this is a basic notification with custom actions. This is not supported on iOS";
                 notification.SetActions(new[]
                 {
-                    new NativeNotificationAction(string.IsNullOrWhiteSpace(_customCaption) ? "Hey" : _customCaption, "hey")
+                    new NativeNotificationAction(string.IsNullOrWhiteSpace(CustomCaption) ? "Hey" : CustomCaption, "hey")
                 });
 
                 notification.Show();

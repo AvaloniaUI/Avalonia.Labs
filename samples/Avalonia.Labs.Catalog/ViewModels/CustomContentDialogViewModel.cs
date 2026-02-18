@@ -1,10 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using Avalonia.Labs.Controls;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-class CustomContentDialogViewModel : ViewModelBase
+public partial class CustomContentDialogViewModel : ViewModelBase
 {
     private readonly ContentDialog dialog;
 
@@ -33,17 +34,18 @@ class CustomContentDialogViewModel : ViewModelBase
         _ = resultHint.ShowAsync();
     }
 
-    private string? _UserInput;
-
     /// <summary>
     /// Gets or sets the user input to check 
     /// </summary>
-    public string? UserInput
+    [ObservableProperty]
+    public partial string? UserInput { get; set; }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-        get => _UserInput;
-        set
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == nameof(UserInput))
         {
-            this.RaiseAndSetIfChanged(ref _UserInput, value);
             HandleUserInput();
         }
     }
@@ -72,14 +74,14 @@ class CustomContentDialogViewModel : ViewModelBase
 
     private static readonly string[] _AvailableKeyWords = new[]
     {
-    "Accept",
-    "OK",
-    "Dismiss",
-    "Not OK",
-    "Close",
-    "Cancel",
-    "Hide"
-};
+        "Accept",
+        "OK",
+        "Dismiss",
+        "Not OK",
+        "Close",
+        "Cancel",
+        "Hide"
+    };
 
     public string[] AvailableKeyWords => _AvailableKeyWords;
 }

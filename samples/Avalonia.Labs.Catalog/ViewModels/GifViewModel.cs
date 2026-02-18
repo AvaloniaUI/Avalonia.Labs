@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System;
-using Avalonia.Labs.Catalog.Views;
-using Avalonia.Platform;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using Avalonia.Labs.Catalog.Views;
 using Avalonia.Media;
-using ReactiveUI;
+using Avalonia.Platform;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public class GifViewModel : ViewModelBase
+    public partial class GifViewModel : ViewModelBase
     {
         static GifViewModel()
         {
@@ -43,55 +43,23 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
         private readonly ObservableCollection<AssetModel> _assets;
 
-        private AssetModel? _selectedAsset;
-        private bool _enableCheckerboard;
-        private int _iterationCount;
-        private IReadOnlyList<Stretch>? _stretches;
-        private Stretch? _selectedStretch;
-
         public IReadOnlyList<AssetModel> Assets => _assets;
 
-        public AssetModel? SelectedAsset
-        {
-            get => _selectedAsset;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _selectedAsset, value);
-            }
-        }
+        [ObservableProperty]
+        public partial AssetModel? SelectedAsset { get; set; }
 
-        public bool EnableCheckerboard
-        {
-            get => _enableCheckerboard;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _enableCheckerboard, value);
-            }
-        }
+        [ObservableProperty]
+        public partial bool EnableCheckerboard { get; set; }
 
 
-        public int IterationCount
-        {
-            get => _iterationCount;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _iterationCount, value);
-            }
-        }
-        
-        
+        [ObservableProperty]
+        public partial int IterationCount { get; set; }
 
-        public IReadOnlyList<Stretch>? Stretches
-        {
-            get => _stretches;
-            set => this.RaiseAndSetIfChanged(ref _stretches, value);
-        }
+        [ObservableProperty]
+        public partial IReadOnlyList<Stretch>? Stretches { get; set; }
 
-        public Stretch? SelectedStretch
-        {
-            get => _selectedStretch;
-            set => this.RaiseAndSetIfChanged(ref _selectedStretch, value);
-        }
+        [ObservableProperty]
+        public partial Stretch? SelectedStretch { get; set; }
 
         public void Add(string path)
         {

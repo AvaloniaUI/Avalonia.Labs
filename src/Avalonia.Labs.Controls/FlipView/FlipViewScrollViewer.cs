@@ -67,6 +67,22 @@ namespace Avalonia.Labs.Controls
         public static readonly AttachedProperty<SnapPointsAlignment> VerticalSnapPointsAlignmentProperty =
             ScrollViewer.VerticalSnapPointsAlignmentProperty.AddOwner<FlipViewScrollViewer>();
 
+        /// <summary>
+        /// Defines the <see cref="HorizontalScrollBarVisibility"/> property.
+        /// </summary>
+        public static readonly AttachedProperty<ScrollBarVisibility> HorizontalScrollBarVisibilityProperty =
+            AvaloniaProperty.RegisterAttached<FlipViewScrollViewer, Control, ScrollBarVisibility>(
+                nameof(HorizontalScrollBarVisibility),
+                ScrollBarVisibility.Disabled);
+
+        /// <summary>
+        /// Defines the <see cref="VerticalScrollBarVisibility"/> property.
+        /// </summary>
+        public static readonly AttachedProperty<ScrollBarVisibility> VerticalScrollBarVisibilityProperty =
+            AvaloniaProperty.RegisterAttached<ScrollViewer, Control, ScrollBarVisibility>(
+                nameof(VerticalScrollBarVisibility),
+                ScrollBarVisibility.Auto);
+
         private Size _extent;
         private Size _viewport;
         private CompositeDisposable? _subscriptions;
@@ -158,6 +174,7 @@ namespace Avalonia.Labs.Controls
             set => SetValue(VerticalSnapPointsAlignmentProperty, value);
         }
 
+
         /// <summary>
         /// Gets or sets the current scroll offset.
         /// </summary>
@@ -192,6 +209,44 @@ namespace Avalonia.Labs.Controls
                 SetAndRaise(ViewportProperty, ref _viewport, value);
             }
         }
+
+        /// <summary>
+        /// Gets or sets the horizontal scrollbar visibility.
+        /// </summary>
+        public ScrollBarVisibility HorizontalScrollBarVisibility
+        {
+            get => GetValue(HorizontalScrollBarVisibilityProperty);
+            set => SetValue(HorizontalScrollBarVisibilityProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the vertical scrollbar visibility.
+        /// </summary>
+        public ScrollBarVisibility VerticalScrollBarVisibility
+        {
+            get => GetValue(VerticalScrollBarVisibilityProperty);
+            set => SetValue(VerticalScrollBarVisibilityProperty, value);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the viewer can scroll horizontally.
+        /// </summary>
+        protected bool CanHorizontallyScroll
+        {
+            get => HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled;
+        }
+
+        bool IScrollable.CanHorizontallyScroll => CanHorizontallyScroll;
+
+        /// <summary>
+        /// Gets a value indicating whether the viewer can scroll vertically.
+        /// </summary>
+        protected bool CanVerticallyScroll
+        {
+            get => VerticalScrollBarVisibility != ScrollBarVisibility.Disabled;
+        }
+
+        bool IScrollable.CanVerticallyScroll => CanVerticallyScroll;
 
         /// <inheritdoc/>
         public void RegisterAnchorCandidate(Control element)
@@ -241,7 +296,7 @@ namespace Avalonia.Labs.Controls
 
         private void Presenter_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if(_presenter == null)
+            if (_presenter == null)
             {
                 return;
             }

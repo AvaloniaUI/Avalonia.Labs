@@ -1,11 +1,6 @@
 <Project>
-  <!-- 
-    The Nullable annotations on netstandard2.0 are incomplete and incorrect in places. Ignore
-    nullable warnings before .NET 6 and make them errors on later target frameworks.
-  -->
   <PropertyGroup Condition="'$(Nullable)' == ''">
     <Nullable>enable</Nullable>
-    <WarningsAsErrors Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">$(WarningsAsErrors);nullable</WarningsAsErrors>
-    <NoWarn Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">$(NoWarn);nullable</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
   </PropertyGroup>
 </Project>

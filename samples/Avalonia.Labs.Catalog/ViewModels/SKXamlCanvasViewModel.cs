@@ -2,15 +2,13 @@
 using Avalonia.Labs.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 using SkiaSharp;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-internal class SKXamlCanvasViewModel : ViewModelBase
+public partial class SKXamlCanvasViewModel : ViewModelBase
 {
-    private SKBitmap? _bitmap;
-
     static SKXamlCanvasViewModel()
     {
         ViewLocator.Register(typeof(SKXamlCanvasViewModel), () => new SKXamlCanvasView());
@@ -21,7 +19,8 @@ internal class SKXamlCanvasViewModel : ViewModelBase
         Title = nameof(SKCanvasView);
     }
 
-    public SKBitmap? Bitmap { get => _bitmap; set => this.RaiseAndSetIfChanged(ref _bitmap, value); }
+    [ObservableProperty]
+    public partial SKBitmap? Bitmap { get; set; }
 
     public async void OpenAsync(object? parameter)
     {

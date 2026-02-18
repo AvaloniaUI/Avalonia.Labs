@@ -94,7 +94,6 @@ namespace Avalonia.Labs.Controls
                 {
                     Bitmap? bitmap = null;
                     // Android doesn't allow network requests on the main thread, even though we are using async apis.
-#if NET6_0_OR_GREATER
                     if (OperatingSystem.IsAndroid())
                     {
                         await Task.Run(async () =>
@@ -114,7 +113,6 @@ namespace Avalonia.Labs.Controls
                         });
                     }
                     else
-#endif
                     {
                         try
                         {
@@ -192,20 +190,12 @@ namespace Avalonia.Labs.Controls
             {
                 return bitmap;
             }
-#if NET6_0_OR_GREATER
+
             using var client = new HttpClient();
             var stream = await client.GetStreamAsync(url, token).ConfigureAwait(false);
 
             await using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream, token).ConfigureAwait(false);
-#elif NETSTANDARD2_0
-            using var client = new HttpClient();
-            var response = await client.GetAsync(url, token).ConfigureAwait(false);
-            var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream).ConfigureAwait(false);
-#endif
 
             memoryStream.Position = 0;
             return new Bitmap(memoryStream);

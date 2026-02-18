@@ -39,33 +39,6 @@ namespace Avalonia.Labs.Controls
             base.PrepareContainerForItemOverride(element, item, index);
         }
 
-        /// <inheritdoc/>
-        protected override void OnGotFocus(GotFocusEventArgs e)
-        {
-            base.OnGotFocus(e);
-
-            if (e.NavigationMethod == NavigationMethod.Directional)
-            {
-                e.Handled = UpdateSelectionFromEventSource(e.Source);
-            }
-        }
-
-        /// <inheritdoc/>
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
-        {
-            base.OnPointerPressed(e);
-
-            if (e.Source is Visual source)
-            {
-                var point = e.GetCurrentPoint(source);
-
-                if (point.Properties.IsLeftButtonPressed)
-                {
-                    e.Handled = UpdateSelectionFromEventSource(e.Source);
-                }
-            }
-        }
-
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);

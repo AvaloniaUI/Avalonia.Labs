@@ -220,15 +220,7 @@ public class StepBar : SelectingItemsControl
 
     internal bool UpdateSelectionFromPointerEvent(Control source, PointerEventArgs e)
     {
-        var hotkeys = Application.Current!.PlatformSettings?.HotkeyConfiguration;
-        var toggle = hotkeys is not null && e.KeyModifiers.HasFlag(hotkeys.CommandModifiers);
-
-        return UpdateSelectionFromEventSource(
-            source,
-            true,
-            e.KeyModifiers.HasFlag(KeyModifiers.Shift),
-            toggle,
-            e.GetCurrentPoint(source).Properties.IsRightButtonPressed);
+        return UpdateSelectionFromEvent(source, e);
     }
 
 }

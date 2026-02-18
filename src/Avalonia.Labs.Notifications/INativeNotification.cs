@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if ANDROID
+using Android.App;
+#endif
 using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications
@@ -47,6 +50,10 @@ namespace Avalonia.Labs.Notifications
 
         // triggered when an action is done, or the notification is cancelled
         event EventHandler<NativeNotificationCompletedEventArgs>? NotificationCompleted;
+
+#if ANDROID
+        void SetPermissionActivity(Activity activity);
+#endif
     }
 
     internal interface INativeNotificationManagerImpl : INativeNotificationManager, IDisposable

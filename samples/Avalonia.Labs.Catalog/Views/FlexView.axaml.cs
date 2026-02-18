@@ -1,11 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Catalog.ViewModels;
-using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.Views
 {
-    public partial class FlexView : ReactiveUserControl<FlexViewModel>
+    public partial class FlexView : UserControl
     {
         public FlexView()
         {
@@ -14,7 +13,7 @@ namespace Avalonia.Labs.Catalog.Views
 
         private void OnItemTapped(object? sender, RoutedEventArgs e)
         {
-            if (sender is ListBoxItem control && control.DataContext is FlexItemViewModel item)
+            if (sender is ListBoxItem control && control.DataContext is FlexItemViewModel item  && DataContext is FlexViewModel ViewModel)
             {
                 if (ViewModel.SelectedItem != null)
                 {

@@ -1,3 +1,4 @@
+#if !ANDROID
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,3 +119,5 @@ internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, 
         UNUserNotificationCenter.Current.RemovePending(appleNativeNotification.AppleIdentifier);
     }
 }
+
+#endif

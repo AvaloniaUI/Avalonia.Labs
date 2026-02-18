@@ -6,7 +6,7 @@ using Windows.Win32.Foundation;
 
 namespace Avalonia.Labs.Notifications.Windows;
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform("windows8.1")]
 internal class DesktopBridgeHelpers
 {
     public static bool HasPackage() => GetCurrentPackageFullName() is not null;

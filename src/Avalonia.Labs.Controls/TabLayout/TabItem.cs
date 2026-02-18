@@ -7,6 +7,8 @@ using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Reactive;
 using Avalonia.Styling;
@@ -48,15 +50,6 @@ namespace Avalonia.Labs.Controls
         {
             get => GetValue(HeaderThemeProperty);
             set => SetValue(HeaderThemeProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the data template used to display the header content of the control.
-        /// </summary>
-        public IDataTemplate? HeaderTemplate
-        {
-            get => GetValue(HeaderTemplateProperty);
-            set => SetValue(HeaderTemplateProperty, value);
         }
 
         /// <summary>
@@ -105,6 +98,25 @@ namespace Avalonia.Labs.Controls
         {
             base.OnApplyTemplate(e);
         }
+        protected override void OnGotFocus(GotFocusEventArgs e)
+        {
+            base.OnGotFocus(e);
+            UpdateSelectionFromEvent(e);
+        }
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            UpdateSelectionFromEvent(e);
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            base.OnPointerReleased(e);
+            UpdateSelectionFromEvent(e);
+        }
+
+        protected bool UpdateSelectionFromEvent(RoutedEventArgs e) => SelectingItemsControl.ItemsControlFromItemContainer(this)?.UpdateSelectionFromEvent(this, e) ?? false;
 
         protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
         {

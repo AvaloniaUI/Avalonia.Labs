@@ -191,7 +191,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
                 return new Uri(path).AbsoluteUri;
             }
-            catch(Exception _)
+            catch(Exception)
             {
                 return null;
             }

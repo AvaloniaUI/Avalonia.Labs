@@ -2,32 +2,21 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Windows.Input;
 
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Panels;
 using Avalonia.Layout;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public sealed class FlexViewModel : ViewModelBase
+    public partial class FlexViewModel : ViewModelBase
     {
         private readonly ObservableCollection<FlexItemViewModel> _numbers;
 
-        private FlexDirection _direction = FlexDirection.Row;
-        private JustifyContent _justifyContent = JustifyContent.FlexStart;
-        private AlignItems _alignItems = AlignItems.FlexStart;
-        private AlignContent _alignContent = AlignContent.FlexStart;
-        private FlexWrap _wrap = FlexWrap.Wrap;
-
-        private int _columnSpacing = 64;
-        private int _rowSpacing = 32;
-
         private int _currentNumber = 41;
-
-        private FlexItemViewModel? _selectedItem;
 
         static FlexViewModel()
         {
@@ -42,8 +31,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
 
             Numbers = new ReadOnlyObservableCollection<FlexItemViewModel>(_numbers);
 
-            AddItemCommand = ReactiveCommand.Create(AddItem);
-            RemoveItemCommand = ReactiveCommand.Create(RemoveItem, this.WhenAnyValue(vm => vm.SelectedItem).Select(x => x != null));
+            AddItemCommand = new RelayCommand(AddItem);
+            RemoveItemCommand = new RelayCommand(RemoveItem, () => SelectedItem != null);
         }
 
         public IEnumerable DirectionValues { get; } = Enum.GetValues(typeof(FlexDirection));
@@ -63,56 +52,32 @@ namespace Avalonia.Labs.Catalog.ViewModels
         public IEnumerable VerticalAlignmentValues { get; } = Enum.GetValues(typeof(VerticalAlignment));
 
         public IEnumerable AlignSelfValues { get; } = Enum.GetValues(typeof(AlignItems)).Cast<AlignItems>().Prepend(FlexItemViewModel.AlignSelfAuto);
-        
-        public FlexDirection Direction
-        {
-            get => _direction;
-            set => this.RaiseAndSetIfChanged(ref _direction, value);
-        }
 
-        public JustifyContent JustifyContent
-        {
-            get => _justifyContent;
-            set => this.RaiseAndSetIfChanged(ref _justifyContent, value);
-        }
+        [ObservableProperty]
+        public partial FlexDirection Direction { get; set; }
 
-        public AlignItems AlignItems
-        {
-            get => _alignItems;
-            set => this.RaiseAndSetIfChanged(ref _alignItems, value);
-        }
+        [ObservableProperty]
+        public partial JustifyContent JustifyContent { get; set; }
 
-        public AlignContent AlignContent
-        {
-            get => _alignContent;
-            set => this.RaiseAndSetIfChanged(ref _alignContent, value);
-        }
+        [ObservableProperty]
+        public partial AlignItems AlignItems { get; set; }
 
-        public FlexWrap Wrap
-        {
-            get => _wrap;
-            set => this.RaiseAndSetIfChanged(ref _wrap, value);
-        }
+        [ObservableProperty]
+        public partial AlignContent AlignContent { get; set; }
 
-        public int ColumnSpacing
-        {
-            get => _columnSpacing;
-            set => this.RaiseAndSetIfChanged(ref _columnSpacing, value);
-        }
+        [ObservableProperty]
+        public partial FlexWrap Wrap { get; set; }
 
-        public int RowSpacing
-        {
-            get => _rowSpacing;
-            set => this.RaiseAndSetIfChanged(ref _rowSpacing, value);
-        }
+        [ObservableProperty]
+        public partial int ColumnSpacing { get; set; } = 64;
+
+        [ObservableProperty]
+        public partial int RowSpacing { get; set; } = 32;
 
         public ReadOnlyObservableCollection<FlexItemViewModel> Numbers { get; }
 
-        public FlexItemViewModel? SelectedItem
-        {
-            get => _selectedItem;
-            set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
-        }
+        [ObservableProperty]
+        public partial FlexItemViewModel? SelectedItem { get; set; }
 
         public ICommand AddItemCommand { get; }
 

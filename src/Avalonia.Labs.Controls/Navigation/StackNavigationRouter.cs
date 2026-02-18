@@ -12,7 +12,7 @@ namespace Avalonia.Labs.Controls
 
         public event EventHandler<NavigatedEventArgs>? Navigated;
 
-        public bool CanGoBack => _backStack?.Count() > 0;
+        public bool CanGoBack => _backStack?.Count > 0;
 
         public static readonly DirectProperty<StackNavigationRouter, object?> CurrentPageProperty =
             AvaloniaProperty.RegisterDirect<StackNavigationRouter, object?>(nameof(CurrentPage), o => o.CurrentPage, (o, v) => o.CurrentPage = v);

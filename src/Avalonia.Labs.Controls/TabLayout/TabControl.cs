@@ -11,6 +11,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Rendering.Composition;
@@ -50,8 +51,8 @@ namespace Avalonia.Labs.Controls
         /// <summary>
         /// Defines the <see cref="HeaderDisplayMemberBinding" /> property
         /// </summary>
-        public static readonly StyledProperty<IBinding?> HeaderDisplayMemberBindingProperty =
-            AvaloniaProperty.Register<ItemsControl, IBinding?>(nameof(HeaderDisplayMemberBinding));
+        public static readonly StyledProperty<BindingBase?> HeaderDisplayMemberBindingProperty =
+            AvaloniaProperty.Register<ItemsControl, BindingBase?>(nameof(HeaderDisplayMemberBinding));
 
         /// <summary>
         /// The default value for the <see cref="HeaderPanel"/> property.
@@ -130,10 +131,10 @@ namespace Avalonia.Labs.Controls
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="IBinding"/> to use for binding to the header member of each item.
+        /// Gets or sets the <see cref="BindingBase"/> to use for binding to the header member of each item.
         /// </summary>
         [AssignBinding]
-        public IBinding? HeaderDisplayMemberBinding
+        public BindingBase? HeaderDisplayMemberBinding
         {
             get { return GetValue(HeaderDisplayMemberBindingProperty); }
             set { SetValue(HeaderDisplayMemberBindingProperty, value); }
@@ -267,27 +268,14 @@ namespace Avalonia.Labs.Controls
             if (selectedIndex == oldIndex || selectedIndex == newIndex)
                 UpdateHeaderSelection();
         }
-
-        /// <inheritdoc/>
-        protected override void OnGotFocus(GotFocusEventArgs e)
+        public override bool UpdateSelectionFromEvent(Control container, RoutedEventArgs eventArgs)
         {
-            base.OnGotFocus(e);
-
-            if (e.NavigationMethod == NavigationMethod.Directional)
+            if (eventArgs is GotFocusEventArgs { NavigationMethod: not NavigationMethod.Directional })
             {
-                e.Handled = UpdateSelectionFromEventSource(e.Source);
+                return false;
             }
-        }
 
-        /// <inheritdoc/>
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
-        {
-            base.OnPointerPressed(e);
-
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && e.Pointer.Type == PointerType.Mouse)
-            {
-                e.Handled = UpdateSelectionFromEventSource(e.Source);
-            }
+            return base.UpdateSelectionFromEvent(container, eventArgs);
         }
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)

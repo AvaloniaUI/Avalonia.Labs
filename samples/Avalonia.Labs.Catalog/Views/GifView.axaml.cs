@@ -25,7 +25,7 @@ namespace Avalonia.Labs.Catalog.Views
         {
             e.DragEffects &= DragDropEffects.Copy | DragDropEffects.Link;
 
-            if (!e.Data.Contains(DataFormats.FileNames))
+            if (!(e.DataTransfer.TryGetFiles()?.Length > 0))
             {
                 e.DragEffects = DragDropEffects.None;
             }
@@ -33,7 +33,7 @@ namespace Avalonia.Labs.Catalog.Views
 
         private void Drop(object? sender, DragEventArgs e)
         {
-            if (!e.Data.Contains(DataFormats.FileNames))
+            if (!(e.DataTransfer.TryGetFiles()?.Length > 0))
             {
                 return;
             }
@@ -43,7 +43,7 @@ namespace Avalonia.Labs.Catalog.Views
                 return;
             }
 
-            var paths = e.Data.GetFileNames()?.ToList();
+            var paths = e.DataTransfer.TryGetFiles()?.ToList();
             if (paths is null)
             {
                 return;
@@ -52,12 +52,12 @@ namespace Avalonia.Labs.Catalog.Views
             for (var i = 0; i < paths.Count; i++)
             {
                 var path = paths[i];
-                if (string.IsNullOrWhiteSpace(path))
+                if (string.IsNullOrWhiteSpace(path.Name))
                 {
                     continue;
                 }
 
-                vm.Add(path);
+                vm.Add(path.Path.ToString());
 
                 if (i == 0)
                 {

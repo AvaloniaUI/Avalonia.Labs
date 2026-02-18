@@ -1,17 +1,9 @@
-﻿using ReactiveUI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-public class ViewModelBase : ReactiveObject
+public partial class ViewModelBase : ObservableObject
 {
-    private string? _title;
-
-    public string? Title
-    {
-        get => _title; 
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _title, value);
-        }
-    }
+    [ObservableProperty]
+    public partial string? Title { get; set; }
 }
