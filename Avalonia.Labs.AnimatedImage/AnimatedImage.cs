@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Metadata;
@@ -25,7 +24,7 @@ public class AnimatedImage : Control
     [Content]
     public IAnimatedBitmap? Source
     {
-        get => GetValue(SourceProperty); 
+        get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
     }
 
@@ -37,7 +36,7 @@ public class AnimatedImage : Control
 
     public Stretch Stretch
     {
-        get => GetValue(StretchProperty); 
+        get => GetValue(StretchProperty);
         set => SetValue(StretchProperty, value);
     }
 
@@ -67,8 +66,8 @@ public class AnimatedImage : Control
 
         base.OnPropertyChanged(change);
     }
-    
-    protected override async void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         var compositor = ElementComposition.GetElementVisual(this)?.Compositor;
         if (compositor is null || _customVisual?.Compositor == compositor)
@@ -76,9 +75,9 @@ public class AnimatedImage : Control
         _customVisual = compositor.CreateCustomVisual(new CustomVisualHandler());
         ElementComposition.SetElementChildVisual(this, _customVisual);
         _customVisual.SendHandlerMessage(CustomVisualHandler.StartMessage);
-        
+
         if (Source is { IsInitialized: false, IsFailed: false } source)
-            await InitSourceAsync(source);
+            InitSource(source);
         _customVisual.SendHandlerMessage(Stretch);
         _customVisual.SendHandlerMessage(StretchDirection);
         if (Source is { IsInitialized: true })
@@ -103,7 +102,7 @@ public class AnimatedImage : Control
             : default;
     }
 
-    private async void OnSourcePropertyChanged(IAnimatedBitmap? newValue)
+    private void OnSourcePropertyChanged(IAnimatedBitmap? newValue)
     {
         if (_customVisual is null)
             return;
@@ -113,7 +112,7 @@ public class AnimatedImage : Control
         else
         {
             if (Source is { IsInitialized: false, IsFailed: false } source)
-                await InitSourceAsync(source);
+                InitSource(source);
             if (Source is { IsInitialized: true })
                 _customVisual.SendHandlerMessage(newValue);
         }
@@ -127,16 +126,16 @@ public class AnimatedImage : Control
     {
         if (_customVisual is null)
             return;
-        
-        _customVisual.Size = new Vector2((float) Bounds.Width, (float) Bounds.Height);
+
+        _customVisual.Size = new Vector2((float)Bounds.Width, (float)Bounds.Height);
         _customVisual.Offset = Vector3.Zero;
     }
 
-    private async Task InitSourceAsync(IAnimatedBitmap source)
+    private void InitSource(IAnimatedBitmap source)
     {
         if (source.IsCancellable)
         {
-            await Task.Run(async () => await source.InitAsync());
+            source.Init();
             return;
         }
 
@@ -149,7 +148,7 @@ public class AnimatedImage : Control
         _cancellationTokenSource = new();
         try
         {
-            await Task.Run(async () => await source.InitAsync(_cancellationTokenSource.Token));
+            source.Init();
         }
         catch
         {
@@ -161,7 +160,7 @@ public class AnimatedImage : Control
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
-    } 
+    }
 
     private class CustomVisualHandler : CompositionCustomVisualHandler
     {
@@ -190,30 +189,31 @@ public class AnimatedImage : Control
                 _running = false;
             else if (message == ResetMessage)
                 Clear();
-            else switch (message)
-            {
-                case Stretch st:
-                    _stretch = st;
-                    break;
-                case StretchDirection sd:
-                    _stretchDirection = sd;
-                    break;
-                case IAnimatedBitmap { IsInitialized: true } instance:
+            else
+                switch (message)
                 {
-                    Clear();
-                    if (instance.Delays.Count != instance.FrameCount)
-                        throw new ArgumentException(
-                            $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.Frames)}");
-                    _currentInstance = instance;
-                    foreach (var delay in instance.Delays)
-                    {
-                        _frameTimes.Add(_totalTime);
-                        _totalTime += delay;
-                    }
+                    case Stretch st:
+                        _stretch = st;
+                        break;
+                    case StretchDirection sd:
+                        _stretchDirection = sd;
+                        break;
+                    case IAnimatedBitmap { IsInitialized: true } instance:
+                        {
+                            Clear();
+                            if (instance.Delays.Count != instance.FrameCount)
+                                throw new ArgumentException(
+                                    $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.Frames)}");
+                            _currentInstance = instance;
+                            foreach (var delay in instance.Delays)
+                            {
+                                _frameTimes.Add(_totalTime);
+                                _totalTime += delay;
+                            }
 
-                    break;
+                            break;
+                        }
                 }
-            }
             return;
 
             void Clear()
@@ -244,7 +244,7 @@ public class AnimatedImage : Control
             if (_currentInstance is not { IsInitialized: true })
                 return;
 
-            var ms = (int) _animationElapsed.TotalMilliseconds % _totalTime;
+            var ms = (int)_animationElapsed.TotalMilliseconds % _totalTime;
             var i = _frameTimes.BinarySearch(ms);
             var bitmap = _currentInstance.Frames[i < 0 ? ~i - 1 : i];
 
