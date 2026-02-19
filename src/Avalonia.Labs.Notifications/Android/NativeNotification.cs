@@ -15,7 +15,7 @@ namespace Avalonia.Labs.Notifications.Android
     internal class NativeNotification : INativeNotification
     {
         private static uint s_currentId = 0;
-        private readonly Activity _activity;
+        private readonly global::Android.Content.Context _context;
         private readonly NativeNotificationManager _manager;
         private readonly NotificationChannel _channel;
 
@@ -35,9 +35,9 @@ namespace Avalonia.Labs.Notifications.Android
         public Notification? CurrentNotification { get; private set; }
         public string? ReplyActionTag { get; set; }
 
-        public NativeNotification(Activity activity, NativeNotificationManager manager, NotificationChannel channel)
+        public NativeNotification(global::Android.Content.Context context, NativeNotificationManager manager, NotificationChannel channel)
         {
-            _activity = activity;
+            _context = context;
             _manager = manager;
             _channel = channel;
 
@@ -58,9 +58,9 @@ namespace Avalonia.Labs.Notifications.Android
 
         public void Show()
         {
-            var builder = new NotificationCompat.Builder(_activity, _channel.Id);
+            var builder = new NotificationCompat.Builder(_context, _channel.Id);
 
-            if (_activity.ApplicationInfo?.Icon is { } iconResource)
+            if (_context.ApplicationInfo?.Icon is { } iconResource)
             {
                 builder.SetSmallIcon(iconResource);
             }
@@ -87,18 +87,18 @@ namespace Avalonia.Labs.Notifications.Android
             deleteBundle.PutString("type", "notification");
             deleteBundle.PutString("notification-id", Id.ToString());
             deleteBundle.PutString("notification-action", "cancel");
-            var tapIntent = new Intent(_activity, _activity.Class)
+            var tapIntent = new Intent(_context, _context.Class)
                 .SetFlags(ActivityFlags.SingleTop)
                 .PutExtras(tapBundle);
 
-            var deleteIntent = new Intent(_activity, typeof(NotificationBroadcastReceiver))
+            var deleteIntent = new Intent(_context, typeof(NotificationBroadcastReceiver))
                 .SetFlags(ActivityFlags.SingleTop)
                 .PutExtras(deleteBundle);
 
-            var flags = Build.VERSION.SdkInt >= BuildVersionCodes.S ? PendingIntentFlags.Mutable : PendingIntentFlags.UpdateCurrent;
+            var flags = OperatingSystem.IsAndroidVersionAtLeast(31) ? PendingIntentFlags.Mutable : PendingIntentFlags.UpdateCurrent;
             
-            builder.SetContentIntent(PendingIntent.GetActivity(_activity, pendingIntentId + 1, tapIntent, flags))
-                .SetDeleteIntent(PendingIntent.GetBroadcast(_activity, pendingIntentId + 2, deleteIntent, flags));
+            builder.SetContentIntent(PendingIntent.GetActivity(_context, pendingIntentId + 1, tapIntent, flags))
+                .SetDeleteIntent(PendingIntent.GetBroadcast(_context, pendingIntentId + 2, deleteIntent, flags));
 
             if(!AndroidNotificationChannelManager.SupportsChannels)
             {
@@ -126,11 +126,11 @@ namespace Avalonia.Labs.Notifications.Android
                 tapBundle.PutString("notification-action", "action");
                 actionbundle.PutString("user-action", action.Tag);
 
-                var icon = action.Icon != null && action.Icon.ToAndroid() is { } bitmap ? IconCompat.CreateWithBitmap(bitmap) : IconCompat.CreateWithResource(_activity, _activity.ApplicationInfo?.Icon ?? 0);
+                var icon = action.Icon != null && action.Icon.ToAndroid() is { } bitmap ? IconCompat.CreateWithBitmap(bitmap) : IconCompat.CreateWithResource(_context, _context.ApplicationInfo?.Icon ?? 0);
 
-                var actionIntent = new Intent(_activity, typeof(NotificationBroadcastReceiver))
+                var actionIntent = new Intent(_context, typeof(NotificationBroadcastReceiver))
                     .PutExtras(actionbundle);
-                var pendingIntent = PendingIntent.GetBroadcast(_activity, pendingIntentId + 3 + i, actionIntent, flags);
+                var pendingIntent = PendingIntent.GetBroadcast(_context, pendingIntentId + 3 + i, actionIntent, flags);
                 var notificationAction = new NotificationCompat.Action.Builder(icon, action.Caption, pendingIntent);
 
                 if (!string.IsNullOrWhiteSpace(ReplyActionTag) && replyAction == action)

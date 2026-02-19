@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using Android.App;
 using Android.OS;
 using AndroidX.Core.App;
@@ -10,18 +11,14 @@ namespace Avalonia.Labs.Notifications.Android
 {
     internal class AndroidNotificationChannelManager : NotificationChannelManager
     {
-        public const string DefaultChannel = "default";
-        public const string DefaultChannelLabel = "Notifications";
-        private readonly Activity _activity;
-
-        private readonly Dictionary<string, NotificationChannel> _channels = new Dictionary<string, NotificationChannel>();
+        private readonly global::Android.Content.Context _context;
 
         internal static bool SupportsChannels => Build.VERSION.SdkInt >= BuildVersionCodes.O;
 
 
-        public AndroidNotificationChannelManager(Activity activity)
+        public AndroidNotificationChannelManager(global::Android.Content.Context context)
         {
-            _activity = activity;
+            _context = context;
         }
 
         public override NotificationChannel AddChannel(NotificationChannel notificationChannel)
@@ -38,7 +35,7 @@ namespace Avalonia.Labs.Notifications.Android
                     NotificationPriority.Max => NotificationImportance.Max,
                     _ => throw new NotImplementedException(),
                 }));
-                NotificationManagerCompat.From(_activity).CreateNotificationChannel(builder.Build());
+                NotificationManagerCompat.From(_context).CreateNotificationChannel(builder.Build());
             }
 
             _channels[notificationChannel.Id] = notificationChannel;
@@ -46,16 +43,18 @@ namespace Avalonia.Labs.Notifications.Android
             return notificationChannel;
         }
 
+        [SupportedOSPlatform("android26.0")]
         private string[] GetAppChannels()
         {
             if (!SupportsChannels)
                 return Array.Empty<string>();
-            var manager = NotificationManagerCompat.From(_activity);
+            var manager = NotificationManagerCompat.From(_context);
             var channels = manager.NotificationChannels;
 
             return channels.Select(c => c.Id ?? "").ToArray();
         }
 
+        [SupportedOSPlatform("android26.0")]
         public override void DeleteChannel(string channel)
         {
             if(_channels.TryGetValue(channel, out _))
@@ -65,7 +64,7 @@ namespace Avalonia.Labs.Notifications.Android
 
             if (SupportsChannels && GetAppChannels().Contains(channel))
             {
-                NotificationManagerCompat.From(_activity).DeleteNotificationChannel(channel);
+                NotificationManagerCompat.From(_context).DeleteNotificationChannel(channel);
             }
         }
 
@@ -77,6 +76,7 @@ namespace Avalonia.Labs.Notifications.Android
             return null;
         }
 
+        [SupportedOSPlatform("android26.0")]
         internal void ConsolidateChannels()
         {
             var unknownChannels = GetAppChannels().Where(x => !_channels.ContainsKey(x));

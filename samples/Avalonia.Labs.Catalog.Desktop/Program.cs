@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.Labs.Notifications;
-using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.Desktop;
 
@@ -43,11 +42,10 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .LogToTrace()
-            .UseReactiveUI()
             .WithAppNotifications(new AppNotificationOptions()
             {
                 Channels = s_channels,
-                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "/avalonia-32.png",
+                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess()?.MainModule?.FileName) + "/avalonia-32.png",
                 AppName = "Avalonia.Labs",
                 AppUserModelId = "com.Avalonia.Labs.Catalog",
                 // Is required for Packaged project, optional for the rest.

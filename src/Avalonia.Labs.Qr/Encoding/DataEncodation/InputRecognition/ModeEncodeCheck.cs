@@ -10,14 +10,16 @@ public static class ModeEncodeCheck
 	/// </summary>
 	private const int QuestionMarkChar = 0x3F;
 
-	/// <summary>
-	/// Use given encoding to check input string from starting position. If encoding table is suitable solution.
-	/// it will return -1. Else it will return failed encoding position.
-	/// </summary>
-	/// <param name="content">Input string</param>
-	/// <param name="encodingName">Encoding name. Check ECI table</param>
-	/// <returns>Returns -1 if from starting position to end encoding success. Else returns fail position</returns>
-	internal static int TryEncodeEightBitByte(string content, string encodingName, int startingPosition, int contentLength)
+    /// <summary>
+    /// Use given encoding to check input string from starting position. If encoding table is suitable solution.
+    /// it will return -1. Else it will return failed encoding position.
+    /// </summary>
+    /// <param name="content">Input string</param>
+    /// <param name="encodingName">Encoding name. Check ECI table</param>
+    /// <param name="startingPosition"></param>
+    /// <param name="contentLength"></param>
+    /// <returns>Returns -1 if from starting position to end encoding success. Else returns fail position</returns>
+    internal static int TryEncodeEightBitByte(string content, string encodingName, int startingPosition, int contentLength)
 	{
 		if (string.IsNullOrEmpty(content))
 		{

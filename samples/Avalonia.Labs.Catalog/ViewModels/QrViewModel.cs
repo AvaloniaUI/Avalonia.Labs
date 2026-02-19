@@ -1,86 +1,44 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Labs.Catalog.Views;
-using Avalonia.Media;
 using Avalonia.Labs.Qr;
-using ReactiveUI;
-using System.Collections.ObjectModel;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 using static Avalonia.Labs.Qr.QrCode;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public class QrViewModel : ViewModelBase
+    public partial class QrViewModel : ViewModelBase
     {
         private const string Chars = "qwertyuiopasdfghjklzxcvbnm";
-        private string? _qrCodeString;
 
-        private double _qrCodeSize = 250;
+        [ObservableProperty]
+        public partial string? QrCodeString { get; set; }
 
-        private Thickness _qrCodePadding = new(10);
+        [ObservableProperty]
+        public partial Thickness QrCodePadding { get; set; } = new Thickness(10);
 
-        private CornerRadius _qrCodeCornerRadius = new(12);
+        [ObservableProperty]
+        public partial double QrCodeSize { get; set; } = 250;
 
-        private Color _qrCodeForegroundColor1;
-        private Color _qrCodeForegroundColor2;
+        [ObservableProperty]
+        public partial CornerRadius QrCodeCornerRadius { get; set; } = new CornerRadius(12);
 
-        private Color _qrCodeBackgroundColor1;
-        private Color _qrCodeBackgroundColor2;
+        [ObservableProperty]
+        public partial QrCode.EccLevel QrCodeEccLevel { get; set; }
 
-        private QrCode.EccLevel _qrCodeEccLevel;
+        [ObservableProperty]
+        public partial Color QrCodeForegroundColor1 { get; set; }
 
-        public string? QrCodeString
-        {
-            get => _qrCodeString;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeString, value);
-        }
+        [ObservableProperty]
+        public partial Color QrCodeForegroundColor2 { get; set; }
 
-        public Thickness QrCodePadding
-        {
-            get => _qrCodePadding;
-            set => this.RaiseAndSetIfChanged(ref _qrCodePadding, value);
-        }
+        [ObservableProperty]
+        public partial Color QrCodeBackgroundColor1 { get; set; }
 
-        public double QrCodeSize
-        {
-            get => _qrCodeSize;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeSize, value);
-        }
-
-        public CornerRadius QrCodeCornerRadius
-        {
-            get => _qrCodeCornerRadius;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeCornerRadius, value);
-        }
-
-        public QrCode.EccLevel QrCodeEccLevel
-        {
-            get => _qrCodeEccLevel;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeEccLevel, value);
-        }
-
-        public Color QrCodeForegroundColor1
-        {
-            get => _qrCodeForegroundColor1;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeForegroundColor1, value);
-        }
-
-        public Color QrCodeForegroundColor2
-        {
-            get => _qrCodeForegroundColor2;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeForegroundColor2, value);
-        }
-
-        public Color QrCodeBackgroundColor1
-        {
-            get => _qrCodeBackgroundColor1;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeBackgroundColor1, value);
-        }
-
-        public Color QrCodeBackgroundColor2
-        {
-            get => _qrCodeForegroundColor2;
-            set => this.RaiseAndSetIfChanged(ref _qrCodeBackgroundColor2, value);
-        }
+        [ObservableProperty]
+        public partial Color QrCodeBackgroundColor2 { get; set; }
 
         public ObservableCollection<EccLevel> Levels { get; }
 
@@ -97,7 +55,7 @@ namespace Avalonia.Labs.Catalog.ViewModels
             Levels = new ObservableCollection<EccLevel>(Enum.GetValues<EccLevel>());
         }
 
-        public void UpdateQrCode(string text)
+        public void UpdateQrCode(string? text)
         {
             if (string.IsNullOrEmpty(text))
                 text = "You didn't put anything here?";

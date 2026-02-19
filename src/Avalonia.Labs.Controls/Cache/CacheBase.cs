@@ -414,7 +414,7 @@ namespace Avalonia.Labs.Controls.Cache
                         retries++;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     File.Delete(baseFile);
                     throw; // re-throwing the exception changes the stack trace. just throw

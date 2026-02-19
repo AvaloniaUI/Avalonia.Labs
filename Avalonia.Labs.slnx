@@ -1,0 +1,48 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="azure-pipelines.yml" />
+    <File Path="build/avalonia.snk" />
+    <File Path="build/NetAnalyzers.props" />
+    <File Path="build/NullableEnable.props" />
+    <File Path="build/SharedVersion.props" />
+    <File Path="build/SourceLink.props" />
+    <File Path="build/TrimmingEnable.props" />
+    <File Path="build/XUnit.props" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="samples/Avalonia.Labs.Catalog.Android/Avalonia.Labs.Catalog.Android.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="samples/Avalonia.Labs.Catalog.Browser/Avalonia.Labs.Catalog.Browser.csproj" />
+    <Project Path="samples/Avalonia.Labs.Catalog.Desktop/Avalonia.Labs.Catalog.Desktop.csproj" />
+    <Project Path="samples/Avalonia.Labs.Catalog.iOS/Avalonia.Labs.Catalog.iOS.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="samples/Avalonia.Labs.Catalog/Avalonia.Labs.Catalog.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="NuGet.Config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Avalonia.Labs.Controls.Tests/Avalonia.Labs.Controls.Tests.csproj" />
+  </Folder>
+  <Project Path="Avalonia.Labs.AnimatedImage/Avalonia.Labs.AnimatedImage.csproj" />
+  <Project Path="src/Avalonia.Labs.CommandManager/Avalonia.Labs.CommandManager.csproj" />
+  <Project Path="src/Avalonia.Labs.Controls/Avalonia.Labs.Controls.csproj" />
+  <Project Path="src/Avalonia.Labs.ExpressionBuilder/Avalonia.Labs.ExpressionBuilder.csproj" />
+  <Project Path="src/Avalonia.Labs.Gif/Avalonia.Labs.Gif.csproj" />
+  <Project Path="src/Avalonia.Labs.Lottie/Avalonia.Labs.Lottie.csproj" />
+  <Project Path="src/Avalonia.Labs.Notifications/Avalonia.Labs.Notifications.csproj" />
+  <Project Path="src/Avalonia.Labs.Panels/Avalonia.Labs.Panels.csproj" />
+  <Project Path="src/Avalonia.Labs.Qr/Avalonia.Labs.Qr.csproj" />
+</Solution>

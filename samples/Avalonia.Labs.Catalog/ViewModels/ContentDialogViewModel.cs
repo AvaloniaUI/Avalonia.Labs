@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using System;
+﻿using System;
+using System.Threading.Tasks;
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
@@ -13,7 +13,7 @@ internal enum DialogMode
     Input,
 }
 
-internal class ContentDialogViewModel : ViewModelBase
+public partial class ContentDialogViewModel : ViewModelBase
 {
     static ContentDialogViewModel()
     {
@@ -25,69 +25,39 @@ internal class ContentDialogViewModel : ViewModelBase
         Title = "ContentDialog";
     }
 
-    public string? DialogTitle
-    {
-        get => _dialogTitle;
-        set => this.RaiseAndSetIfChanged(ref _dialogTitle, value);
-    }
+    [ObservableProperty]
+    public partial string? DialogTitle { get; set; } = "Title Here";
 
-    public string? Content
-    {
-        get => _content;
-        set => this.RaiseAndSetIfChanged(ref _content, value);
-    }
+    [ObservableProperty]
+    public partial string? Content { get; set; } = "Dialog message here (doesn't have to be a string, can be anything)";
 
-    public string PrimaryButtonText
-    {
-        get => _primaryText;
-        set => this.RaiseAndSetIfChanged(ref _primaryText, value);
-    }
+    [ObservableProperty]
+    public partial string? PrimaryButtonText { get; set; } = "Primary Button";
 
-    public string SecondaryButtonText
-    {
-        get => _secondaryText;
-        set => this.RaiseAndSetIfChanged(ref _secondaryText, value);
-    }
+    [ObservableProperty]
+    public partial string? SecondaryButtonText { get; set; } = "Secondary Button";
 
-    public string CloseButtonText
-    {
-        get => _closeText;
-        set => this.RaiseAndSetIfChanged(ref _closeText, value);
-    }
+    [ObservableProperty]
+    public partial string? CloseButtonText { get; set; } = "Close Button";
 
-    public bool FullSizeDesired
-    {
-        get => _fullSize;
-        set => this.RaiseAndSetIfChanged(ref _fullSize, value);
-    }
+    [ObservableProperty]
+    public partial bool FullSizeDesired { get; set; }
 
     public ContentDialogButton[] ContentDialogButtons { get; } = Enum.GetValues<ContentDialogButton>();
 
-    public ContentDialogButton ContentDialogDefaultButton
-    {
-        get => _defaultButton;
-        set => this.RaiseAndSetIfChanged(ref _defaultButton, value);
-    }
+    [ObservableProperty]
+    public partial ContentDialogButton ContentDialogDefaultButton { get; set; }
 
     public ContentDialogButtonsOrder[] ContentDialogButtonsOrders { get; } = Enum.GetValues<ContentDialogButtonsOrder>();
 
-    public ContentDialogButtonsOrder ContentDialogButtonsOrder
-    {
-        get => _buttonsOrder;
-        set => this.RaiseAndSetIfChanged(ref _buttonsOrder, value);
-    }
+    [ObservableProperty]
+    public partial ContentDialogButtonsOrder ContentDialogButtonsOrder { get; set; }
 
-    public bool IsPrimaryButtonEnabled
-    {
-        get => _primaryEnabled;
-        set => this.RaiseAndSetIfChanged(ref _primaryEnabled, value);
-    }
+    [ObservableProperty]
+    public partial bool IsPrimaryButtonEnabled { get; set; } = true;
 
-    public bool IsSecondaryButtonEnabled
-    {
-        get => _secondaryEnabled;
-        set => this.RaiseAndSetIfChanged(ref _secondaryEnabled, value);
-    }
+    [ObservableProperty]
+    public partial bool IsSecondaryButtonEnabled { get; set; } = true;
 
 
     public async void LaunchDialog(object? parameter)
@@ -149,19 +119,4 @@ internal class ContentDialogViewModel : ViewModelBase
         await Task.Delay(3000);
         def.Complete();
     }
-
-
-
-
-    //private string _title = "Title Here";
-    private string _content = "Dialog message here (doesn't have to be a string, can be anything)";
-    private string _primaryText = "Primary Button";
-    private string _secondaryText = "Secondary Button";
-    private string _closeText = "Close Button";
-    private bool _fullSize;
-    private ContentDialogButton _defaultButton;
-    private ContentDialogButtonsOrder _buttonsOrder;
-    private bool _primaryEnabled = true;
-    private bool _secondaryEnabled = true;
-    private string? _dialogTitle = "Title Here";
 }

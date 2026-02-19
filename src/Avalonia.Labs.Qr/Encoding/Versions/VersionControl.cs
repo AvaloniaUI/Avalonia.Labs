@@ -10,13 +10,14 @@ internal static class VersionControl
 
 	private static readonly int[] VERSION_GROUP = new int[] { 9, 26, 40 };
 
-	/// <summary>
-	/// Determine which version to use
-	/// </summary>
-	/// <param name="dataBitsLength">Number of bits for encoded content</param>
-	/// <param name="encodingName">Encoding name for EightBitByte</param>
-	/// <returns>VersionDetail and ECI</returns>
-	internal static VersionControlStruct InitialSetup(int dataBitsLength, ErrorCorrectionLevel level, string encodingName)
+    /// <summary>
+    /// Determine which version to use
+    /// </summary>
+    /// <param name="dataBitsLength">Number of bits for encoded content</param>
+    /// <param name="level"></param>
+    /// <param name="encodingName">Encoding name for EightBitByte</param>
+    /// <returns>VersionDetail and ECI</returns>
+    internal static VersionControlStruct InitialSetup(int dataBitsLength, ErrorCorrectionLevel level, string encodingName)
 	{
 		int totalDataBits = dataBitsLength;
 

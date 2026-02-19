@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Foundation;
 using Avalonia.iOS;
 using Avalonia.Labs.Notifications;
-using Avalonia.ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.iOS;
 
@@ -39,7 +38,6 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
                         }
                     },
                 }
-            })
-            .UseReactiveUI();
+            });
     }
 }

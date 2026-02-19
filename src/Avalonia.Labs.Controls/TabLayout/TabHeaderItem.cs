@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 
 namespace Avalonia.Labs.Controls
 {
@@ -15,6 +17,20 @@ namespace Avalonia.Labs.Controls
         public Dock TabStripPlacement
         {
             get { return GetValue(TabStripPlacementProperty); }
+        }
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            SelectingItemsControl.ItemsControlFromItemContainer(this)?.UpdateSelectionFromEvent(this, e);
+        }
+
+
+        /// <inheritdoc/>
+        protected override void OnGotFocus(GotFocusEventArgs e)
+        {
+            base.OnGotFocus(e);
+            SelectingItemsControl.ItemsControlFromItemContainer(this)?.UpdateSelectionFromEvent(this, e);
         }
     }
 }

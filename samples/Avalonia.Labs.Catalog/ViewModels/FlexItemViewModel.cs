@@ -1,109 +1,62 @@
-﻿using System.Reactive.Linq;
-
+﻿using System;
 using Avalonia.Labs.Panels;
 using Avalonia.Layout;
-using ReactiveUI;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public sealed class FlexItemViewModel : ReactiveObject
+    public partial class FlexItemViewModel : ViewModelBase
     {
         internal const AlignItems AlignSelfAuto = (AlignItems)(-1);
-
-        private readonly ObservableAsPropertyHelper<AlignItems?> _alignSelf;
-
-        private bool _isSelected;
-        private bool _isVisible = true;
-
-        private AlignItems _alignSelfItem = AlignSelfAuto;
-        private int _order;
-        private double _shrink = 1.0;
-        private double _grow;
-        private double _basisValue = 100.0;
-        private FlexBasisKind _basisKind;
-        private HorizontalAlignment _horizontalAlignment;
-        private VerticalAlignment _verticalAlignment; 
 
         public FlexItemViewModel(int value)
         {
             Value = value;
 
-            _alignSelf = (from item in this.WhenAnyValue(vm => vm.AlignSelfItem)
-                          select item == AlignSelfAuto ? default(AlignItems?) : item).ToProperty(this, nameof(AlignSelf));
+            AlignSelf = AlignSelfItem == AlignSelfAuto ? default(AlignItems) : AlignSelfItem;
+
+            var color = Random.Shared.Next();
+
+            Color = new SolidColorBrush((uint)color);
         }
 
         public int Value { get; }
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set => this.RaiseAndSetIfChanged(ref _isSelected, value);
-        }
+        public Brush Color { get; }
 
-        public bool IsVisible
-        {
-            get => _isVisible;
-            set => this.RaiseAndSetIfChanged(ref _isVisible, value);
-        }
+        [ObservableProperty]
+        public partial bool IsSelected { get; set; }
 
-        public AlignItems AlignSelfItem
-        {
-            get => _alignSelfItem;
-            set => this.RaiseAndSetIfChanged(ref _alignSelfItem, value);
-        }
+        [ObservableProperty]
+        public partial bool IsVisible { get; set; } = true;
 
-        public AlignItems? AlignSelf => _alignSelf.Value;
+        [ObservableProperty]
+        public partial AlignItems AlignSelfItem { get; set; } = AlignSelfAuto;
 
-        public int Order
-        {
-            get => _order;
-            set => this.RaiseAndSetIfChanged(ref _order, value);
-        }
+        public AlignItems? AlignSelf { get; }
 
-        public double Shrink
-        {
-            get => _shrink;
-            set => this.RaiseAndSetIfChanged(ref _shrink, value);
-        }
+        [ObservableProperty]
+        public partial int Order { get; set; }
 
-        public double Grow
-        {
-            get => _grow;
-            set => this.RaiseAndSetIfChanged(ref _grow, value);
-        }
+        [ObservableProperty]
+        public partial double Shrink { get; set; } = 1.0;
 
-        public double BasisValue
-        {
-            get => _basisValue;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _basisValue, value);
-                this.RaisePropertyChanged(nameof(Basis));
-            }
-        }
+        [ObservableProperty]
+        public partial double Grow { get; set; }
 
-        public FlexBasisKind BasisKind
-        {
-            get => _basisKind;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _basisKind, value);
-                this.RaisePropertyChanged(nameof(Basis));
-            }
-        }
+        [ObservableProperty]
+        public partial double BasisValue { get; set; } = 100.0;
 
-        public FlexBasis Basis => new(_basisValue, _basisKind);
+        [ObservableProperty]
+        public partial FlexBasisKind BasisKind { get; set; }
 
-        public HorizontalAlignment HorizontalAlignment
-        {
-            get => _horizontalAlignment;
-            set => this.RaiseAndSetIfChanged(ref _horizontalAlignment, value);
-        }
+        public FlexBasis Basis => new(BasisValue, BasisKind);
 
-        public VerticalAlignment VerticalAlignment
-        {
-            get => _verticalAlignment;
-            set => this.RaiseAndSetIfChanged(ref _verticalAlignment, value);
-        }
+        [ObservableProperty]
+        public partial HorizontalAlignment HorizontalAlignment { get; set; }
+
+        [ObservableProperty]
+        public partial VerticalAlignment VerticalAlignment { get; set; }
     }
 }

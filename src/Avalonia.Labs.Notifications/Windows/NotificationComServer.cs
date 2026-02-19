@@ -11,7 +11,7 @@ using IUnknown = Windows.Win32.System.Com.IUnknown;
 
 namespace Avalonia.Labs.Notifications.Windows;
 
-[SupportedOSPlatform("windows6.1")]
+[SupportedOSPlatform("windows8.1")]
 internal class NotificationComServer
 {
     private static NotificationActivatorClassFactory? s_classFactory;

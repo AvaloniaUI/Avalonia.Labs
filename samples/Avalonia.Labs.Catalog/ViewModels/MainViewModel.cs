@@ -1,11 +1,11 @@
 ﻿using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
 using Avalonia.Styling;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalonia.Labs.Catalog.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public partial class MainViewModel : ViewModelBase
     {
         bool darkTheme = false;
 
@@ -14,33 +14,21 @@ namespace Avalonia.Labs.Catalog.ViewModels
             ViewLocator.Register(typeof(MainViewModel), () => new MainView());
         }
 
-        private bool? _showNavBar = true;
-        private bool? _showBackButton = true;
-        private INavigationRouter _navigationRouter;
-
         public MainViewModel()
         {
-            _navigationRouter = new StackNavigationRouter();
+            NavigationRouter = new StackNavigationRouter();
 
-            _navigationRouter.NavigateToAsync(new WelcomeViewModel(_navigationRouter), NavigationMode.Clear);
-        }
-
-        public bool? ShowNavBar
-        {
-            get => _showNavBar;
-            set => this.RaiseAndSetIfChanged(ref _showNavBar, value);
+            NavigationRouter.NavigateToAsync(new WelcomeViewModel(NavigationRouter), NavigationMode.Clear);
         }
 
-        public bool? ShowBackButton
-        {
-            get => _showBackButton;
-            set => this.RaiseAndSetIfChanged(ref _showBackButton, value);
-        }
-        public INavigationRouter NavigationRouter
-        {
-            get => _navigationRouter;
-            set => this.RaiseAndSetIfChanged(ref _navigationRouter, value);
-        }
+        [ObservableProperty]
+        public partial bool? ShowNavBar { get; set; } = true;
+
+        [ObservableProperty]
+        public partial bool? ShowBackButton { get; set; } = true;
+
+        [ObservableProperty]
+        public partial INavigationRouter NavigationRouter { get; set; }
 
         public async void NavigateTo(object page)
         {

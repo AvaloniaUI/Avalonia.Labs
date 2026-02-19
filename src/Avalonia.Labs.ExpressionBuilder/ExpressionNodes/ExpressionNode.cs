@@ -154,7 +154,6 @@ namespace Avalonia.Labs.ExpressionBuilder
 
             if (ExpressionAnimation != null)
             {
-                (ExpressionAnimation as IDisposable)?.Dispose();
                 ExpressionAnimation = null;
             }
         }
@@ -277,9 +276,7 @@ namespace Avalonia.Labs.ExpressionBuilder
         /// Ensures the reference information.
         /// </summary>
         /// <exception cref="Exception">Reference and paramName can't both be null</exception>
-#if NET6_0_OR_GREATER
         [MemberNotNull(nameof(_objRefList))]
-#endif
         internal void EnsureReferenceInfo()
         {
             if (_objRefList == null)
@@ -336,9 +333,7 @@ namespace Avalonia.Labs.ExpressionBuilder
             // precompute the exact number of characters in the resulting string. This is not
             // important in this context as the only critical property to maintain is to have
             // a unique mapping to each input value to the resulting sequence of letters.
-#if NET6_0_OR_GREATER
             [SkipLocalsInit]
-#endif
             static unsafe string CreateUniqueNodeNameFromIndex(uint i)
             {
                 const int alphabetLength = 'Z' - 'A' + 1;

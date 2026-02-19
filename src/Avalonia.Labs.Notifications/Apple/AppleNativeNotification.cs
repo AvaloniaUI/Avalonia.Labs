@@ -1,3 +1,4 @@
+#if !ANDROID
 using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
@@ -50,3 +51,4 @@ internal class AppleNativeNotification : INativeNotification
         _manager.Close(this);
     }
 }
+#endif
