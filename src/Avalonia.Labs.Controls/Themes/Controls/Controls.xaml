@@ -17,6 +17,9 @@
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/StepBar.axaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/ContentDialog.axaml" />
         <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/InfoBadge.axaml"/>
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/MultiSelectionComboBox.axaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/MultiSelectionComboBoxItem.axaml" />
+        <MergeResourceInclude Source="avares://Avalonia.Labs.Controls/Themes/Controls/MultiSelectionComboBoxSelectedItemsPresenter.axaml" />
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
