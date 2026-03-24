@@ -23,7 +23,7 @@ internal class PatternFactory
 
 	internal IEnumerable<Pattern> AllPatterns()
 	{
-		foreach (MaskPatternType patternType in Enum.GetValues(typeof(MaskPatternType)))
+		foreach (var patternType in Enum.GetValues<MaskPatternType>())
 		{
 			yield return CreateByType(patternType);
 		}

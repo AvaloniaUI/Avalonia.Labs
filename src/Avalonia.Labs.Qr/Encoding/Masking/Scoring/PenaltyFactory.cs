@@ -22,7 +22,7 @@ internal class PenaltyFactory
 
 	internal IEnumerable<Penalty> AllRules()
 	{
-		foreach (PenaltyRules penaltyRule in Enum.GetValues(typeof(PenaltyRules)))
+		foreach (var penaltyRule in Enum.GetValues<PenaltyRules>())
 		{
 			yield return CreateByRule(penaltyRule);
 		}
