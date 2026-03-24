@@ -36,7 +36,7 @@
   <Folder Name="/Tests/">
     <Project Path="tests/Avalonia.Labs.Controls.Tests/Avalonia.Labs.Controls.Tests.csproj" />
   </Folder>
-  <Project Path="Avalonia.Labs.AnimatedImage/Avalonia.Labs.AnimatedImage.csproj" />
+  <Project Path="src/Avalonia.Labs.AnimatedImage/Avalonia.Labs.AnimatedImage.csproj" />
   <Project Path="src/Avalonia.Labs.CommandManager/Avalonia.Labs.CommandManager.csproj" />
   <Project Path="src/Avalonia.Labs.Controls/Avalonia.Labs.Controls.csproj" />
   <Project Path="src/Avalonia.Labs.ExpressionBuilder/Avalonia.Labs.ExpressionBuilder.csproj" />
