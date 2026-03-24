@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
@@ -12,6 +13,7 @@ namespace Avalonia.Labs.Controls
     [TemplatePart("PART_NavigationBar", typeof(Border))]
     [TemplatePart("PART_BackButton", typeof(Button))]
     [TemplatePart("PART_ForwardButton", typeof(Button))]
+    [Obsolete("NavigationControl is obsolete. Use NavigationPage with ContentPage instead")]
     public class NavigationControl : TransitioningContentControl
     {
         private Button? _backButton;
