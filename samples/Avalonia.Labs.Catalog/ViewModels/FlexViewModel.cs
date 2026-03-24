@@ -54,19 +54,19 @@ namespace Avalonia.Labs.Catalog.ViewModels
         public IEnumerable AlignSelfValues { get; } = Enum.GetValues(typeof(AlignItems)).Cast<AlignItems>().Prepend(FlexItemViewModel.AlignSelfAuto);
 
         [ObservableProperty]
-        public partial FlexDirection Direction { get; set; }
+        public partial FlexDirection Direction { get; set; } = FlexDirection.Row;
 
         [ObservableProperty]
-        public partial JustifyContent JustifyContent { get; set; }
+        public partial JustifyContent JustifyContent { get; set; } = JustifyContent.FlexStart;
 
         [ObservableProperty]
-        public partial AlignItems AlignItems { get; set; }
+        public partial AlignItems AlignItems { get; set; } = AlignItems.FlexStart;
 
         [ObservableProperty]
-        public partial AlignContent AlignContent { get; set; }
+        public partial AlignContent AlignContent { get; set; } = AlignContent.FlexStart;
 
         [ObservableProperty]
-        public partial FlexWrap Wrap { get; set; }
+        public partial FlexWrap Wrap { get; set; } = FlexWrap.Wrap;
 
         [ObservableProperty]
         public partial int ColumnSpacing { get; set; } = 64;
