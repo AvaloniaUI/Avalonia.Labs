@@ -127,7 +127,7 @@ namespace Avalonia.Labs.Controls
 
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+                ScrollViewerPart.RemoveHandler(InputElement.ScrollGestureEndedEvent, ScrollEndedEventHandler);
                 ScrollViewerPart.RemoveHandler(FlipViewScrollGestureRecognizer.FlipViewSwipeEvent, FlipViewSwipeEventHandler);
                 ScrollViewerPart.SizeChanged -= ScrollViewerPart_SizeChanged;
             }
@@ -136,7 +136,7 @@ namespace Avalonia.Labs.Controls
 
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.AddHandler(InputElement.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
                 ScrollViewerPart.AddHandler(FlipViewScrollGestureRecognizer.FlipViewSwipeEvent, FlipViewSwipeEventHandler);
                 ScrollViewerPart.SizeChanged += ScrollViewerPart_SizeChanged;
             }

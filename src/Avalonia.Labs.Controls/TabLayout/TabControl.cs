@@ -227,14 +227,14 @@ namespace Avalonia.Labs.Controls
             BorderPart = e.NameScope.Find<Border>("PART_Border");
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+                ScrollViewerPart.RemoveHandler(InputElement.ScrollGestureEndedEvent, ScrollEndedEventHandler);
             }
 
             ScrollViewerPart = e.NameScope.Find<FlipViewScrollViewer>("PART_ScrollViewer");
 
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.AddHandler(InputElement.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
             }
         }
 
@@ -270,7 +270,7 @@ namespace Avalonia.Labs.Controls
         }
         public override bool UpdateSelectionFromEvent(Control container, RoutedEventArgs eventArgs)
         {
-            if (eventArgs is GotFocusEventArgs { NavigationMethod: not NavigationMethod.Directional })
+            if (eventArgs is FocusChangedEventArgs { NavigationMethod: not NavigationMethod.Directional })
             {
                 return false;
             }
