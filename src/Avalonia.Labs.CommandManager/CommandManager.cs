@@ -98,7 +98,7 @@ public sealed class CommandManager : AvaloniaObject
 
     internal static IInputElement? FocusedElement => s_inputElement.TryGetTarget(out var element) ? element : default;
 
-    private static void GotFocusEventHandler(InputElement targetElement, GotFocusEventArgs args)
+    private static void GotFocusEventHandler(InputElement targetElement, FocusChangedEventArgs args)
     {
         s_inputElement.SetTarget(args.Source as IInputElement);
         Current.RaiseRequerySuggested();

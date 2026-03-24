@@ -98,7 +98,7 @@ namespace Avalonia.Labs.Controls
         {
             base.OnApplyTemplate(e);
         }
-        protected override void OnGotFocus(GotFocusEventArgs e)
+        protected override void OnGotFocus(FocusChangedEventArgs e)
         {
             base.OnGotFocus(e);
             UpdateSelectionFromEvent(e);

@@ -18,16 +18,20 @@ public partial class CompositionView : UserControl
     {
         base.OnAttachedToVisualTree(e);
 
-        var topLevel = (TopLevel)e.Root;
-        topLevel.RendererDiagnostics.DebugOverlays |= RendererDebugOverlays.Fps;
+        if (TopLevel.GetTopLevel(e.AttachmentPoint) is { } topLevel)
+        {
+            topLevel.RendererDiagnostics.DebugOverlays |= RendererDebugOverlays.Fps;
+        }
     }
 
     protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromLogicalTree(e);
 
-        var topLevel = (TopLevel)e.Root;
-        topLevel.RendererDiagnostics.DebugOverlays ^= RendererDebugOverlays.Fps;
+        if (TopLevel.GetTopLevel(e.Parent as Control) is { } topLevel)
+        {
+            topLevel.RendererDiagnostics.DebugOverlays ^= RendererDebugOverlays.Fps;
+        }
     }
 }
 

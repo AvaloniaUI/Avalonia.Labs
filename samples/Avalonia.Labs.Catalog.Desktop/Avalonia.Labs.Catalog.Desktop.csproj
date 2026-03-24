@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
     <ApplicationId>com.Avalonia.Labs.Catalog</ApplicationId>
+    <ValidateXCodeVersion>false</ValidateXCodeVersion>
   </PropertyGroup>
 
   <PropertyGroup>
