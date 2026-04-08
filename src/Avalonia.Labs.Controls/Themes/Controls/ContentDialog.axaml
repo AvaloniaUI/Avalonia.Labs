@@ -143,9 +143,7 @@
           </KeyFrame>
           <KeyFrame Cue="100%">
             <Setter Property="Opacity" Value="0.0"/>
-            <!-- TODO: restore after 12.0 stable -->
-            <!-- See https://github.com/AvaloniaUI/Avalonia/pull/20966 -->
-            <!-- <Setter Property="IsVisible" Value="False" /> -->
+            <Setter Property="IsVisible" Value="False" />
           </KeyFrame>
         </Animation>
       </Style.Animations>
