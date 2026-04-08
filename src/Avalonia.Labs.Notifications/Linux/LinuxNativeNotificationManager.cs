@@ -13,7 +13,7 @@ namespace Avalonia.Labs.Notifications.Linux
     internal class LinuxNativeNotificationManager : INativeNotificationManagerImpl
     {
         private readonly Dictionary<uint, INativeNotification> _notifications = new();
-        private readonly OrgFreedesktopPortalNotification _freedesktopPortalNotification = new(Connection.Session, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
+        private readonly OrgFreedesktopPortalNotificationProxy _freedesktopPortalNotification = new(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
 
         private bool _isAvailable;
         private IDisposable? _signalWatcher;
@@ -76,34 +76,34 @@ namespace Avalonia.Labs.Notifications.Linux
 
         internal async Task ShowNotificationAsync(LinuxNativeNotification notification)
         {
-            var serializedNotification = new Dictionary<string, Variant>
+            var serializedNotification = new Dictionary<string, VariantValue>
             {
-                { "title", new Variant(notification.Title ?? string.Empty) },
-                { "body", new Variant(notification.Message ?? string.Empty) },
-                { "priority", new Variant(NotificationPriorityToDBusPriority(notification.Priority)) }
+                { "title", VariantValue.String(notification.Title ?? string.Empty) },
+                { "body", VariantValue.String(notification.Message ?? string.Empty) },
+                { "priority", VariantValue.String(NotificationPriorityToDBusPriority(notification.Priority)) }
             };
 
             if (notification.Icon is not null)
             {
                 using var memStream = new MemoryStream(notification.Icon.PixelSize.Width * notification.Icon.PixelSize.Height * 4);
                 notification.Icon.Save(memStream);
-                var tmp = memStream.ToArray();
-                Array<byte> iconData = new(tmp);
-                var icon = Struct.Create("bytes", Variant.FromArray(iconData));
-                serializedNotification.Add("icon", Variant.FromStruct(icon));
+                var iconData = memStream.ToArray();
+                var icon = Struct.Create("bytes", VariantValue.Array(iconData));
+                serializedNotification.Add("icon", VariantValue.Struct(icon));
             }
 
             if (notification.Actions.Count != 0)
             {
-                var buttons = new Array<Dict<string, Variant>>(
-                    notification.Actions.Select(static action =>
-                        new Dict<string, Variant>
+                var buttons = notification.Actions
+                    .Select(static action =>
+                        new Dict<string, VariantValue>
                         {
-                            { "label", new Variant(action.Caption) },
-                            { "action", new Variant(action.Tag) }
-                        }));
+                            { "label", VariantValue.String(action.Caption) },
+                            { "action", VariantValue.String(action.Tag) }
+                        }.AsVariantValue())
+                    .ToArray();
 
-                serializedNotification.Add("buttons", Variant.FromArray(buttons));
+                serializedNotification.Add("buttons", VariantValue.ArrayOfVariant(buttons));
             }
 
             _notifications.Add(notification.Id, notification);
