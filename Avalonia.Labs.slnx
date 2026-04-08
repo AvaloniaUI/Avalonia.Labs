@@ -16,6 +16,7 @@
     <File Path="build/TrimmingEnable.props" />
     <File Path="build/XUnit.props" />
     <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/Samples/">
     <Project Path="samples/Avalonia.Labs.Catalog.Android/Avalonia.Labs.Catalog.Android.csproj">

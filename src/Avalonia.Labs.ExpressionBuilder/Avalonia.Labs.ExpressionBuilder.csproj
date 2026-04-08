@@ -7,6 +7,6 @@
     <NoWarn>1701;1702;8305</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia" />
   </ItemGroup>
 </Project>

@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,18 +21,18 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.20.0" />
-    <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.19" PrivateAssets="all" />
-    <PackageReference Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+    <PackageReference Include="Tmds.DBus.Protocol" />
+    <PackageReference Include="Tmds.DBus.SourceGenerator" PrivateAssets="all" />
+    <PackageReference Include="MicroCom.CodeGenerator.Roslyn " PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Windows.CsWin32">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0-android' ">
-    <PackageReference Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.3" />
+    <PackageReference Include="Avalonia.Android" />
+    <PackageReference Include="Xamarin.AndroidX.AppCompat" />
   </ItemGroup>
 
 </Project>

@@ -7,10 +7,10 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
-    <PackageReference Include="SkiaSharp.Skottie" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Skia" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.Skottie" />
   </ItemGroup>
 
 </Project>

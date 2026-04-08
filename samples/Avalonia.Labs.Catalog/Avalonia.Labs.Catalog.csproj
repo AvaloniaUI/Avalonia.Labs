@@ -12,10 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaSampleVersion)" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaSampleVersion)" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0-beta3" Condition="'$(Configuration)' == 'Debug'" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Avalonia" VersionOverride="$(AvaloniaSampleVersion)" />
+    <PackageReference Include="Avalonia.Themes.Fluent" VersionOverride="$(AvaloniaSampleVersion)" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
   </ItemGroup>
 
   <ItemGroup>
