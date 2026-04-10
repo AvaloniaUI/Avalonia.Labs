@@ -9,7 +9,7 @@ namespace Avalonia.Labs.AnimatedImage;
 
 internal class MultiAnimatedBitmap(IReadOnlyCollection<Stream> frameStreams, IReadOnlyCollection<int> delays, bool disposeStream) : IAnimatedBitmap
 {
-    public bool IsInitialized { get => !IsFailed && field; private set; }
+    public bool IsInitialized { get => !IsFailed && field; set; }
 
     public bool IsFailed { get; private set; }
 

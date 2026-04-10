@@ -10,7 +10,7 @@ namespace Avalonia.Labs.AnimatedImage;
 
 internal class SingleAnimatedBitmap(Stream stream, bool disposeStream) : IAnimatedBitmap
 {
-    public bool IsInitialized { get => !IsFailed && field; private set; }
+    public bool IsInitialized { get => !IsFailed && field; set; }
 
     public bool IsFailed { get; private set; }
 
