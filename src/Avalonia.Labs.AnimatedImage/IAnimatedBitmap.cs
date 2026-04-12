@@ -42,10 +42,12 @@ public interface IAnimatedBitmap : IDisposable
     /// <inheritdoc />
     void IDisposable.Dispose()
     {
+        var initialized = IsInitialized;
         IsInitialized = false;
         GC.SuppressFinalize(this);
 
-        foreach (var bitmap in Frames)
-            bitmap.Dispose();
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
     }
 }
