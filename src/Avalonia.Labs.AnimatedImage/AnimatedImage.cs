@@ -22,10 +22,12 @@ public class AnimatedImage : Control
 
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<AnimatedImage, Stretch>(nameof(Stretch), Stretch.UniformToFill);
 
+    public static readonly StyledProperty<bool> IsPlayingProperty = AvaloniaProperty.Register<AnimatedImage, bool>(nameof(IsPlaying), true);
+
     [Content]
     public IAnimatedBitmap? Source
     {
-        get => GetValue(SourceProperty); 
+        get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
     }
 
@@ -37,8 +39,14 @@ public class AnimatedImage : Control
 
     public Stretch Stretch
     {
-        get => GetValue(StretchProperty); 
+        get => GetValue(StretchProperty);
         set => SetValue(StretchProperty, value);
+    }
+
+    public bool IsPlaying
+    {
+        get => GetValue(IsPlayingProperty);
+        set => SetValue(IsPlayingProperty, value);
     }
 
     static AnimatedImage()
@@ -53,6 +61,11 @@ public class AnimatedImage : Control
         {
             case nameof(Source):
                 OnSourcePropertyChanged(change.NewValue as IAnimatedBitmap);
+                break;
+            case nameof(IsPlaying):
+                _customVisual?.SendHandlerMessage(IsPlaying
+                    ? CustomVisualHandler.StartMessage
+                    : CustomVisualHandler.StopMessage);
                 break;
             case nameof(Stretch):
                 _customVisual?.SendHandlerMessage(Stretch);
@@ -69,7 +82,7 @@ public class AnimatedImage : Control
 
         base.OnPropertyChanged(change);
     }
-    
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
@@ -129,7 +142,7 @@ public class AnimatedImage : Control
     {
         if (_customVisual is null)
             return;
-        
+
         _customVisual.Size = new Vector2((float) Bounds.Width, (float) Bounds.Height);
         _customVisual.Offset = Vector3.Zero;
     }
@@ -144,7 +157,9 @@ public class AnimatedImage : Control
         var customVisual = compositor.CreateCustomVisual(new CustomVisualHandler());
         _customVisual = customVisual;
         ElementComposition.SetElementChildVisual(this, customVisual);
-        customVisual.SendHandlerMessage(CustomVisualHandler.StartMessage);
+        customVisual.SendHandlerMessage(IsPlaying
+            ? CustomVisualHandler.StartMessage
+            : CustomVisualHandler.StopMessage);
 
         if (Source is { IsInitialized: false, IsFailed: false } source)
             await InitSourceAsync(source);
@@ -188,7 +203,7 @@ public class AnimatedImage : Control
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
-    } 
+    }
 
     private class CustomVisualHandler : CompositionCustomVisualHandler
     {
@@ -226,22 +241,22 @@ public class AnimatedImage : Control
                     _stretchDirection = sd;
                     break;
                 case IAnimatedBitmap { IsInitialized: true } instance:
-                {
-                    Clear();
-                    if (instance.Delays.Count != instance.FrameCount)
-                        throw new ArgumentException(
-                            $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.Frames)}");
-                    _currentInstance = instance;
-                    foreach (var delay in instance.Delays)
                     {
-                        _frameTimes.Add(_totalTime);
-                        _totalTime += delay;
+                        Clear();
+                        if (instance.Delays.Count != instance.FrameCount)
+                            throw new ArgumentException(
+                                $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.Frames)}");
+                        _currentInstance = instance;
+                        foreach (var delay in instance.Delays)
+                        {
+                            _frameTimes.Add(_totalTime);
+                            _totalTime += delay;
+                        }
+
+                        Invalidate();
+
+                        break;
                     }
-
-                    Invalidate();
-
-                    break;
-                }
             }
             return;
 
