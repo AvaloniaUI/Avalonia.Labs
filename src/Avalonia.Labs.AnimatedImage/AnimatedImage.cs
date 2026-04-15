@@ -120,17 +120,22 @@ public class AnimatedImage : Control
 
     private async void OnSourcePropertyChanged(IAnimatedBitmap? newValue)
     {
-        if (_customVisual is null)
+        var customVisual = _customVisual;
+        if (customVisual is null)
             return;
 
         if (newValue is null)
-            _customVisual.SendHandlerMessage(CustomVisualHandler.ResetMessage);
+            customVisual.SendHandlerMessage(CustomVisualHandler.ResetMessage);
         else
         {
             if (Source is { IsInitialized: false, IsFailed: false } source)
                 await InitSourceAsync(source);
+
+            if (VisualRoot is null || !ReferenceEquals(_customVisual, customVisual))
+                return;
+
             if (Source is { IsInitialized: true })
-                _customVisual.SendHandlerMessage(newValue);
+                customVisual.SendHandlerMessage(newValue);
         }
 
         InvalidateArrange();
@@ -161,13 +166,13 @@ public class AnimatedImage : Control
             ? CustomVisualHandler.StartMessage
             : CustomVisualHandler.StopMessage);
 
-        if (Source is { IsInitialized: false, IsFailed: false } source)
-            await InitSourceAsync(source);
+        if (VisualRoot is null || version != _visualTreeVersion || !ReferenceEquals(_customVisual, customVisual))
+            return;
 
-        _customVisual.SendHandlerMessage(Stretch);
-        _customVisual.SendHandlerMessage(StretchDirection);
+        customVisual.SendHandlerMessage(Stretch);
+        customVisual.SendHandlerMessage(StretchDirection);
         if (Source is { IsInitialized: true })
-            _customVisual.SendHandlerMessage(Source);
+            customVisual.SendHandlerMessage(Source);
 
         InvalidateArrange();
         InvalidateMeasure();
