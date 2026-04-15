@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <AvaloniaVersion>12.0.0</AvaloniaVersion>
-    <AvaloniaSampleVersion>12.0.0</AvaloniaSampleVersion>
+    <AvaloniaVersion>12.0.1</AvaloniaVersion>
+    <AvaloniaSampleVersion>12.0.1</AvaloniaSampleVersion>
     <SkiaSharpVersion>3.119.3-preview.1.1</SkiaSharpVersion>
   </PropertyGroup>
 
