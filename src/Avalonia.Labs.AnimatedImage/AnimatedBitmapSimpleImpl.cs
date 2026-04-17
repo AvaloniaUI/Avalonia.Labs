@@ -40,6 +40,17 @@ internal class AnimatedBitmapSimpleImpl : IAnimatedBitmap
 
     public event EventHandler<AnimatedBitmapFailedEventArgs>? Failed;
 
+    public void Dispose()
+    {
+        var initialized = IsInitialized;
+        IsInitialized = false;
+        GC.SuppressFinalize(this);
+
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
+    }
+
     public void Init()
     {
     }

@@ -44,16 +44,4 @@ public interface IAnimatedBitmap : IDisposable
     /// <returns></returns>
     static IAnimatedBitmap Load(IReadOnlyCollection<Bitmap> bitmaps, IReadOnlyCollection<int> delays)
         => new AnimatedBitmapSimpleImpl(bitmaps, delays);
-
-    /// <inheritdoc />
-    void IDisposable.Dispose()
-    {
-        var initialized = IsInitialized;
-        IsInitialized = false;
-        GC.SuppressFinalize(this);
-
-        if (initialized)
-            foreach (var bitmap in Frames)
-                bitmap.Dispose();
-    }
 }

@@ -40,6 +40,22 @@ internal class MultiAnimatedBitmap(IReadOnlyCollection<Stream> frameStreams, IRe
     private readonly IReadOnlyCollection<int> _delays =
         (IReadOnlyCollection<int>) [..delays] ?? throw new ArgumentNullException(nameof(delays));
 
+    public void Dispose()
+    {
+        var initialized = IsInitialized;
+        IsInitialized = false;
+        GC.SuppressFinalize(this);
+
+        if (_frameStreams is not null && disposeStream)
+            foreach (var frameStream in _frameStreams)
+                frameStream.Dispose();
+        _frameStreams = null;
+
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
+    }
+
     public void Init()
     {
         if (IsInitialized || IsFailed)

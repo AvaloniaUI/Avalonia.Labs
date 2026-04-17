@@ -35,6 +35,21 @@ internal class SingleAnimatedBitmap(Stream stream, bool disposeStream) : IAnimat
     
     private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
+    public void Dispose()
+    {
+        var initialized = IsInitialized;
+        IsInitialized = false;
+        GC.SuppressFinalize(this);
+
+        if (_stream is not null && disposeStream)
+            _stream.Dispose();
+        _stream = null;
+
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
+    }
+
     public void Init()
     {
         if (IsInitialized || IsFailed)
