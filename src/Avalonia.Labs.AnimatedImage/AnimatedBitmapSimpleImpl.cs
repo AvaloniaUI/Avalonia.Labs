@@ -14,7 +14,7 @@ internal class AnimatedBitmapSimpleImpl : IAnimatedBitmap
         if (bitmaps.Count is var bitmapCount && delays.Count != bitmapCount)
             throw new ArgumentException($"{nameof(delays)} inconsistent count with {nameof(bitmaps)}");
         if ((IReadOnlyList<Bitmap>) [.. bitmaps] is not [var first, ..] bitmapsCopy)
-            throw new ArgumentException($"Invalid {nameof(delays)}.Count");
+            throw new ArgumentException($"Invalid {nameof(bitmaps)}.Count");
         Size = first.Size;
         Frames = bitmapsCopy;
         Delays = [.. delays];
