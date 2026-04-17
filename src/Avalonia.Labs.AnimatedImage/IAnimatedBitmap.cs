@@ -36,6 +36,12 @@ public interface IAnimatedBitmap : IDisposable
     static IAnimatedBitmap Load(IReadOnlyCollection<Stream> frameStreams, IReadOnlyCollection<int> delays, bool disposeStream)
         => new MultiAnimatedBitmap(frameStreams, delays, disposeStream);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="bitmaps">This parameter would be DISPOSED when <see langword="this"/> is disposed.</param>
+    /// <param name="delays"></param>
+    /// <returns></returns>
     static IAnimatedBitmap Load(IReadOnlyCollection<Bitmap> bitmaps, IReadOnlyCollection<int> delays)
         => new AnimatedBitmapSimpleImpl(bitmaps, delays);
 
