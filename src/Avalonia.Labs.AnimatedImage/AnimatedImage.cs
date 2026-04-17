@@ -129,7 +129,17 @@ public class AnimatedImage : Control
         else
         {
             if (Source is { IsInitialized: false, IsFailed: false } source)
-                await InitSourceAsync(source);
+            {
+                try
+                {
+                    await InitSourceAsync(source);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to initialize animated image source: {ex}");
+                    return;
+                }
+            }
 
             if (VisualRoot is null || !ReferenceEquals(_customVisual, customVisual))
                 return;
