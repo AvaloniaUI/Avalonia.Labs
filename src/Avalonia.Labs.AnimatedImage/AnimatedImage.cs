@@ -181,7 +181,17 @@ public class AnimatedImage : Control
 
         customVisual.SendHandlerMessage(Stretch);
         customVisual.SendHandlerMessage(StretchDirection);
-        if (Source is { IsInitialized: true })
+
+        var source = Source;
+        if (source is { IsInitialized: false, IsFailed: false })
+        {
+            await InitSourceAsync(source);
+
+            if (VisualRoot is null || version != _visualTreeVersion || !ReferenceEquals(_customVisual, customVisual))
+                return;
+        }
+
+        if (ReferenceEquals(Source, source) && Source is { IsInitialized: true })
             customVisual.SendHandlerMessage(Source);
 
         InvalidateArrange();
