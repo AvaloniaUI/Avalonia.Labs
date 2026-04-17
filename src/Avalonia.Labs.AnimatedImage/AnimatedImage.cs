@@ -270,7 +270,7 @@ public class AnimatedImage : Control
                         Clear();
                         if (instance.Delays.Count != instance.FrameCount)
                             throw new ArgumentException(
-                                $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.Frames)}");
+                                $"{nameof(instance.Delays)} inconsistent count with {nameof(instance.FrameCount)}");
                         _currentInstance = instance;
                         foreach (var delay in instance.Delays)
                         {
