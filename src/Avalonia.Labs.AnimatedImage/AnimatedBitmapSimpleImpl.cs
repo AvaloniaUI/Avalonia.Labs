@@ -27,8 +27,6 @@ internal class AnimatedBitmapSimpleImpl : IAnimatedBitmap
 
     public bool IsCancellable { get; set; }
 
-    public bool IsDisposed { get; set; }
-
     public Size Size { get; }
 
     public int FrameCount { get; }
