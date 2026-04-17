@@ -201,19 +201,20 @@ public class AnimatedImage : Control
 
     private async Task InitSourceAsync(IAnimatedBitmap source)
     {
-        if (source.IsCancellable)
-        {
-            await Task.Run(source.Init);
-            return;
-        }
-
         if (_cancellationTokenSource is not null)
         {
             await _cancellationTokenSource.CancelAsync();
             _cancellationTokenSource.Dispose();
         }
 
+        if (!source.IsCancellable)
+        {
+            await Task.Run(source.Init);
+            return;
+        }
+
         _cancellationTokenSource = new();
+
         try
         {
             await Task.Run(source.Init, _cancellationTokenSource.Token);
