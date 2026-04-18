@@ -30,7 +30,7 @@ public class MultiSelectionComboBoxSelectionBoxItem : ContentControl
     }
 
     /// <summary>
-    /// Removes this item from <see cref="MultiSelectionComboBox" />.<see cref="MultiSelectionComboBox.SelectedItems"/>
+    /// Removes this item from <see cref="MultiSelectionComboBox.SelectedItems"/>
     /// </summary>
     public void RemoveItem()
     {

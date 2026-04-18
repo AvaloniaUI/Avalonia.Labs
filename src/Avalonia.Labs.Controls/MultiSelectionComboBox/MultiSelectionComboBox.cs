@@ -21,6 +21,9 @@ using Avalonia.Threading;
 
 namespace Avalonia.Labs.Controls;
 
+/// <summary>
+/// A ComboBox that supports multiple selection and an editable TextBox to enter custom text or select items by typing.
+/// </summary>
 [TemplatePart(Name = nameof(PART_Popup), Type = typeof(Popup))]
 [TemplatePart(Name = "PART_SelectedItemsPresenter", Type = typeof(ItemsControl))]
 [TemplatePart(Name = nameof(PART_ItemsPresenter), Type = typeof(ItemsPresenter))]
@@ -67,7 +70,7 @@ public class MultiSelectionComboBox : ListBox
         FocusableProperty.OverrideDefaultValue<MultiSelectionComboBox>(true);
 
         // Listen for SelectionChanges
-        SelectionChangedEvent.AddClassHandler<MultiSelectionComboBox>((s, e) =>
+        SelectionChangedEvent.AddClassHandler<MultiSelectionComboBox>((s, _) =>
         {
             s.UpdateDisplaySelectedItems();
             s.UpdateEditableText();
@@ -635,6 +638,12 @@ public class MultiSelectionComboBox : ListBox
         UpdateDisplaySelectedItems(OrderSelectedItemsBy);
     }
 
+    /// <summary>
+    /// Gets the text that represents the selected items.
+    /// If the ComboBox is editable, this will be the text in the TextBox,
+    /// otherwise it will be the concatenated string of the selected items.
+    /// </summary>
+    /// <returns></returns>
     public string? GetSelectedItemsText()
     {
         if (SelectionMode.HasFlag(SelectionMode.Multiple))
@@ -690,10 +699,8 @@ public class MultiSelectionComboBox : ListBox
             _ => DisplaySelectedItems
         };
     }
-
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
-#endif
+    
+    
     private void SelectItemsFromText(int millisecondsToWait)
     {
         if (!_isUserDefinedTextInputPending || _isTextChanging)
@@ -724,10 +731,8 @@ public class MultiSelectionComboBox : ListBox
             _updateSelectedItemsFromTextTimer.Start();
         }
     }
-
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
-#endif
+    
+    
     private void UpdateSelectedItemsFromTextTimer_Tick(object? sender, EventArgs e)
     {
         _updateSelectedItemsFromTextTimer?.Stop();
@@ -871,9 +876,7 @@ public class MultiSelectionComboBox : ListBox
         }
     }
 
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
-#endif
+
     private bool TryAddObjectFromString(string? input, out object? result)
     {
         try
@@ -928,7 +931,10 @@ public class MultiSelectionComboBox : ListBox
     }
 
 
-// Clear Text Command
+    /// <summary>
+    /// Clears the selection and the custom text. If there is no custom text,
+    /// the Text will be reset to the default concatenated string of the selected items.
+    /// </summary>
     public void Clear()
     {
         if (HasCustomText)
@@ -943,6 +949,10 @@ public class MultiSelectionComboBox : ListBox
     }
 
 
+    /// <summary>
+    /// Removes the given item from the selection. 
+    /// </summary>
+    /// <param name="item">the item to remove</param>
     public void RemoveItem(object? item)
     {
         if (item is null) return;
@@ -956,11 +966,9 @@ public class MultiSelectionComboBox : ListBox
             Selection.SelectedItem = null;
         }
     }
-#if NET6_0_OR_GREATER
-    [UnconditionalSuppressMessage("Trimming",
-        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-        Justification = "<Pending>")]
-#endif
+
+
+    /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         if (PART_EditableTextBox != null)
@@ -1001,7 +1009,7 @@ public class MultiSelectionComboBox : ListBox
         UpdateEditableText(true);
     }
 
-    private void PART_PopupOnGotFocus(object? sender, GotFocusEventArgs e)
+    private void PART_PopupOnGotFocus(object? sender, FocusChangedEventArgs e)
     {
         PART_ItemsPresenter?.Focus();
     }
@@ -1122,10 +1130,7 @@ public class MultiSelectionComboBox : ListBox
         PseudoClasses.Set(s_pcPressed, false);
         base.OnPointerReleased(e);
     }
-
-#if NET6_0_OR_GREATER
-    [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
-#endif
+    
     private void PART_EditableTextBox_LostFocus(object? sender, RoutedEventArgs e)
     {
         SelectItemsFromText(0);
@@ -1188,7 +1193,7 @@ public class MultiSelectionComboBox : ListBox
         }
     }
 
-    protected override void OnGotFocus(GotFocusEventArgs e)
+    protected override void OnGotFocus(FocusChangedEventArgs e)
     {
         base.OnGotFocus(e);
         if (IsEditable && PART_EditableTextBox != null)

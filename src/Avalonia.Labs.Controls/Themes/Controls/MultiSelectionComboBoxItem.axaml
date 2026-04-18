@@ -9,10 +9,6 @@
 
   </Design.PreviewWith>
 
-  <StreamGeometry x:Key="Icons.RemoveItem">M829.44 674.56l-90.88 90.88-226.56-227.2-226.56 227.2-90.88-90.88 227.2-226.56-227.2-226.56 90.88-90.88 226.56 227.2 226.56-227.2 90.88 90.88-227.2 226.56 227.2 226.56z</StreamGeometry>
-
-  <SolidColorBrush x:Key="MultiSelectionComboBoxBoxItemBackground" Color="{DynamicResource RegionColor}" />
-  <SolidColorBrush x:Key="MultiSelectionComboBoxBoxRemoveButtonPointerOver" Color="{DynamicResource SystemAccentColor}" />
 
   <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxItem}"
                 TargetType="controls:MultiSelectionComboBoxItem"
@@ -25,12 +21,10 @@
                 TargetType="controls:MultiSelectionComboBoxSelectionBoxItem">
     <Setter Property="ShowRemoveButton" Value="True" />
     <Setter Property="HorizontalAlignment" Value="Left" />
-    <Setter Property="Background" Value="{DynamicResource  MultiSelectionComboBoxBoxItemBackground}" />
-    <Setter Property="CornerRadius"
-            Value="10">
-    </Setter>
-    <Setter Property="Padding" Value="7,2,2,2"></Setter>
-    <Setter Property="Margin" Value="2"></Setter>
+    <Setter Property="Background" Value="{DynamicResource MultiSelectionComboBoxSelectionChipBackgroundBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MultiSelectionComboBoxSelectionChipCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MultiSelectionComboBoxSelectionChipPadding}" />
+    <Setter Property="Margin" Value="{DynamicResource MultiSelectionComboBoxSelectionChipMargin}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Border CornerRadius="{TemplateBinding CornerRadius}"
@@ -48,11 +42,11 @@
                     IsVisible="{TemplateBinding ShowRemoveButton}"
                     VerticalAlignment="Stretch"
                     Padding="0"
-                    Margin="2"
+                    Margin="{DynamicResource MultiSelectionComboBoxSelectionChipMargin}"
                     Width="{Binding $self.Bounds.Height}"
-                    CornerRadius="10">
+                    CornerRadius="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonCornerRadius}">
               <PathIcon Height="9" Width="9"
-                        Data="{DynamicResource Icons.RemoveItem}" />
+                        Data="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveIconGeometry}" />
             </Button>
           </Grid>
         </Border>
@@ -60,7 +54,7 @@
     </Setter>
 
     <Style Selector="^ /template/ Button#PART_RemoveButton:pointerover PathIcon">
-      <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxBoxRemoveButtonPointerOver}"></Setter>
+      <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverBrush}"></Setter>
     </Style>
 
   </ControlTheme>

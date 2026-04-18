@@ -40,7 +40,7 @@ namespace Avalonia.Labs.Controls
             {
                 objectText = objectToCompare.ToString();
             }
-            else if (stringFormat.Contains("{") && stringFormat.Contains("}"))
+            else if (stringFormat.Contains('{') && stringFormat.Contains('}'))
             {
                 objectText = string.Format(stringFormat, objectToCompare);
             }
