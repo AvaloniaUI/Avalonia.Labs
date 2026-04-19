@@ -41,7 +41,7 @@
   <StaticResource x:Key="MultiSelectionComboBoxDropDownBorderBrush" ResourceKey="ComboBoxDropDownBorderBrush" />
   <StaticResource x:Key="MultiSelectionComboBoxDropdownBorderThickness" ResourceKey="ComboBoxDropdownBorderThickness" />
   <StaticResource x:Key="MultiSelectionComboBoxDropdownBorderPadding" ResourceKey="ComboBoxDropdownBorderPadding" />
-  <StaticResource x:Key="MultiSelectionComboBoxDropDownForeground" ResourceKey="ComboBoxDropDownForeground" />
+  <StaticResource x:Key="MultiSelectionComboBoxDropDownForeground" ResourceKey="ComboBoxForeground" />
   <StaticResource x:Key="MultiSelectionComboBoxDropdownContentMargin" ResourceKey="ComboBoxDropdownContentMargin" />
   <StaticResource x:Key="MultiSelectionComboBoxBackgroundPointerOver" ResourceKey="ComboBoxBackgroundPointerOver" />
   <StaticResource x:Key="MultiSelectionComboBoxBorderBrushPointerOver" ResourceKey="ComboBoxBorderBrushPointerOver" />

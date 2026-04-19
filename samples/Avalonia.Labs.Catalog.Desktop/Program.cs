@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+#if INCLUDE_WINDOWS
 using System.Diagnostics;
+#endif
 using System.IO;
 using Avalonia.Labs.Controls.Cache;
 using Avalonia.Labs.Notifications;
@@ -11,7 +13,7 @@ sealed class Program
 {
     private static NotificationChannel[] s_channels = new[]
     {
-        new NotificationChannel("basic", "Send Notifications", Notifications.NotificationPriority.High),
+        new NotificationChannel("basic", "Send Notifications", NotificationPriority.High),
         new NotificationChannel("actions", "Send Notification with Predefined Actions", NotificationPriority.High)
         {
             Actions = new List<NativeNotificationAction>
@@ -45,11 +47,13 @@ sealed class Program
             .WithAppNotifications(new AppNotificationOptions()
             {
                 Channels = s_channels,
-                AppIcon = Path.GetDirectoryName(Process.GetCurrentProcess()?.MainModule?.FileName) + "/avalonia-32.png",
+#if INCLUDE_WINDOWS
+                AppIcon = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) ?? AppContext.BaseDirectory, "avalonia-32.png"),
                 AppName = "Avalonia.Labs",
                 AppUserModelId = "com.Avalonia.Labs.Catalog",
                 // Is required for Packaged project, optional for the rest.
                 // ComActivatorGuidOverride = Guid.Parse("67890354-2A47-444C-B15F-DBF513C82F03")
+#endif
             })
             .AfterSetup(builder =>
             {

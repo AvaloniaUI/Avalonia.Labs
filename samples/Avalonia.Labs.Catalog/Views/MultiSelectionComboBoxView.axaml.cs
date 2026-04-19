@@ -37,8 +37,13 @@ public partial class MultiSelectionComboBoxView : UserControl
             
             if (property.PropertyType == typeof(bool))
             {
-                var checkBox = new CheckBox() {Content = property.Name};
-                mscb.Bind(property, new Binding(nameof(checkBox.IsChecked), BindingMode.TwoWay));
+                var checkBox = new CheckBox()
+                {
+                    Content = property.Name
+                };
+
+                mscb.Bind(property, CompiledBinding.Create<CheckBox, bool?>(
+                    x => x.IsChecked, checkBox)); 
                 return checkBox;
             }
 
