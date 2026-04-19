@@ -28,7 +28,4 @@
   <!-- Resources for MultiSelectionComboBox -->
   <StaticResource x:Key="MultiSelectionComboBoxCornerRadius" ResourceKey="ControlCornerRadius" />
   <StaticResource x:Key="MultiSelectionComboBoxDropDownCornerRadius" ResourceKey="OverlayCornerRadius" />
-  <StaticResource x:Key="MultiSelectionComboBoxErrorBorderBrush" ResourceKey="SystemControlErrorTextForegroundBrush" />
-  <StaticResource x:Key="MultiSelectionComboBoxSelectionChipBackgroundColor" ResourceKey="SystemRegionColor" />
-  <StaticResource x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor" ResourceKey="SystemAccentColor" />
 </ResourceDictionary>
