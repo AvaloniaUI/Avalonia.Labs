@@ -18,8 +18,8 @@
   <Thickness x:Key="MultiSelectionComboBoxDropDownGlyphMargin">0,0,10,0</Thickness>
   <StreamGeometry x:Key="MultiSelectionComboBoxSelectionChipRemoveIconGeometry">M829.44 674.56l-90.88 90.88-226.56-227.2-226.56 227.2-90.88-90.88 227.2-226.56-227.2-226.56 90.88-90.88 226.56 227.2 226.56-227.2 90.88 90.88-227.2 226.56 227.2 226.56z</StreamGeometry>
 
-  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipBackgroundBrush" Color="{DynamicResource RegionColor}" />
-  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverBrush" Color="{DynamicResource SystemAccentColor}" />
+  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipBackgroundBrush" Color="{DynamicResource MultiSelectionComboBoxSelectionChipBackgroundColor}" />
+  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverBrush" Color="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor}" />
   <CornerRadius x:Key="MultiSelectionComboBoxSelectionChipCornerRadius">10</CornerRadius>
   <Thickness x:Key="MultiSelectionComboBoxSelectionChipPadding">7,2,2,2</Thickness>
   <Thickness x:Key="MultiSelectionComboBoxSelectionChipMargin">2</Thickness>
@@ -71,7 +71,7 @@
     <Setter Property="Background" Value="{DynamicResource MultiSelectionComboBoxBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource MultiSelectionComboBoxBorderBrush}" />
     <Setter Property="BorderThickness" Value="{DynamicResource MultiSelectionComboBoxBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MultiSelectionComboBoxCornerRadius}" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="MinHeight" Value="{DynamicResource MultiSelectionComboBoxMinHeight}" />
@@ -99,7 +99,7 @@
           <Button Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0"
                   Content="Clear"
                   Focusable="False"
-                  Command="{CompiledBinding  $parent[Popup].((controls:MultiSelectionComboBox)PlacementTarget).Clear}">
+                  Command="{CompiledBinding $parent[Popup].((controls:MultiSelectionComboBox)TemplatedParent).Clear}">
           </Button>
 
         </Grid>
@@ -135,7 +135,7 @@
                                                                    ItemsSource="{TemplateBinding DisplaySelectedItems}"
                                                                    ItemsPanel="{TemplateBinding SelectedItemsItemPanel}"
                                                                    ItemTemplate="{TemplateBinding SelectedItemTemplate}" />
-            <TextBlock Name="PlaceholderTextBlock"
+            <TextBlock x:Name="PlaceholderTextBlock"
                        Grid.Column="0"
                        Margin="{TemplateBinding Padding}"
                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -145,7 +145,7 @@
               <TextBlock.IsVisible>
                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                   <TemplateBinding Property="IsEditable" Converter="{x:Static BoolConverters.Not}" />
-                  <TemplateBinding Property="Text" Converter="{x:Static StringConverters.IsNotNullOrEmpty}" />
+                  <TemplateBinding Property="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}" />
                 </MultiBinding>
               </TextBlock.IsVisible>
             </TextBlock>
@@ -164,7 +164,13 @@
                      Foreground="{TemplateBinding Foreground}"
                      Text="{TemplateBinding Text, Mode=TwoWay}"
                      IsVisible="{TemplateBinding IsEditable}"
-                     CornerRadius="{TemplateBinding CornerRadius}" />
+                     CornerRadius="{TemplateBinding CornerRadius}">
+              <TextBox.Resources>
+                <SolidColorBrush x:Key="TextControlBackgroundFocused">Transparent</SolidColorBrush>
+                <SolidColorBrush x:Key="TextControlBackgroundPointerOver">Transparent</SolidColorBrush>
+                <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
+              </TextBox.Resources>
+            </TextBox>
 
             <Border x:Name="PART_DropDownOverlay"
                     Grid.Column="1"
@@ -200,17 +206,18 @@
                       BorderThickness="{DynamicResource MultiSelectionComboBoxDropdownBorderThickness}"
                       Padding="{DynamicResource MultiSelectionComboBoxDropdownBorderPadding}"
                       HorizontalAlignment="Stretch"
-                      CornerRadius="{DynamicResource OverlayCornerRadius}">
+                      CornerRadius="{DynamicResource MultiSelectionComboBoxDropDownCornerRadius}">
                 <Grid RowDefinitions="Auto,*,Auto">
                   <ContentPresenter Grid.Row="0"
                                     x:Name="PART_DropDownHeader"
                                     Content="{TemplateBinding DropDownHeaderContent}"
                                     ContentTemplate="{TemplateBinding DropDownHeaderContentTemplate}"
                                     IsVisible="{TemplateBinding IsDropDownHeaderVisible}" />
-                  <!-- TODO 11.1: IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}" -->
                   <ScrollViewer Name="ScrollViewer"
                                 Grid.Row="1"
                                 Foreground="{DynamicResource MultiSelectionComboBoxDropDownForeground}"
+                                IsScrollChainingEnabled="False"
+                                IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}"
                                 HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                                 VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                     <ItemsPresenter x:Name="PART_ItemsPresenter"
@@ -252,12 +259,12 @@
 
     <!-- Error State -->
     <Style Selector="^:error /template/ Border#Background">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource MultiSelectionComboBoxErrorBorderBrush}" />
     </Style>
 
     <!--  Focus Pressed State  -->
-    <Style Selector="^:focused:pressed">
-      <Style Selector="^ /template/ ContentControl#ContentPresenter">
+    <Style Selector="^:focus:pressed">
+      <Style Selector="^ /template/ controls|MultiSelectionComboBoxSelectedItemsPresenter#PART_SelectedItemsPresenter">
         <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
@@ -274,7 +281,7 @@
         <Setter Property="IsVisible" Value="True" />
         <Setter Property="BorderBrush" Value="{DynamicResource MultiSelectionComboBoxBackgroundBorderBrushFocused}" />
       </Style>
-      <Style Selector="^ /template/ ContentControl#ContentPresenter">
+      <Style Selector="^ /template/ controls|MultiSelectionComboBoxSelectedItemsPresenter#PART_SelectedItemsPresenter">
         <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
@@ -291,7 +298,7 @@
         <Setter Property="Background" Value="{DynamicResource MultiSelectionComboBoxBackgroundDisabled}" />
         <Setter Property="BorderBrush" Value="{DynamicResource MultiSelectionComboBoxBorderBrushDisabled}" />
       </Style>
-      <Style Selector="^ /template/ ContentControl#ContentPresenter">
+      <Style Selector="^ /template/ controls|MultiSelectionComboBoxSelectedItemsPresenter#PART_SelectedItemsPresenter">
         <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
@@ -300,6 +307,11 @@
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
         <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxDropDownGlyphForegroundDisabled}" />
       </Style>
+    </Style>
+
+    <Style Selector="^[IsEditable=true]">
+      <Setter Property="IsTabStop" Value="False" />
+      <Setter Property="KeyboardNavigation.TabNavigation" Value="Local" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

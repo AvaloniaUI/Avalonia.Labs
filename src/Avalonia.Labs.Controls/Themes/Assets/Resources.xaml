@@ -9,6 +9,10 @@
       <Color x:Key="TextFillColorDisabled">#5C000000</Color>
       <Color x:Key="TextFillColorInverse">#FFFFFF</Color>
 
+      <!-- Resources for MultiSelectionComboBox -->
+      <Color x:Key="MultiSelectionComboBoxSelectionChipBackgroundColor">#FFEBEBEB</Color>
+      <Color x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor">#FF0078D4</Color>
+
       <Color x:Key="CardStrokeColorDefault">#0F000000</Color>
       <Color x:Key="CardStrokeColorDefaultSolid">#EBEBEB</Color>
 
@@ -71,6 +75,10 @@
       <Color x:Key="TextFillColorDisabled">#5DFFFFFF</Color>
       <Color x:Key="TextFillColorInverse">#E4000000</Color>
 
+      <!-- Resources for MultiSelectionComboBox -->
+      <Color x:Key="MultiSelectionComboBoxSelectionChipBackgroundColor">#FF2D2D2D</Color>
+      <Color x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor">#FF60CDFF</Color>
+
       <Color x:Key="CardStrokeColorDefault">#19000000</Color>
       <Color x:Key="CardStrokeColorDefaultSolid">#1C1C1C</Color>
 
@@ -124,6 +132,11 @@
   <!-- Resources for NavigationControl.xaml-->
   <x:Double x:Key="NavigationControlNavBarHeight" >45</x:Double>
   <Thickness x:Key="NavigationControlPageMargin">0,5</Thickness>
+
+  <!-- Resources for MultiSelectionComboBox -->
+  <CornerRadius x:Key="MultiSelectionComboBoxCornerRadius">4</CornerRadius>
+  <CornerRadius x:Key="MultiSelectionComboBoxDropDownCornerRadius">8</CornerRadius>
+  <SolidColorBrush x:Key="MultiSelectionComboBoxErrorBorderBrush" Color="#FFD32F2F" />
 
   <!-- Resources for TabControl.xaml -->
   <Thickness x:Key="TabControlMargin">12,0,12,0</Thickness>
