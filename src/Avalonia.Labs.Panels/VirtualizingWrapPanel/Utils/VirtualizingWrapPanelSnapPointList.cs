@@ -67,14 +67,15 @@ namespace Avalonia.Labs.Controls.Utils;
                                     break;
                             }
                         }
-                        else
+                        else if (index < _realizedElements.FirstIndex)
                         {
-                            var ind = index;
-                            if (index > _realizedElements.LastIndex)
-                            {
-                                ind -= _realizedElements.LastIndex + 1;
-                            }
-                            snapPoint = ind * averageElementSize;
+                            // Estimate position by stepping backward from the first realized element.
+                            var firstElement = _realizedElements.GetElement(_realizedElements.FirstIndex);
+                            double basePosition = firstElement != null
+                                ? firstElement.Bounds.Left
+                                : _realizedElements.FirstIndex * averageElementSize;
+                            int stepsBack = _realizedElements.FirstIndex - index;
+                            snapPoint = basePosition - stepsBack * averageElementSize;
                             switch (_snapPointsAlignment)
                             {
                                 case SnapPointsAlignment.Center:
@@ -84,13 +85,24 @@ namespace Avalonia.Labs.Controls.Utils;
                                     snapPoint += averageElementSize;
                                     break;
                             }
-                            if (index > _realizedElements.LastIndex)
+                        }
+                        else
+                        {
+                            // index > LastIndex: estimate forward from the last realized element.
+                            int stepsForward = index - _realizedElements.LastIndex;
+                            var lastElement = _realizedElements.GetElement(_realizedElements.LastIndex);
+                            double basePosition = lastElement != null
+                                ? lastElement.Bounds.Right
+                                : (_realizedElements.LastIndex + 1) * averageElementSize;
+                            snapPoint = basePosition + (stepsForward - 1) * averageElementSize;
+                            switch (_snapPointsAlignment)
                             {
-                                var lastElement = _realizedElements.GetElement(_realizedElements.LastIndex);
-                                if (lastElement != null)
-                                {
-                                    snapPoint += lastElement.Bounds.Right;
-                                }
+                                case SnapPointsAlignment.Center:
+                                    snapPoint += averageElementSize / 2;
+                                    break;
+                                case SnapPointsAlignment.Far:
+                                    snapPoint += averageElementSize;
+                                    break;
                             }
                         }
                         break;
@@ -111,14 +123,15 @@ namespace Avalonia.Labs.Controls.Utils;
                                     break;
                             }
                         }
-                        else
+                        else if (index < _realizedElements.FirstIndex)
                         {
-                            var ind = index;
-                            if(index > _realizedElements.LastIndex)
-                            {
-                                ind -= _realizedElements.LastIndex + 1;
-                            }
-                            snapPoint = ind * averageElementSize;
+                            // Estimate position by stepping backward from the first realized element.
+                            var firstElement = _realizedElements.GetElement(_realizedElements.FirstIndex);
+                            double basePosition = firstElement != null
+                                ? firstElement.Bounds.Top
+                                : _realizedElements.FirstIndex * averageElementSize;
+                            int stepsBack = _realizedElements.FirstIndex - index;
+                            snapPoint = basePosition - stepsBack * averageElementSize;
                             switch (_snapPointsAlignment)
                             {
                                 case SnapPointsAlignment.Center:
@@ -128,13 +141,24 @@ namespace Avalonia.Labs.Controls.Utils;
                                     snapPoint += averageElementSize;
                                     break;
                             }
-                            if (index > _realizedElements.LastIndex)
+                        }
+                        else
+                        {
+                            // index > LastIndex: estimate forward from the last realized element.
+                            int stepsForward = index - _realizedElements.LastIndex;
+                            var lastElement = _realizedElements.GetElement(_realizedElements.LastIndex);
+                            double basePosition = lastElement != null
+                                ? lastElement.Bounds.Bottom
+                                : (_realizedElements.LastIndex + 1) * averageElementSize;
+                            snapPoint = basePosition + (stepsForward - 1) * averageElementSize;
+                            switch (_snapPointsAlignment)
                             {
-                                var lastElement = _realizedElements.GetElement(_realizedElements.LastIndex);
-                                if (lastElement != null)
-                                {
-                                    snapPoint += lastElement.Bounds.Bottom;
-                                }
+                                case SnapPointsAlignment.Center:
+                                    snapPoint += averageElementSize / 2;
+                                    break;
+                                case SnapPointsAlignment.Far:
+                                    snapPoint += averageElementSize;
+                                    break;
                             }
                         }
                         break;
