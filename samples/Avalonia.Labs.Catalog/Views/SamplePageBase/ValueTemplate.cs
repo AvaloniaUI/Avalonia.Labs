@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Avalonia.Labs.ExpressionBuilder;
-using Avalonia.ReactiveUI;
-using ReactiveUI;
 
 namespace Avalonia.Labs.Catalog.Views.SamplePageBase;
 
 public class ValueTemplate : IDataTemplate
 {
-    public Control? Build(object? param)
+    public Control Build(object? param)
     {
         var context = param as PropertyGridItem;
         var propertyType = context!.TargetProperty.PropertyType;
@@ -37,14 +33,21 @@ public class ValueTemplate : IDataTemplate
         
         return new TextBlock()
         {
-            [!TextBlock.TextProperty] =
-                new Binding(context.TargetProperty.Name, BindingMode.OneWay) { Source = context.TargetObject }
+            [!TextBlock.TextProperty] = new Binding(context.TargetProperty.Name)
+            {
+                Mode = BindingMode.OneWay,
+                Source = context.TargetObject
+            }
         };
     }
 
     private void CreateBinding(Control control, AvaloniaProperty controlProperty, PropertyGridItem context)
     {
-        control[!controlProperty] = new Binding(context.TargetProperty.Name, BindingMode.TwoWay){Source = context.TargetObject};
+        control[!controlProperty] = new Binding(context.TargetProperty.Name)
+        {
+            Mode = BindingMode.TwoWay,
+            Source = context.TargetObject
+        };
     }
     
     public bool Match(object? data)

@@ -6,21 +6,16 @@ using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Catalog.Views.SamplePageBase;
 using Avalonia.Labs.Controls;
 using Avalonia.Layout;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Avalonia.Labs.Catalog.ViewModels;
 
-public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
+public partial class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
 {
     static VirtualizingWrapPanelViewModel()
     {
         ViewLocator.Register(typeof(VirtualizingWrapPanelViewModel), () => new VirtualizingWrapPanelSampleView());
-    }
-    
-    public VirtualizingWrapPanelViewModel()
-    {
-        RandomizeItemSizesCommand = ReactiveCommand.Create(RandomizeItemSizes);
-        ResetItemSizesCommand = ReactiveCommand.Create(ResetItemSizes);
     }
     
     /// <summary>
@@ -31,10 +26,11 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
             .Select(x => new WrapPanelItemViewModel($"Item {x:N0}"))
             .ToArray();
 
-    public WrapPanelItemViewModel? SelectedItem
+    [ObservableProperty]
+    public partial WrapPanelItemViewModel? SelectedItem
     {
-        get => field;
-        set => this.RaiseAndSetIfChanged(ref field, value);
+        get;
+        set;
     }
     
     private bool _allowDifferentItemSizes;
@@ -42,10 +38,10 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
     public bool AllowDifferentItemSizes
     {
         get => _allowDifferentItemSizes;
-        set => this.RaiseAndSetIfChanged(ref _allowDifferentItemSizes, value);
+        set => this.SetProperty(ref _allowDifferentItemSizes, value);
     }
-    
-    public ICommand RandomizeItemSizesCommand { get; }
+
+    [RelayCommand]
     private void RandomizeItemSizes()
     {
         AllowDifferentItemSizes = true;
@@ -55,7 +51,7 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
         }
     }
 
-    public ICommand ResetItemSizesCommand { get; }
+    [RelayCommand]
     private void ResetItemSizes()
     {
         foreach (var item in SampleItems)
@@ -71,7 +67,7 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
         get => _orientation;
         set
         {
-            this.RaiseAndSetIfChanged(ref _orientation, value);
+            this.SetProperty(ref _orientation, value);
         }
     }
 
@@ -80,7 +76,7 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
     public bool GridLayout
     {
         get => _gridLayout;
-        set => this.RaiseAndSetIfChanged(ref _gridLayout, value);
+        set => this.SetProperty(ref _gridLayout, value);
     }
     
     SpacingMode _spacingMode;
@@ -88,7 +84,7 @@ public class VirtualizingWrapPanelViewModel : ViewModelBase, IItemSizeProvider
     public SpacingMode SpacingMode
     {
         get => _spacingMode;
-        set => this.RaiseAndSetIfChanged(ref _spacingMode, value);
+        set => this.SetProperty(ref _spacingMode, value);
     }
     
     public Size GetSizeForItem(object item)
@@ -113,7 +109,7 @@ public class WrapPanelItemViewModel : ViewModelBase
     public double ItemWidth
     {
         get => _ItemWidth;
-        set => this.RaiseAndSetIfChanged(ref _ItemWidth, value);
+        set => this.SetProperty(ref _ItemWidth, value);
     }
     
     /// <summary>
@@ -129,7 +125,7 @@ public class WrapPanelItemViewModel : ViewModelBase
     public double ItemHeight
     {
         get => _ItemHeight;
-        set => this.RaiseAndSetIfChanged(ref _ItemHeight, value);
+        set => this.SetProperty(ref _ItemHeight, value);
     }
 
     /// <summary>

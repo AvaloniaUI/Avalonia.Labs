@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
@@ -92,7 +92,7 @@ namespace Avalonia.Labs.Catalog.MarkupExtensions;
 
         #region Properties
 
-        [ConstructorArgument("type")] public Type? Type { get; set; }
+        public Type? Type { get; set; }
 
         public IValueConverter? Converter { get; set; }
 
