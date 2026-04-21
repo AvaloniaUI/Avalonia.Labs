@@ -786,7 +786,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
         var wrappingWidth = GetWrappingWidth();
 
-        if (this.GetVisualRoot() is not ILayoutRoot root)
+        if (TopLevel.GetTopLevel(this) is not { } root)
             return null;
 
         var element = GetRealizedElement(index);
@@ -799,7 +799,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             {
                 _isWaitingForViewportUpdate = true;
                 InvalidateMeasure();
-                (root as Layoutable)?.UpdateLayout();
+                root.UpdateLayout();
                 _isWaitingForViewportUpdate = false;
             }
 
@@ -828,7 +828,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             if (!Bounds.Contains(rect) && !_viewport.Contains(rect))
             {
                 _isWaitingForViewportUpdate = true;
-                (root as Layoutable)?.UpdateLayout();
+                root.UpdateLayout();
                 _isWaitingForViewportUpdate = false;
             }
 
@@ -841,7 +841,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             // - The viewport is then updated by the layout system which invalidates our measure
             // - Measure is then done with the new viewport.
             _isWaitingForViewportUpdate = !_viewport.Contains(rect);
-            (root as Layoutable)?.UpdateLayout();
+            root.UpdateLayout();
 
             // If for some reason the layout system didn't give us a new viewport during the layout, we
             // need to do another layout pass as the one that took place was a no-op.
@@ -849,7 +849,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             {
                 _isWaitingForViewportUpdate = false;
                 InvalidateMeasure();
-                (root as Layoutable)?.UpdateLayout();
+                root.UpdateLayout();
             }
 
             // During the previous BringIntoView, the scroll width extent might have been out of date if
