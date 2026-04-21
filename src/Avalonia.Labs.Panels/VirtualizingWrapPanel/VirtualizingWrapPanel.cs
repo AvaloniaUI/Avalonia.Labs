@@ -136,6 +136,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
     private readonly List<RowInfo> _rowCache = new();
     private const int RowCacheCapacity = 256; // "some rows" to improve performance without excessive memory
+    private const int RecyclePoolMaxSize = 32; // max containers kept per recycle key to bound visual-tree size
     private double _lastLayoutWidth;
     private int _focusedIndex = -1;
     private double? _navigationAnchor;
@@ -1992,39 +1993,57 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     {
         var itemCount = Items.Count;
         if (currentIndex < 0 || currentIndex >= itemCount)
-        {
             return currentIndex;
-        }
 
         var wrappingWidth = GetWrappingWidth();
-        var currentOffset = FindItemOffset(currentIndex, wrappingWidth);
-        var currentSize = GetAssumedItemSize(currentIndex, Items[currentIndex]);
 
-        var currentX = GetX(currentOffset);
-        var currentY = GetY(currentOffset);
-        var rawCurrentWidth = GetWidth(currentSize);
+        // --- Step 1: find source row StartIndex from cache (O(log N)) or single linear scan (O(N)) ---
+        int sourceCacheIndex = -1;
+        RowInfo? sourceRowHint = null;
 
-        // Find source row layout to get actual width
-        int sourceRowStartIndex = currentIndex;
-        double sourceRowSummedUpWidth = 0;
-        int sourceRowCount = 0;
-
-        // Search back to start of source row
-        while (sourceRowStartIndex > 0 && GetY(FindItemOffset(sourceRowStartIndex - 1, wrappingWidth)).IsCloseTo(currentY))
+        if (_rowCache.Count > 0)
         {
-            sourceRowStartIndex--;
+            int lo = 0, hi = _rowCache.Count - 1;
+            while (lo <= hi)
+            {
+                int mid = (lo + hi) >> 1;
+                var r = _rowCache[mid];
+                if (r.StartIndex <= currentIndex)
+                {
+                    if (currentIndex < r.StartIndex + r.Count)
+                    {
+                        sourceRowHint = r;
+                        sourceCacheIndex = mid;
+                        break;
+                    }
+                    lo = mid + 1;
+                }
+                else
+                {
+                    hi = mid - 1;
+                }
+            }
         }
 
-        // Scan forward to end of source row
-        int k = sourceRowStartIndex;
-        while (k < itemCount && GetY(FindItemOffset(k, wrappingWidth)).IsCloseTo(currentY))
+        if (sourceRowHint is null)
         {
-            sourceRowSummedUpWidth += GetWidth(GetAssumedItemSize(k, Items[k]));
-            sourceRowCount++;
-            k++;
+            sourceRowHint = FindRowByLinearScan(currentIndex, wrappingWidth);
+            if (sourceRowHint is null)
+                return currentIndex;
         }
 
-        GetRowLayout(wrappingWidth, sourceRowCount, sourceRowSummedUpWidth, out _, out _, out var sourceExtraWidth);
+        // Scan source row for true Count/SummedWidth (cache entry may be incomplete if it's the last row)
+        var (sourceCount, sourceSumW) = ScanRowFromStart(sourceRowHint.StartIndex, wrappingWidth);
+
+        // --- Step 2: compute current item X and width (no FindItemOffset) ---
+        GetRowLayout(wrappingWidth, sourceCount, sourceSumW,
+            out var sourceInnerSpacing, out var sourceOuterSpacing, out var sourceExtraWidth);
+
+        double currentX = sourceOuterSpacing;
+        for (int i = sourceRowHint.StartIndex; i < currentIndex; i++)
+            currentX += GetWidth(GetAssumedItemSize(i, Items[i])) + sourceExtraWidth + sourceInnerSpacing;
+
+        var rawCurrentWidth = GetWidth(GetAssumedItemSize(currentIndex, Items[currentIndex]));
         var currentWidth = rawCurrentWidth + sourceExtraWidth;
         var currentMidX = currentX + currentWidth / 2;
 
@@ -2039,114 +2058,171 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             _navigationAnchor = currentMidX;
         }
 
-        int targetRowStartIndex;
-        double targetRowY;
+        // --- Step 3: find target row StartIndex from cache (O(1)) or single linear scan (O(N)) ---
+        int targetStartIndex;
 
-        if (rowOffset < 0)
+        if (sourceCacheIndex >= 0)
         {
-            // Find row above
-            int i = currentIndex;
-            double y = currentY;
-            while (i > 0)
+            int targetCacheIndex = sourceCacheIndex + rowOffset;
+            if (targetCacheIndex >= 0 && targetCacheIndex < _rowCache.Count)
             {
-                var offset = FindItemOffset(i - 1, wrappingWidth);
-                if (GetY(offset) < y)
-                {
-                    // Found the row above
-                    targetRowY = GetY(offset);
-                    // Now find the start of THIS (target) row
-                    int j = i - 1;
-                    while (j > 0 && GetY(FindItemOffset(j - 1, wrappingWidth)).IsCloseTo(targetRowY))
-                    {
-                        j--;
-                    }
-                    targetRowStartIndex = j;
-                    goto FindClosestItem;
-                }
-                i--;
+                targetStartIndex = _rowCache[targetCacheIndex].StartIndex;
             }
-            return currentIndex; // No row above
+            else
+            {
+                // Adjacent row is outside cache bounds
+                int searchFrom = rowOffset < 0 ? sourceRowHint.StartIndex - 1 : sourceRowHint.StartIndex + sourceCount;
+                if (searchFrom < 0 || searchFrom >= itemCount)
+                    return currentIndex;
+                var fallback = FindRowByLinearScan(searchFrom, wrappingWidth);
+                if (fallback is null)
+                    return currentIndex;
+                targetStartIndex = fallback.StartIndex;
+            }
         }
         else
         {
-            // Find row below
-            int i = currentIndex;
-            double y = currentY;
-            while (i < itemCount - 1)
-            {
-                var offset = FindItemOffset(i + 1, wrappingWidth);
-                if (GetY(offset) > y)
-                {
-                    // Found the row below
-                    targetRowStartIndex = i + 1;
-                    targetRowY = GetY(offset);
-                    goto FindClosestItem;
-                }
-                i++;
-            }
-            return currentIndex; // No row below
+            int searchFrom = rowOffset < 0 ? sourceRowHint.StartIndex - 1 : sourceRowHint.StartIndex + sourceCount;
+            if (searchFrom < 0 || searchFrom >= itemCount)
+                return currentIndex;
+            var fallback = FindRowByLinearScan(searchFrom, wrappingWidth);
+            if (fallback is null)
+                return currentIndex;
+            targetStartIndex = fallback.StartIndex;
         }
 
-    FindClosestItem:
+        // --- Step 4: scan target row for true Count/SummedWidth, then find closest item ---
+        var (targetCount, targetSumW) = ScanRowFromStart(targetStartIndex, wrappingWidth);
+        if (targetCount == 0)
+            return currentIndex;
+
+        GetRowLayout(wrappingWidth, targetCount, targetSumW,
+            out var targetInnerSpacing, out var targetOuterSpacing, out var targetExtraWidth);
+
+        double sourceStart = currentMidX - currentWidth / 2;
+        double sourceEnd   = currentMidX + currentWidth / 2;
+        if (currentWidth.IsAlmostZero())
         {
-            // Collect target row info
-            double targetRowSummedUpWidth = 0;
-            int targetRowCount = 0;
-            int m = targetRowStartIndex;
-            while (m < itemCount)
-            {
-                var offset = FindItemOffset(m, wrappingWidth);
-                if (!GetY(offset).IsCloseTo(targetRowY))
-                    break;
-                targetRowSummedUpWidth += GetWidth(GetAssumedItemSize(m, Items[m]));
-                targetRowCount++;
-                m++;
-            }
-
-            GetRowLayout(wrappingWidth, targetRowCount, targetRowSummedUpWidth,
-                out _, out _, out var targetExtraWidth);
-
-            int bestIndex = targetRowStartIndex;
-            double maxOverlap = -1;
-            double minDiff = double.MaxValue;
-
-            double sourceStart = currentMidX - currentWidth / 2;
-            double sourceEnd = currentMidX + currentWidth / 2;
-
-            if (currentWidth.IsAlmostZero())
-            {
-                sourceStart -= EPSILON;
-                sourceEnd += EPSILON;
-            }
-
-            for (int i = 0; i < targetRowCount; i++)
-            {
-                int itemIndex = targetRowStartIndex + i;
-                var itemOffset = FindItemOffset(itemIndex, wrappingWidth);
-                var itemSize = GetAssumedItemSize(itemIndex, Items[itemIndex]);
-
-                var itemX = GetX(itemOffset);
-                var itemWidth = GetWidth(itemSize) + targetExtraWidth;
-                var itemMidX = itemX + itemWidth / 2;
-
-                // Overlap with source span
-                double overlap = Math.Max(0, Math.Min(sourceEnd, itemX + itemWidth) - Math.Max(sourceStart, itemX));
-                double diff = Math.Abs(itemMidX - currentMidX);
-
-                if (overlap > maxOverlap + EPSILON || (Math.Abs(overlap - maxOverlap) < EPSILON && diff < minDiff - EPSILON))
-                {
-                    maxOverlap = overlap;
-                    minDiff = diff;
-                    bestIndex = itemIndex;
-                }
-                else if (itemX > sourceEnd && overlap.IsAlmostZero() && maxOverlap > 0)
-                {
-                    // We are moving away from the source item's span and we already found an overlapping item
-                    break;
-                }
-            }
-            return bestIndex;
+            sourceStart -= EPSILON;
+            sourceEnd   += EPSILON;
         }
+
+        int    bestIndex  = targetStartIndex;
+        double maxOverlap = -1;
+        double minDiff    = double.MaxValue;
+        double itemX      = targetOuterSpacing;
+
+        for (int i = 0; i < targetCount; i++)
+        {
+            int idx = targetStartIndex + i;
+            var itemWidth = GetWidth(GetAssumedItemSize(idx, Items[idx])) + targetExtraWidth;
+            var itemMidX  = itemX + itemWidth / 2;
+
+            double overlap = Math.Max(0, Math.Min(sourceEnd, itemX + itemWidth) - Math.Max(sourceStart, itemX));
+            double diff    = Math.Abs(itemMidX - currentMidX);
+
+            if (overlap > maxOverlap + EPSILON || (Math.Abs(overlap - maxOverlap) < EPSILON && diff < minDiff - EPSILON))
+            {
+                maxOverlap = overlap;
+                minDiff    = diff;
+                bestIndex  = idx;
+            }
+            else if (itemX > sourceEnd && overlap.IsAlmostZero() && maxOverlap > 0)
+            {
+                break; // moved past the source span, done
+            }
+
+            itemX += itemWidth + targetInnerSpacing;
+        }
+
+        return bestIndex;
+    }
+
+    /// <summary>
+    /// Scans a row starting at <paramref name="startIndex"/> and accumulates items until the row wraps.
+    /// Returns the true item count and total width for that row.
+    /// This is needed because the row cache entry may record an incomplete count (the last measured row
+    /// can be cut off before all its items are processed).
+    /// </summary>
+    private (int Count, double SummedWidth) ScanRowFromStart(int startIndex, double wrappingWidth)
+    {
+        double x = 0, sumW = 0;
+        int count = 0;
+        for (int i = startIndex; i < Items.Count; i++)
+        {
+            var w = GetWidth(GetAssumedItemSize(i, Items[i]));
+            if (count > 0 && x + w > wrappingWidth + EPSILON)
+                break;
+            x    += w;
+            sumW += w;
+            count++;
+        }
+        return (count, sumW);
+    }
+
+    /// <summary>
+    /// Single O(N) linear scan to find the row containing <paramref name="itemIndex"/>.
+    /// Uses the row cache to find the best starting point, so in practice the scan
+    /// only covers items not yet cached.
+    /// </summary>
+    private RowInfo? FindRowByLinearScan(int itemIndex, double wrappingWidth)
+    {
+        if (itemIndex < 0 || itemIndex >= Items.Count)
+            return null;
+
+        double x = 0, y = 0, rowHeight = 0, rowSummedWidth = 0;
+        int scanFrom = 0, rowStart = 0, rowCount = 0;
+
+        // Seed from the nearest cached predecessor to avoid scanning from index 0
+        if (_rowCache.Count > 0)
+        {
+            int lo = 0, hi = _rowCache.Count - 1, best = -1;
+            while (lo <= hi)
+            {
+                int mid = (lo + hi) >> 1;
+                if (_rowCache[mid].StartIndex <= itemIndex) { best = mid; lo = mid + 1; }
+                else hi = mid - 1;
+            }
+            if (best >= 0)
+            {
+                var seed = _rowCache[best];
+                if (itemIndex < seed.StartIndex + seed.Count)
+                    return seed; // already covered by cache
+                scanFrom = seed.StartIndex + seed.Count;
+                y        = seed.Y + seed.Height;
+                rowStart = scanFrom;
+            }
+        }
+
+        for (int i = scanFrom; i < Items.Count; i++)
+        {
+            var size = GetAssumedItemSize(i, Items[i]);
+            var w    = GetWidth(size);
+
+            if (rowCount > 0 && x + w > wrappingWidth + EPSILON)
+            {
+                if (itemIndex >= rowStart && itemIndex < i)
+                    return new RowInfo { StartIndex = rowStart, Y = y, Height = rowHeight, Count = rowCount, SummedUpChildWidth = rowSummedWidth };
+
+                y             += rowHeight;
+                rowHeight      = 0;
+                rowSummedWidth = 0;
+                rowStart       = i;
+                rowCount       = 0;
+                x              = 0;
+            }
+
+            x             += w;
+            rowSummedWidth += w;
+            rowHeight       = Math.Max(rowHeight, GetHeight(size));
+            rowCount++;
+        }
+
+        // Last (possibly incomplete) row
+        if (itemIndex >= rowStart && itemIndex < rowStart + rowCount)
+            return new RowInfo { StartIndex = rowStart, Y = y, Height = rowHeight, Count = rowCount, SummedUpChildWidth = rowSummedWidth };
+
+        return null;
     }
     
     /// <summary>
@@ -2403,6 +2479,10 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
         }
 
         pool.Push(element);
+
+        // If the pool exceeds the cap, eject the oldest container from the visual tree.
+        while (pool.Count > RecyclePoolMaxSize)
+            RemoveInternalChild(pool.Pop());
     }
 
     /// <summary>
