@@ -10,7 +10,7 @@ namespace Avalonia.Labs.AnimatedImage;
 
 internal class SingleAnimatedBitmap(Stream stream, bool disposeStream) : IAnimatedBitmap
 {
-    public bool IsInitialized { get => !IsFailed && field; private set; }
+    public bool IsInitialized { get => !IsFailed && field; set; }
 
     public bool IsFailed { get; private set; }
 
@@ -34,6 +34,21 @@ internal class SingleAnimatedBitmap(Stream stream, bool disposeStream) : IAnimat
     public event EventHandler<AnimatedBitmapFailedEventArgs>? Failed;
     
     private Stream? _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+
+    public void Dispose()
+    {
+        var initialized = IsInitialized;
+        IsInitialized = false;
+        GC.SuppressFinalize(this);
+
+        if (_stream is not null && disposeStream)
+            _stream.Dispose();
+        _stream = null;
+
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
+    }
 
     public void Init()
     {

@@ -5,14 +5,14 @@ using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.AnimatedImage;
 
-public interface IAnimatedBitmap
+public interface IAnimatedBitmap : IDisposable
 {
-    bool IsInitialized { get; }
+    bool IsInitialized { get; protected set; }
 
     bool IsFailed { get; }
 
     bool IsCancellable { get; set; }
-    
+
     /// <summary>
     /// Gets the size of the image, in device independent pixels.
     /// </summary>
@@ -36,6 +36,12 @@ public interface IAnimatedBitmap
     static IAnimatedBitmap Load(IReadOnlyCollection<Stream> frameStreams, IReadOnlyCollection<int> delays, bool disposeStream)
         => new MultiAnimatedBitmap(frameStreams, delays, disposeStream);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="bitmaps">This parameter would be DISPOSED when <see langword="this"/> is disposed.</param>
+    /// <param name="delays"></param>
+    /// <returns></returns>
     static IAnimatedBitmap Load(IReadOnlyCollection<Bitmap> bitmaps, IReadOnlyCollection<int> delays)
         => new AnimatedBitmapSimpleImpl(bitmaps, delays);
 }

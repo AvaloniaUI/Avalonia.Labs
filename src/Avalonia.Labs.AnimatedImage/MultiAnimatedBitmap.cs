@@ -9,7 +9,7 @@ namespace Avalonia.Labs.AnimatedImage;
 
 internal class MultiAnimatedBitmap(IReadOnlyCollection<Stream> frameStreams, IReadOnlyCollection<int> delays, bool disposeStream) : IAnimatedBitmap
 {
-    public bool IsInitialized { get => !IsFailed && field; private set; }
+    public bool IsInitialized { get => !IsFailed && field; set; }
 
     public bool IsFailed { get; private set; }
 
@@ -39,6 +39,22 @@ internal class MultiAnimatedBitmap(IReadOnlyCollection<Stream> frameStreams, IRe
 
     private readonly IReadOnlyCollection<int> _delays =
         (IReadOnlyCollection<int>) [..delays] ?? throw new ArgumentNullException(nameof(delays));
+
+    public void Dispose()
+    {
+        var initialized = IsInitialized;
+        IsInitialized = false;
+        GC.SuppressFinalize(this);
+
+        if (_frameStreams is not null && disposeStream)
+            foreach (var frameStream in _frameStreams)
+                frameStream.Dispose();
+        _frameStreams = null;
+
+        if (initialized)
+            foreach (var bitmap in Frames)
+                bitmap.Dispose();
+    }
 
     public void Init()
     {
