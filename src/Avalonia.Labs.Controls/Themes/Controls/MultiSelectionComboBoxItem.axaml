@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:Avalonia.Labs.Controls">
+  <Design.PreviewWith>
+    <StackPanel>
+      <controls:MultiSelectionComboBoxItem IsSelected="True"> 123</controls:MultiSelectionComboBoxItem>
+      <controls:MultiSelectionComboBoxSelectionBoxItem Content="Test" />
+    </StackPanel>
+
+  </Design.PreviewWith>
+
+
+  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxItem}"
+                TargetType="controls:MultiSelectionComboBoxItem"
+                BasedOn="{StaticResource {x:Type ListBoxItem}}">
+    <!-- Empty -->
+  </ControlTheme>
+
+
+  <ControlTheme x:Key="{x:Type controls:MultiSelectionComboBoxSelectionBoxItem}"
+                TargetType="controls:MultiSelectionComboBoxSelectionBoxItem">
+    <Setter Property="ShowRemoveButton" Value="True" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="Background" Value="{DynamicResource MultiSelectionComboBoxSelectionChipBackgroundBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MultiSelectionComboBoxSelectionChipCornerRadius}" />
+    <Setter Property="Padding" Value="{DynamicResource MultiSelectionComboBoxSelectionChipPadding}" />
+    <Setter Property="Margin" Value="{DynamicResource MultiSelectionComboBoxSelectionChipMargin}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border CornerRadius="{TemplateBinding CornerRadius}"
+                Background="{TemplateBinding Background}"
+                Margin="{TemplateBinding Margin}">
+          <Grid ColumnDefinitions="*, Auto">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              Margin="{TemplateBinding Padding}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Foreground="{TemplateBinding Foreground}" />
+            <Button Grid.Column="1"
+                    x:Name="PART_RemoveButton"
+                    IsVisible="{TemplateBinding ShowRemoveButton}"
+                    VerticalAlignment="Stretch"
+                    Padding="0"
+                    Margin="{DynamicResource MultiSelectionComboBoxSelectionChipMargin}"
+                    Width="{Binding $self.Bounds.Height}"
+                    CornerRadius="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonCornerRadius}">
+              <PathIcon Height="9" Width="9"
+                        Data="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveIconGeometry}" />
+            </Button>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ Button#PART_RemoveButton:pointerover PathIcon">
+      <Setter Property="Foreground" Value="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverBrush}"></Setter>
+    </Style>
+
+  </ControlTheme>
+
+
+</ResourceDictionary>

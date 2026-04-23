@@ -9,6 +9,34 @@
       <Color x:Key="TextFillColorDisabled">#5C000000</Color>
       <Color x:Key="TextFillColorInverse">#FFFFFF</Color>
 
+      <!-- Resources for MultiSelectionComboBox -->
+      <Color x:Key="MultiSelectionComboBoxSelectionChipBackgroundColor">#FFEBEBEB</Color>
+      <Color x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor">#FF0078D4</Color>
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForeground" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundFocused" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundFocusedPressed" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundDisabled" Color="{StaticResource TextFillColorDisabled}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxPlaceholderForeground" Color="{StaticResource TextFillColorTertiary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxPlaceholderForegroundFocusedPressed" Color="{StaticResource TextFillColorTertiary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForeground" Color="{StaticResource TextFillColorSecondary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundFocused" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundFocusedPressed" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundDisabled" Color="{StaticResource TextFillColorDisabled}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownForeground" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackground" Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundPointerOver" Color="#FFF0F0F0" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundPressed" Color="#FFE8E8E8" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundDisabled" Color="#FFF7F7F7" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundUnfocused" Color="#FFD8EAF5" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundBorderBrushFocused" Color="#00000000" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundBorderBrushUnfocused" Color="#00000000" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrush" Color="#FF767676" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushPointerOver" Color="#FF1B1B1B" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushPressed" Color="#FF1B1B1B" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushDisabled" Color="#FFBCBCBC" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownBackground" Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownBorderBrush" Color="#FFCCCCCC" />
+
       <Color x:Key="CardStrokeColorDefault">#0F000000</Color>
       <Color x:Key="CardStrokeColorDefaultSolid">#EBEBEB</Color>
 
@@ -71,6 +99,34 @@
       <Color x:Key="TextFillColorDisabled">#5DFFFFFF</Color>
       <Color x:Key="TextFillColorInverse">#E4000000</Color>
 
+      <!-- Resources for MultiSelectionComboBox -->
+      <Color x:Key="MultiSelectionComboBoxSelectionChipBackgroundColor">#FF2D2D2D</Color>
+      <Color x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor">#FF60CDFF</Color>
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForeground" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundFocused" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundFocusedPressed" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxForegroundDisabled" Color="{StaticResource TextFillColorDisabled}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxPlaceholderForeground" Color="{StaticResource TextFillColorTertiary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxPlaceholderForegroundFocusedPressed" Color="{StaticResource TextFillColorTertiary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForeground" Color="{StaticResource TextFillColorSecondary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundFocused" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundFocusedPressed" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownGlyphForegroundDisabled" Color="{StaticResource TextFillColorDisabled}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownForeground" Color="{StaticResource TextFillColorPrimary}" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackground" Color="#FF2D2D2D" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundPointerOver" Color="#FF3A3A3A" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundPressed" Color="#FF1F1F1F" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundDisabled" Color="#FF252525" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundUnfocused" Color="#1A3A5A" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundBorderBrushFocused" Color="#00000000" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBackgroundBorderBrushUnfocused" Color="#00000000" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrush" Color="#FF9B9B9B" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushPointerOver" Color="#FFD0D0D0" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushPressed" Color="#FFD0D0D0" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxBorderBrushDisabled" Color="#FF555555" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownBackground" Color="#FF2D2D2D" />
+      <SolidColorBrush x:Key="MultiSelectionComboBoxDropDownBorderBrush" Color="#FF4D4D4D" />
+
       <Color x:Key="CardStrokeColorDefault">#19000000</Color>
       <Color x:Key="CardStrokeColorDefaultSolid">#1C1C1C</Color>
 
@@ -120,6 +176,29 @@
 
     </ResourceDictionary>
   </ResourceDictionary.ThemeDictionaries>
+
+  <!-- Resources for MultiSelectionComboBox -->
+  <StreamGeometry x:Key="MultiSelectionComboBoxDisabledStateIconGeometry">M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z</StreamGeometry>
+  <StreamGeometry x:Key="MultiSelectionComboBoxDropDownGlyphGeometry">M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z</StreamGeometry>
+  <x:Double x:Key="MultiSelectionComboBoxDropDownColumnWidth">32</x:Double>
+  <x:Double x:Key="MultiSelectionComboBoxDropDownHitTargetWidth">30</x:Double>
+  <Thickness x:Key="MultiSelectionComboBoxDropDownGlyphMargin">0,0,10,0</Thickness>
+  <StreamGeometry x:Key="MultiSelectionComboBoxSelectionChipRemoveIconGeometry">M829.44 674.56l-90.88 90.88-226.56-227.2-226.56 227.2-90.88-90.88 227.2-226.56-227.2-226.56 90.88-90.88 226.56 227.2 226.56-227.2 90.88 90.88-227.2 226.56 227.2 226.56z</StreamGeometry>
+  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipBackgroundBrush" Color="{DynamicResource MultiSelectionComboBoxSelectionChipBackgroundColor}" />
+  <SolidColorBrush x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverBrush" Color="{DynamicResource MultiSelectionComboBoxSelectionChipRemoveButtonPointerOverColor}" />
+  <CornerRadius x:Key="MultiSelectionComboBoxSelectionChipCornerRadius">10</CornerRadius>
+  <Thickness x:Key="MultiSelectionComboBoxSelectionChipPadding">7,2,2,2</Thickness>
+  <Thickness x:Key="MultiSelectionComboBoxSelectionChipMargin">2</Thickness>
+  <CornerRadius x:Key="MultiSelectionComboBoxSelectionChipRemoveButtonCornerRadius">10</CornerRadius>
+  <SolidColorBrush x:Key="MultiSelectionComboBoxErrorBorderBrush" Color="#FFD32F2F" />
+  <Thickness x:Key="MultiSelectionComboBoxPadding">12,5,0,7</Thickness>
+  <Thickness x:Key="MultiSelectionComboBoxEditableTextPadding">11,5,32,6</Thickness>
+  <x:Double x:Key="MultiSelectionComboBoxMinHeight">32</x:Double>
+  <x:Double x:Key="MultiSelectionComboBoxThemeMinWidth">64</x:Double>
+  <Thickness x:Key="MultiSelectionComboBoxBorderThemeThickness">1</Thickness>
+  <Thickness x:Key="MultiSelectionComboBoxDropdownBorderThickness">1</Thickness>
+  <Thickness x:Key="MultiSelectionComboBoxDropdownBorderPadding">0</Thickness>
+  <Thickness x:Key="MultiSelectionComboBoxDropdownContentMargin">0,4,0,4</Thickness>
 
   <!-- Resources for NavigationControl.xaml-->
   <x:Double x:Key="NavigationControlNavBarHeight" >45</x:Double>
