@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Labs.Catalog.Views;
 using Avalonia.Labs.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -58,7 +59,7 @@ public partial class ContentDialogViewModel : ViewModelBase
 
     [ObservableProperty]
     public partial bool IsSecondaryButtonEnabled { get; set; } = true;
-
+    public TopLevel? TopLevel { get; internal set; }
 
     public async void LaunchDialog(object? parameter)
     {
@@ -104,12 +105,12 @@ public partial class ContentDialogViewModel : ViewModelBase
         if (hasDeferral)
         {
             dialog.PrimaryButtonClick += OnPrimaryButtonClick;
-            await dialog.ShowAsync();
+            await dialog.ShowAsync(TopLevel);
             dialog.PrimaryButtonClick -= OnPrimaryButtonClick;
         }
         else
         {
-            await dialog.ShowAsync();
+            await dialog.ShowAsync(TopLevel);
         }
     }
 

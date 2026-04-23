@@ -132,7 +132,12 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     /// <summary>
     /// Begins an asynchronous operation to show the dialog using the specified window
     /// </summary>
-    public async Task<ContentDialogResult> ShowAsync(Window w) => await ShowAsyncCore(w);
+    public async Task<ContentDialogResult> ShowAsync(Window window) => await ShowAsyncCore(window);
+
+    /// <summary>
+    /// Begins an asynchronous operation to show the dialog using the specified toplevel
+    /// </summary>
+    public async Task<ContentDialogResult> ShowAsync(TopLevel? toplevel) => await ShowAsyncCore(toplevel);
 
     /// <summary>
     /// Shows the content dialog on the specified window asynchronously.
@@ -140,7 +145,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     /// <remarks>
     /// Note that the placement parameter is not implemented and only accepts <see cref="ContentDialogPlacement.Popup"/>
     /// </remarks>
-    private async Task<ContentDialogResult> ShowAsyncCore(Window? window, ContentDialogPlacement placement = ContentDialogPlacement.Popup)
+    private async Task<ContentDialogResult> ShowAsyncCore(TopLevel? toplevel, ContentDialogPlacement placement = ContentDialogPlacement.Popup)
     {
         if (placement == ContentDialogPlacement.InPlace)
             throw new NotImplementedException("InPlace not implemented yet");
@@ -174,7 +179,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _host.Content = this;
 
         OverlayLayer? ol = null;
-        var topLevel = GetTopLevel(window);
+        var topLevel = GetTopLevel(toplevel);
 
         ol = OverlayLayer.GetOverlayLayer(topLevel!);
         _lastFocus = topLevel!.FocusManager?.GetFocusedElement();
@@ -203,9 +208,9 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         ShowCore();
         return await _tcs.Task;
 
-        static TopLevel GetTopLevel(Window? window)
+        static TopLevel GetTopLevel(TopLevel? toplevel)
         {
-            return window ??
+            return toplevel ??
                 Application.Current!.ApplicationLifetime switch
                 {
                     IClassicDesktopStyleApplicationLifetime cls when cls.MainWindow is not null =>
