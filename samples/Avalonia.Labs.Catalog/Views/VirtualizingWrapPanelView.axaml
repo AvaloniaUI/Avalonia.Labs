@@ -1,0 +1,47 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Avalonia.Labs.Catalog.ViewModels"
+             xmlns:conv="clr-namespace:Avalonia.Labs.Catalog.Converters"
+             xmlns:panels="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Panels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:VirtualizingWrapPanelViewModel"
+             x:Class="Avalonia.Labs.Catalog.Views.VirtualizingWrapPanelView">
+  <UserControl.DataContext>
+    <viewModels:VirtualizingWrapPanelViewModel />
+  </UserControl.DataContext>
+
+  <ListBox ItemsSource="{Binding SampleItems}"
+           SelectedItem="{Binding SelectedItem}"
+           ScrollViewer.HorizontalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Vertical}}"
+           ScrollViewer.VerticalScrollBarVisibility="{Binding Orientation, Converter={x:Static conv:IsEqualToScrollbarVisibilityConverter.Instance}, ConverterParameter={x:Static Orientation.Horizontal}}"
+           x:Name="SampleListBox">
+    <ListBox.ItemsPanel>
+      <ItemsPanelTemplate>
+        <panels:VirtualizingWrapPanel ItemSizeProvider="{Binding}"
+                                        SpacingMode="Uniform"
+                                        AllowDifferentSizedItems="{Binding AllowDifferentItemSizes, Mode=TwoWay}"
+                                        IsGridLayoutEnabled="{Binding GridLayout}"
+                                        Orientation="{Binding Orientation, Mode=TwoWay}" />
+      </ItemsPanelTemplate>
+    </ListBox.ItemsPanel>
+    <ListBox.ItemTemplate>
+      <DataTemplate DataType="viewModels:WrapPanelItemViewModel">
+        <Panel Width="{Binding ItemWidth}"
+               Height="{Binding ItemHeight}">
+          <Border Background="LightBlue"
+                  CornerRadius="20"
+                  Margin="5">
+            <TextBlock Text="{Binding Content}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">
+            </TextBlock>
+          </Border>
+        </Panel>
+      </DataTemplate>
+    </ListBox.ItemTemplate>
+  </ListBox>
+</UserControl>
