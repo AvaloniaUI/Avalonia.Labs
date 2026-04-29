@@ -3,8 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Controls;
 using Avalonia.Labs.Controls.Base;
-using Avalonia.Visuals;
-using Avalonia.VisualTree;
 
 namespace Avalonia.Labs.Catalog.Views
 {
@@ -26,9 +24,64 @@ namespace Avalonia.Labs.Catalog.Views
 
         private void CloseSwipe(object? sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.GetVisualAncestors().OfType<Swipe>().FirstOrDefault() is Labs.Controls.Swipe swipe)
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
             {
-                swipe.SwipeState = SwipeState.Hidden;
+                demoSwipe.SwipeState = SwipeState.Hidden;
+            }
+        }
+
+        private void OpenLeft(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.LeftVisible;
+            }
+        }
+
+        private void OpenRight(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.RightVisible;
+            }
+        }
+
+        private void OpenTop(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.TopVisible;
+            }
+        }
+
+        private void OpenBottom(object? sender, RoutedEventArgs e)
+        {
+            var demoSwipe = this.FindControl<Swipe>("DemoSwipe");
+            if (demoSwipe != null)
+            {
+                demoSwipe.SwipeState = SwipeState.BottomVisible;
+            }
+        }
+
+        private void DemoSwipe_OpenRequested(object? sender, OpenRequestedEventArgs e)
+        {
+            var eventLog = this.FindControl<TextBlock>("EventLog");
+            if (eventLog != null)
+            {
+                eventLog.Text = $"OpenRequested: {e.OpenSwipeItem}";
+            }
+        }
+
+        private void DemoSwipe_CloseRequested(object? sender, CloseRequestedEventArgs e)
+        {
+            var eventLog = this.FindControl<TextBlock>("EventLog");
+            if (eventLog != null)
+            {
+                eventLog.Text = "CloseRequested";
             }
         }
     }
