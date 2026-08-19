@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Avalonia.Input;
@@ -9,8 +9,8 @@ using Avalonia.Utilities;
 namespace Avalonia.Labs.Input;
 
 /// <summary>
-/// Provides command related utility methods that register <see cref="CommandBinding"/> objects for class owners and commands,
-/// add and remove command event handlers, and provides services for querying the status of a command.
+/// Provides command-related utility methods that register <see cref="CommandBinding"/> objects for class owners and commands,
+/// add and remove command event handlers, and provide services for querying the status of a command.
 /// </summary>
 public sealed class CommandManager : AvaloniaObject
 {
@@ -22,19 +22,19 @@ public sealed class CommandManager : AvaloniaObject
     private event EventHandler? PrivateRequerySuggested;
 
     /// <summary>
-    /// Identifies the CanExecute attached event.
+    /// Identifies the CanExecute attached routed event.
     /// </summary>
     public static RoutedEvent<CanExecuteRoutedEventArgs> CanExecuteEvent =
         RoutedEvent.Register<CanExecuteRoutedEventArgs>("CanExecute", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(CommandManager));
 
     /// <summary>
-    /// Identifies the Executed attached event.
+    /// Identifies the Executed attached routed event.
     /// </summary>
     public static RoutedEvent<ExecutedRoutedEventArgs> ExecutedEvent =
         RoutedEvent.Register<ExecutedRoutedEventArgs>("Executed", RoutingStrategies.Bubble | RoutingStrategies.Tunnel, typeof(CommandManager));
 
     /// <summary>
-    /// Defines the <see cref="CommandBindings"/> property.
+    /// Defines the <see cref="CommandBindingsProperty"/> attached property.
     /// </summary>
     public static readonly AttachedProperty<IList<CommandBinding>?> CommandBindingsProperty =
         AvaloniaProperty.RegisterAttached<CommandManager, InputElement, IList<CommandBinding>?>("CommandBindings");
@@ -55,7 +55,7 @@ public sealed class CommandManager : AvaloniaObject
             (m, v) => m.PrivateRequerySuggested -= v);
 
     /// <summary>
-    /// Invokes RequerySuggested listeners registered on the current thread.
+    /// Invokes <see cref="RequerySuggested"/> listeners registered on the current thread.
     /// </summary>
     public static void InvalidateRequerySuggested()
     {
@@ -63,8 +63,10 @@ public sealed class CommandManager : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
+    /// Gets the collection of <see cref="CommandBinding"/> objects associated with the specified element.
     /// </summary>
+    /// <param name="element">The element from which to get the command bindings.</param>
+    /// <returns>The collection of <see cref="CommandBinding"/> objects associated with the specified element.</returns>
     public static IList<CommandBinding> GetCommandBindings(InputElement element)
     {
         var commands = element.GetValue(CommandBindingsProperty);
@@ -77,8 +79,10 @@ public sealed class CommandManager : AvaloniaObject
     }
 
     /// <summary>
-    /// Sets a collection of CommandBinding objects associated with this element. A CommandBinding enables command handling for this element, and declares the linkage between a command, its events, and the handlers attached by this element.
+    /// Sets the collection of <see cref="CommandBinding"/> objects associated with the specified element.
     /// </summary>
+    /// <param name="element">The element on which to set the command bindings.</param>
+    /// <param name="commands">The collection of <see cref="CommandBinding"/> objects to associate with the element.</param>
     public static void SetCommandBindings(InputElement element, IList<CommandBinding> commands) =>
         element.SetValue(CommandBindingsProperty, commands);
 
@@ -112,12 +116,12 @@ public sealed class CommandManager : AvaloniaObject
 
         // Step 1: Check local input bindings
         // TODO
-        
+
         // Step 2: If no command, check class input bindings
         // TODO
-        
+
         // Step 3: If no command, check local command bindings
-        if (GetCommandBindings(targetElement) is { Count :> 0 } bindings)
+        if (GetCommandBindings(targetElement) is { Count: > 0 } bindings)
         {
             command = FindMatch();
 
@@ -144,7 +148,7 @@ public sealed class CommandManager : AvaloniaObject
 
         // Step 4: If no command, look at class command bindings
         // TODO
-        
+
         // Step 5: If found a command, then execute it (unless it is
         // the special "NotACommand" command, which we simply ignore without
         // setting Handled=true, so that the input bubbles up to the parent)
@@ -189,7 +193,7 @@ public sealed class CommandManager : AvaloniaObject
 
     private static void CanExecuteEventHandler(InputElement inputElement, CanExecuteRoutedEventArgs args)
     {
-        if (GetCommandBindings(inputElement) is { Count :> 0 } commands)
+        if (GetCommandBindings(inputElement) is { Count: > 0 } commands)
         {
             foreach (var command in commands)
             {
@@ -207,7 +211,7 @@ public sealed class CommandManager : AvaloniaObject
 
     private static void ExecutedEventHandler(InputElement inputElement, ExecutedRoutedEventArgs args)
     {
-        if (GetCommandBindings(inputElement) is { Count :> 0 } commands)
+        if (GetCommandBindings(inputElement) is { Count: > 0 } commands)
         {
             foreach (var command in commands)
             {
@@ -222,7 +226,7 @@ public sealed class CommandManager : AvaloniaObject
             }
         }
     }
-    
+
     private void RaiseRequerySuggested()
     {
         if (_requerySuggestedOperation == null)
