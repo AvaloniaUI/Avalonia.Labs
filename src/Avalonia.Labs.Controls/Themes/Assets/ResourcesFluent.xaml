@@ -24,4 +24,8 @@
                   ResourceKey="SystemControlForegroundTransparentBrush" />
   <StaticResource x:Key="FlipViewNextPreviousButtonBorderBrushPressed"
                   ResourceKey="SystemControlHighlightTransparentBrush" />
+
+  <!-- Resources for MultiSelectionComboBox -->
+  <StaticResource x:Key="MultiSelectionComboBoxCornerRadius" ResourceKey="ControlCornerRadius" />
+  <StaticResource x:Key="MultiSelectionComboBoxDropDownCornerRadius" ResourceKey="OverlayCornerRadius" />
 </ResourceDictionary>
