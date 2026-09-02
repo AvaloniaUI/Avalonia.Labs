@@ -4,6 +4,7 @@ using System.Globalization;
 
 namespace Avalonia.Labs.Panels;
 
+[Obsolete("Use Avalonia.Controls.FlexBasis instead")]
 public readonly struct FlexBasis : IEquatable<FlexBasis>
 {
     public double Value { get; }
