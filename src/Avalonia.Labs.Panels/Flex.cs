@@ -4,6 +4,7 @@ using Avalonia.Layout;
 
 namespace Avalonia.Labs.Panels
 {
+    [Obsolete("Use Avalonia.Controls.Flex instead")]
     public static class Flex
     {
         /// <summary>
