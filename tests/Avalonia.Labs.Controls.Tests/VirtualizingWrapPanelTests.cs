@@ -9,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.Labs.Controls;
 using Avalonia.Labs.Controls.Tests;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.VisualTree;
 using Xunit;
 using Avalonia.Themes.Fluent;
@@ -66,6 +67,287 @@ public class VirtualizingWrapPanelTests
         // 100x100 viewport, 50x50 items -> 2x2 = 4 items should be realized
         Assert.Equal(0, target.FirstRealizedIndex);
         Assert.True(target.LastRealizedIndex >= 3);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void StretchItems_WhenSingleColumnShrinks_ShouldTrimTextInStackPanels(bool allowDifferentSizedItems)
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            StretchItems = true,
+            AllowDifferentSizedItems = allowDifferentSizedItems
+        };
+        var items = Enumerable.Range(0, 2).Select(_ => new StackPanel
+        {
+            Orientation = Orientation.Vertical,
+            Children =
+            {
+                new TextBlock
+                {
+                    Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                },
+                new TextBlock
+                {
+                    Text = "Lorem ipsum dolor sit amet.",
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                }
+            }
+        }).ToArray();
+        var itemsControl = new ItemsControl
+        {
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemsSource = items
+        };
+        var window = new Window { Content = itemsControl, Width = 1600, Height = 300 };
+
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+
+            var naturalWidth = items[0].DesiredSize.Width;
+            Assert.True(naturalWidth > 0);
+            Assert.Equal(target.ContainerFromIndex(0)!.Bounds.Y, target.ContainerFromIndex(1)!.Bounds.Y);
+
+            // First collapse to a single column while the text still fits.
+            itemsControl.Width = Math.Ceiling(naturalWidth + 20);
+            window.UpdateLayout();
+            Assert.True(target.ContainerFromIndex(1)!.Bounds.Y > target.ContainerFromIndex(0)!.Bounds.Y);
+            Assert.All(items, item =>
+                Assert.False(((TextBlock)item.Children[0]).TextLayout.TextLines[0].HasCollapsed));
+
+            // Keep shrinking that column below the natural width of its content.
+            itemsControl.Width = Math.Floor(naturalWidth / 2);
+            window.UpdateLayout();
+
+            Assert.All(items, item =>
+            {
+                var text = (TextBlock)item.Children[0];
+                Assert.True(text.TextLayout.TextLines[0].HasCollapsed,
+                    $"Expected ellipsis after shrinking to {target.Bounds.Width}, but text width is {text.Bounds.Width}.");
+                Assert.True(text.Bounds.Width <= target.Bounds.Width);
+            });
+
+            // Growing again must restore the two-column layout and untrimmed text.
+            itemsControl.Width = 1600;
+            window.UpdateLayout();
+            Assert.Equal(target.ContainerFromIndex(0)!.Bounds.Y, target.ContainerFromIndex(1)!.Bounds.Y);
+            Assert.All(items, item =>
+                Assert.False(((TextBlock)item.Children[0]).TextLayout.TextLines[0].HasCollapsed));
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaFact]
+    public void StretchItems_Vertical_WhenSingleRowShrinks_ShouldConstrainNestedContent()
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            Orientation = Orientation.Vertical,
+            StretchItems = true,
+            SpacingMode = SpacingMode.None
+        };
+        var items = Enumerable.Range(0, 2).Select(_ => new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Children =
+            {
+                new TextBlock { Text = "Lorem\nipsum\ndolor\nsit\namet", TextTrimming = TextTrimming.CharacterEllipsis }
+            }
+        }).ToArray();
+        var itemsControl = new ItemsControl
+        {
+            Height = 400,
+            ItemsSource = items,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 400, Height = 400 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var naturalHeight = items[0].DesiredSize.Height;
+            Assert.True(naturalHeight > 0);
+            Assert.Equal(target.ContainerFromIndex(0)!.Bounds.X, target.ContainerFromIndex(1)!.Bounds.X);
+
+            itemsControl.Height = Math.Ceiling(naturalHeight + 10);
+            window.UpdateLayout();
+            Assert.True(target.ContainerFromIndex(1)!.Bounds.X > target.ContainerFromIndex(0)!.Bounds.X);
+
+            itemsControl.Height = Math.Floor(naturalHeight / 2);
+            window.UpdateLayout();
+            Assert.All(items, item => Assert.True(item.Children[0].Bounds.Height <= target.Bounds.Height,
+                $"Content height {item.Children[0].Bounds.Height} exceeds allocated height {target.Bounds.Height}."));
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void StretchItems_WrappingText_ShouldGrowRowsWithoutClippingOrOverlap(bool allowDifferentSizedItems)
+    {
+        const string text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        var target = new TestVirtualizingWrapPanel
+        {
+            StretchItems = true,
+            AllowDifferentSizedItems = allowDifferentSizedItems,
+            SpacingMode = SpacingMode.None
+        };
+        var items = Enumerable.Range(0, 2).Select(_ => new StackPanel
+        {
+            Children = { new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap } }
+        }).ToArray();
+        var itemsControl = new ItemsControl
+        {
+            Width = 1600,
+            ItemsSource = items,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 1600, Height = 600 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var initialHeight = items[0].Bounds.Height;
+            itemsControl.Width = 200;
+            window.UpdateLayout();
+
+            // Measure an independent copy with enough height to show every wrapped line.
+            var expected = new TextBlock
+            {
+                Text = text,
+                TextWrapping = TextWrapping.Wrap,
+                FontFamily = ((TextBlock)items[0].Children[0]).FontFamily,
+                FontSize = ((TextBlock)items[0].Children[0]).FontSize
+            };
+            expected.Measure(new Size(200, double.PositiveInfinity));
+            Assert.True(expected.DesiredSize.Height > initialHeight);
+            Assert.All(items, item => Assert.True(item.Bounds.Height >= expected.DesiredSize.Height,
+                $"Row height {item.Bounds.Height} cannot contain wrapped text height {expected.DesiredSize.Height}."));
+            var first = target.ContainerFromIndex(0)!;
+            var second = target.ContainerFromIndex(1)!;
+            Assert.True(second.Bounds.Top >= first.Bounds.Bottom);
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void StretchItems_AfterShrinking_ShouldTrimPreviouslyUnrealizedItems(bool allowDifferentSizedItems)
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            StretchItems = true,
+            AllowDifferentSizedItems = allowDifferentSizedItems,
+            SpacingMode = SpacingMode.None
+        };
+        var itemsControl = new ItemsControl
+        {
+            ItemsSource = Enumerable.Range(0, 100).ToArray(),
+            ItemsPanel = new FuncTemplate<Panel?>(() => target),
+            ItemTemplate = new FuncDataTemplate<int>((_, _) => new StackPanel
+            {
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    }
+                }
+            })
+        };
+        var scrollViewer = new ScrollViewer
+        {
+            Width = 1000,
+            Height = 100,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            Content = itemsControl
+        };
+        var window = new Window { Content = scrollViewer, Width = 1000, Height = 300 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            Assert.Null(target.ContainerFromIndex(99));
+            scrollViewer.Width = 200;
+            window.UpdateLayout();
+            Assert.Null(target.ContainerFromIndex(99));
+
+            scrollViewer.Offset = new Vector(0, scrollViewer.Extent.Height);
+            window.UpdateLayout();
+            // Scrolling uses a render transform; publish the new effective viewport.
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+            window.UpdateLayout();
+            var container = target.ContainerFromIndex(99);
+            Assert.True(container is not null,
+                $"Item 99 was not realized: range {target.FirstRealizedIndex}-{target.LastRealizedIndex}, offset {scrollViewer.Offset}, extent {scrollViewer.Extent}, viewport {scrollViewer.Viewport}.");
+            Assert.Equal(99, target.IndexFromContainer(container));
+            Assert.True(scrollViewer.Offset.Y > 0);
+            var text = Assert.Single(container.GetVisualDescendants().OfType<TextBlock>());
+            Assert.True(text.TextLayout.TextLines[0].HasCollapsed);
+            Assert.True(text.Bounds.Width <= target.Bounds.Width);
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(0, double.PositiveInfinity, 100)]
+    [InlineData(150, double.PositiveInfinity, 150)]
+    [InlineData(0, 80, 80)]
+    public void StretchItems_WithItemSize_ShouldRespectWidthConstraints(double minWidth, double maxWidth, double expectedWidth)
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            StretchItems = true,
+            ItemSize = new Size(200, 50),
+            SpacingMode = SpacingMode.None
+        };
+        var text = new TextBlock
+        {
+            Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            TextTrimming = TextTrimming.CharacterEllipsis
+        };
+        var item = new StackPanel { MinWidth = minWidth, MaxWidth = maxWidth, Children = { text } };
+        var itemsControl = new ItemsControl
+        {
+            Width = 300,
+            ItemsSource = new[] { item },
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 400, Height = 200 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            itemsControl.Width = 100;
+            window.UpdateLayout();
+            Assert.Equal(expectedWidth, item.Bounds.Width);
+            Assert.Equal(expectedWidth, text.Bounds.Width);
+            Assert.True(text.TextLayout.TextLines[0].HasCollapsed);
+        }
+        finally
+        {
+            window.Close();
+        }
     }
 
     [AvaloniaFact]
@@ -246,6 +528,153 @@ public class VirtualizingWrapPanelTests
         Assert.Equal(0, container0.Bounds.Y);
         Assert.Equal(50, container1.Bounds.Y);
         Assert.Equal(100, container2.Bounds.Y);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(40, 80)]
+    [InlineData(80, 40)]
+    public void ItemWidth_ChangingInPlace_ShouldReflowRows(double initialWidth, double newWidth)
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+        var items = new[]
+        {
+            new Border { Width = initialWidth, Height = 20 },
+            new Border { Width = 40, Height = 20 },
+            new Border { Width = 40, Height = 20 }
+        };
+        var itemsControl = new ItemsControl
+        {
+            Width = 120,
+            ItemsSource = items,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 200, Height = 200 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var first = target.ContainerFromIndex(0)!;
+            var second = target.ContainerFromIndex(1)!;
+            var third = target.ContainerFromIndex(2)!;
+            Assert.Equal(initialWidth == 40 ? 0 : 20, third.Bounds.Y);
+
+            // Change the existing control; do not replace the item or invalidate the panel manually.
+            items[0].Width = newWidth;
+            window.UpdateLayout();
+
+            Assert.Same(first, target.ContainerFromIndex(0));
+            Assert.Equal(newWidth, first.Bounds.Width);
+            Assert.Equal(newWidth, second.Bounds.X);
+            Assert.Equal(0, second.Bounds.Y);
+            Assert.Equal(newWidth == 40 ? 80 : 0, third.Bounds.X);
+            Assert.Equal(newWidth == 40 ? 0 : 20, third.Bounds.Y);
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(20, 60)]
+    [InlineData(60, 20)]
+    public void ItemHeight_ChangingInPlace_ShouldMoveFollowingRows(double initialHeight, double newHeight)
+    {
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+        var items = new[]
+        {
+            new Border { Width = 60, Height = initialHeight },
+            new Border { Width = 60, Height = 20 },
+            new Border { Width = 60, Height = 20 }
+        };
+        var itemsControl = new ItemsControl
+        {
+            Width = 120,
+            ItemsSource = items,
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 200, Height = 200 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var first = target.ContainerFromIndex(0)!;
+            var third = target.ContainerFromIndex(2)!;
+            Assert.Equal(initialHeight, third.Bounds.Y);
+
+            items[0].Height = newHeight;
+            window.UpdateLayout();
+
+            Assert.Same(first, target.ContainerFromIndex(0));
+            Assert.Equal(newHeight, first.Bounds.Height);
+            Assert.Equal(newHeight, third.Bounds.Y);
+            Assert.Equal(first.Bounds.Bottom, third.Bounds.Top);
+        }
+        finally
+        {
+            window.Close();
+        }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ItemText_ChangingInPlace_ShouldRemeasureAndReflowRows(bool initiallyLong)
+    {
+        const string shortText = "Lorem";
+        const string longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        var target = new TestVirtualizingWrapPanel
+        {
+            AllowDifferentSizedItems = true,
+            SpacingMode = SpacingMode.None
+        };
+        var text = new TextBlock { Text = initiallyLong ? longText : shortText };
+        var item = new StackPanel { Children = { text } };
+        var itemsControl = new ItemsControl
+        {
+            Width = 200,
+            ItemsSource = new Control[] { item, new Border { Width = 40, Height = 20 } },
+            ItemsPanel = new FuncTemplate<Panel?>(() => target)
+        };
+        var window = new Window { Content = itemsControl, Width = 300, Height = 200 };
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var first = target.ContainerFromIndex(0)!;
+            var second = target.ContainerFromIndex(1)!;
+            var initialWidth = first.Bounds.Width;
+            Assert.Equal(initiallyLong, second.Bounds.Y > 0);
+
+            text.Text = initiallyLong ? shortText : longText;
+            window.UpdateLayout();
+
+            Assert.Same(first, target.ContainerFromIndex(0));
+            if (initiallyLong)
+            {
+                Assert.True(first.Bounds.Width < initialWidth, "Shorter text should reduce the cached item width.");
+                Assert.Equal(0, second.Bounds.Y);
+                Assert.Equal(first.Bounds.Right, second.Bounds.Left);
+            }
+            else
+            {
+                Assert.True(first.Bounds.Width > initialWidth, "Longer text should increase the cached item width.");
+                Assert.Equal(0, second.Bounds.X);
+                Assert.Equal(first.Bounds.Bottom, second.Bounds.Top);
+            }
+        }
+        finally
+        {
+            window.Close();
+        }
     }
 
     [AvaloniaFact]

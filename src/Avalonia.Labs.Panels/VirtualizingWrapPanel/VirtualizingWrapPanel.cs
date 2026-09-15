@@ -395,7 +395,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
             // Do the measure, creating/recycling elements as necessary to fill the viewport. Don't
             // write to _realizedElements yet, only _measureElements.
-            RealizeAndVirtualizeItems();
+            RealizeAndVirtualizeItems(wrappingWidth);
 
             // Now swap the measureElements and realizedElements collection.
             (_measureElements, _realizedElements) = (_realizedElements, _measureElements);
@@ -1047,11 +1047,11 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     /// <summary>
     /// Realizes visible items and virtualizes non-visible items
     /// </summary>
-    private void RealizeAndVirtualizeItems()
+    private void RealizeAndVirtualizeItems(double wrappingWidth)
     {
         FindStartIndexAndOffset();
         VirtualizeItemsBeforeStartIndex();
-        RealizeItemsAndFindEndIndex();
+        RealizeItemsAndFindEndIndex(wrappingWidth);
         VirtualizeItemsAfterEndIndex();
     }
 
@@ -1397,7 +1397,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
     /// <summary>
     /// Realizes all elements until the visible ViewPort is full
     /// </summary>
-    private void RealizeItemsAndFindEndIndex()
+    private void RealizeItemsAndFindEndIndex(double wrappingWidth)
     {
         if (_startItemIndex == -1)
         {
@@ -1410,7 +1410,6 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
         double endOffsetY = DetermineEndOffsetY();
 
-        var wrappingWidth = GetWrappingWidth();
         double x = _startItemOffsetX;
         double y = _startItemOffsetY;
         double rowHeight = 0;
@@ -1445,11 +1444,17 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
                                 ?? _sizeOfFirstItem
                                 ?? (!ItemSize.NearlyEquals(_EmptySize) ? ItemSize : (Size?)null);
 
-            // Optimization: Skip Measure if the container already has the correct desired size.
-            // However, we MUST measure if the container was just recycled (e.g. from GetOrCreateElement)
-            // because it might have a different item now.
-            // Avalonia's VirtualizingPanel usually handles this, but since we are doing custom realization:
-            container.Measure(measureSize ?? Size.Infinity);
+            var constraint = measureSize ?? Size.Infinity;
+            if (StretchItems)
+            {
+                // Measure against the current layout width, not the previous viewport width,
+                // so wrapped content contributes its new height before rows are cached.
+                var width = Math.Min(GetWidth(constraint), wrappingWidth);
+                constraint = Orientation == Orientation.Horizontal
+                    ? new Size(width, constraint.Height)
+                    : new Size(constraint.Width, width);
+            }
+            container.Measure(constraint);
 
             var containerSize = DetermineContainerSize(item, container, upfrontKnownItemSize);
 
@@ -1527,7 +1532,7 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             return ItemSizeProvider.GetSizeForItem(item);
         }
 
-        return upfrontKnownItemSize ?? _realizedElements?.GetElementSize(container) ?? container.DesiredSize;
+        return upfrontKnownItemSize ?? container.DesiredSize;
     }
 
     /// <summary>
@@ -1646,13 +1651,18 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
 
         double x = -GetX(_viewport.TopLeft) + outerSpacing;
 
+        // Remeasure stretched children at their allocated size so nested panels can shrink
+        // their content. Keep the cached natural sizes for wrapping and subsequent resizes.
         if (AllowDifferentSizedItems)
         {
             for (int i = 0; i < childCount; i++)
             {
                 var child = children[i];
                 Size childSize = childSizes[i];
-                child.Arrange(CreateRect(x, y, GetWidth(childSize) + extraWidth, rowHeight));
+                var rect = CreateRect(x, y, GetWidth(childSize) + extraWidth, rowHeight);
+                if (StretchItems)
+                    child.Measure(rect.Size);
+                child.Arrange(rect);
                 x += GetWidth(childSize) + extraWidth + innerSpacing;
             }
         }
@@ -1663,7 +1673,10 @@ public class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPointsInfo, I
             for (int i = 0; i < childCount; i++)
             {
                 var child = children[i];
-                child.Arrange(CreateRect(x, y, arrangedWidth, rowHeight));
+                var rect = CreateRect(x, y, arrangedWidth, rowHeight);
+                if (StretchItems)
+                    child.Measure(rect.Size);
+                child.Arrange(rect);
                 x += arrangedWidth + innerSpacing;
             }
         }
