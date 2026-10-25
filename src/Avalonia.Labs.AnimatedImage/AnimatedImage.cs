@@ -103,6 +103,16 @@ public class AnimatedImage : Control
     }
 
     /// <inheritdoc/>
+    public override void Render(DrawingContext context)
+    {
+        // Frames are drawn by the child CompositionCustomVisual, which the renderer doesn't map back
+        // to this control during hit testing. A transparent fill makes the control hit-testable,
+        // the same way Background="Transparent" does for panels.
+        if (Source is { IsInitialized: true })
+            context.FillRectangle(Brushes.Transparent, new Rect(Bounds.Size));
+    }
+
+    /// <inheritdoc/>
     protected override Size MeasureOverride(Size availableSize)
     {
         return Source is { IsInitialized: true }
@@ -150,6 +160,7 @@ public class AnimatedImage : Control
 
         InvalidateArrange();
         InvalidateMeasure();
+        InvalidateVisual();
         Update();
     }
 
@@ -196,6 +207,7 @@ public class AnimatedImage : Control
 
         InvalidateArrange();
         InvalidateMeasure();
+        InvalidateVisual();
         Update();
     }
 
