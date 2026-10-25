@@ -40,7 +40,8 @@ internal static unsafe class NativeWinRTMethods
         EnsureRoInitialized();
 
         var guid = MicroComRuntime.GetGuidFor(typeof(TFactory));
-        PInvoke.RoGetActivationFactory(fullNameStr, guid, out var pUnk).ThrowOnFailure();
+        void* pUnk;
+        PInvoke.RoGetActivationFactory(fullNameStr, &guid, &pUnk).ThrowOnFailure();
 
         using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
         return unk.QueryInterface<TFactory>();
@@ -56,10 +57,7 @@ internal readonly unsafe ref struct HStringWrapper
         if (input is null)
             _pointer = default;
         else
-        {
-            fixed (HSTRING* ptr = &_pointer)
-                PInvoke.WindowsCreateString(input, (uint)input.Length, ptr).ThrowOnFailure();
-        }
+            PInvoke.WindowsCreateString(input, (uint)input.Length, out _pointer).ThrowOnFailure();
     }
 
     public void Dispose()

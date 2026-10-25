@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Windows/WinRT/windows.ui.notifications.mcidl" />
+    <MicroComIdl Include="Windows/WinRT/windows.ui.notifications.mcidl" />
     <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.portal.Notification.xml" DBusGeneratorMode="Proxy" />
   </ItemGroup>
 
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="build\Avalonia.Labs.Notifications.targets" PackagePath="buildTransitive\" />
+    <Content Include="build\Avalonia.Labs.Notifications.targets" PackagePath="buildTransitive" />
   </ItemGroup>
 
   <ItemGroup>
