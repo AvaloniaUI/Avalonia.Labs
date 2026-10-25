@@ -53,7 +53,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
             if (options is null || !options.DisableComServer)
             {
-                _serverUuid = options.ComActivatorGuidOverride ?? AumidHelper.GetGuidFromId(_aumid.id);
+                _serverUuid = options?.ComActivatorGuidOverride ?? AumidHelper.GetGuidFromId(_aumid.id);
                 NotificationComServer.CreateAndRegisterActivator(_serverUuid.Value);
             }
 

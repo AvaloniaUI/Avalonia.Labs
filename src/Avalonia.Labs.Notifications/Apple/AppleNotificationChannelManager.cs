@@ -10,7 +10,8 @@ internal class AppleNotificationChannelManager : NotificationChannelManager
         var categories = new List<UNNotificationCategory>();
         foreach (var channel in _channels)
         {
-            categories.Add(CreateCategory(channel.Value));
+            if (CreateCategory(channel.Value) is { } category)
+                categories.Add(category);
         }
 
         return NSSet.WithObjects(categories);
@@ -21,9 +22,11 @@ internal class AppleNotificationChannelManager : NotificationChannelManager
         var actions = new List<UNNotificationAction>();
         foreach (var action in channel.Actions)
         {
-            actions.Add(action.Tag == "reply" // TODO: hardcoded
+            var nativeAction = action.Tag == "reply" // TODO: hardcoded
                 ? UNNotificationAction.CreateTextInput(action.Tag, action.Caption, "Reply", null)
-                : UNNotificationAction.Create(action.Tag, action.Caption));
+                : UNNotificationAction.Create(action.Tag, action.Caption);
+            if (nativeAction is not null)
+                actions.Add(nativeAction);
         }
 
         return UNNotificationCategory.Create(channel.Id, actions);

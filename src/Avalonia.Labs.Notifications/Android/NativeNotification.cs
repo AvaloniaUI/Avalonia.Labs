@@ -97,7 +97,7 @@ namespace Avalonia.Labs.Notifications.Android
 
             var flags = OperatingSystem.IsAndroidVersionAtLeast(31) ? PendingIntentFlags.Mutable : PendingIntentFlags.UpdateCurrent;
             
-            builder.SetContentIntent(PendingIntent.GetActivity(_context, pendingIntentId + 1, tapIntent, flags))
+            builder.SetContentIntent(PendingIntent.GetActivity(_context, pendingIntentId + 1, tapIntent, flags))!
                 .SetDeleteIntent(PendingIntent.GetBroadcast(_context, pendingIntentId + 2, deleteIntent, flags));
 
             if(!AndroidNotificationChannelManager.SupportsChannels)

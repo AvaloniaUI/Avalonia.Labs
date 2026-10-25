@@ -4,7 +4,7 @@
     <TargetFrameworks>net8.0;net10.0-android;net10.0-ios;net10.0-browser</TargetFrameworks>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net10.0-ios'">13.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net10.0-android'">26.0</SupportedOSPlatformVersion>
-    <Nullable>annotations</Nullable>
+    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsBrowser>$([System.String]::Copy('$(TargetFramework)').Contains('-browser'))</IsBrowser>
     <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">$(DefineConstants);INCLUDE_WINDOWS;INCLUDE_LINUX</DefineConstants>

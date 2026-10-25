@@ -13,7 +13,7 @@ class BrowserNotification : INativeNotification
 {
     private static uint s_currentId = 0;
     BrowserNotificationManager manager;
-    string? category;
+    string category;
 
     public BrowserNotification(NotificationChannel channel, BrowserNotificationManager manager)
     {
@@ -29,13 +29,13 @@ class BrowserNotification : INativeNotification
     public uint Id { get; }
     public string? ReplyActionTag {  get; set; }
     public int[] Vibrations { get; set; }
-    public string? Category => category;
+    public string Category => category;
     public string? ChannelIcon { get; set; }
     public string? Title { get; set; }
     public string? Tag { get; set; }
     public string? Message { get; set; }
     public TimeSpan? Expiration { get; set; }
-    public IReadOnlyList<NativeNotificationAction>? Actions { get; private set; }
+    public IReadOnlyList<NativeNotificationAction> Actions { get; private set; }
     public Bitmap? Icon { get; set; }
 
     public async void Close()
@@ -73,7 +73,7 @@ class BrowserNotification : INativeNotification
         return Interlocked.Increment(ref s_currentId);
     }
 
-    public void SetActions(IReadOnlyList<NativeNotificationAction>? actions)
+    public void SetActions(IReadOnlyList<NativeNotificationAction> actions)
     {
         Actions = actions;
     }

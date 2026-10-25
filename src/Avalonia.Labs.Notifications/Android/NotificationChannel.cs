@@ -35,7 +35,7 @@ namespace Avalonia.Labs.Notifications.Android
                     NotificationPriority.Max => NotificationImportance.Max,
                     _ => throw new NotImplementedException(),
                 }));
-                NotificationManagerCompat.From(_context).CreateNotificationChannel(builder.Build());
+                NotificationManagerCompat.From(_context)!.CreateNotificationChannel(builder.Build());
             }
 
             _channels[notificationChannel.Id] = notificationChannel;
@@ -48,8 +48,8 @@ namespace Avalonia.Labs.Notifications.Android
         {
             if (!SupportsChannels)
                 return Array.Empty<string>();
-            var manager = NotificationManagerCompat.From(_context);
-            var channels = manager.NotificationChannels;
+            var manager = NotificationManagerCompat.From(_context)!;
+            var channels = manager.NotificationChannels!;
 
             return channels.Select(c => c.Id ?? "").ToArray();
         }
@@ -64,7 +64,7 @@ namespace Avalonia.Labs.Notifications.Android
 
             if (SupportsChannels && GetAppChannels().Contains(channel))
             {
-                NotificationManagerCompat.From(_context).DeleteNotificationChannel(channel);
+                NotificationManagerCompat.From(_context)!.DeleteNotificationChannel(channel);
             }
         }
 

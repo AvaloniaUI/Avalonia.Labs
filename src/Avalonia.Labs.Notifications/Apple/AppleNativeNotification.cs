@@ -37,7 +37,7 @@ internal class AppleNativeNotification : INativeNotification
     public Bitmap? Icon { get; set; }
     public string? ReplyActionTag { get; set; }
 
-    public IReadOnlyList<NativeNotificationAction> Actions { get; private set; }
+    public IReadOnlyList<NativeNotificationAction> Actions { get; private set; } = [];
 
     public void SetActions(IReadOnlyList<NativeNotificationAction> actions) => Actions = actions;
 

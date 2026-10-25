@@ -118,7 +118,7 @@ partial class BrowserNotificationManager : INativeNotificationManagerImpl
 
     public async Task Show(BrowserNotification notification, NotificationOptions options)
     {
-        await ShowNotification(notification.Title, JsonSerializer.Serialize(options, NotificationJsonContext.Default.NotificationOptions));
+        await ShowNotification(notification.Title ?? string.Empty, JsonSerializer.Serialize(options, NotificationJsonContext.Default.NotificationOptions));
     }
 
     public async Task Close(uint id)
