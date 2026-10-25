@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" />
   </ItemGroup>
 
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>

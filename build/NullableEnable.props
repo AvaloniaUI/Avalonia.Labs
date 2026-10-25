@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup Condition="'$(Nullable)' == ''">
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
-  </PropertyGroup>
-</Project>

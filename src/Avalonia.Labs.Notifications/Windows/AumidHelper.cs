@@ -34,13 +34,13 @@ internal static class AumidHelper
     {
         var length = 0u;
         var sb = new PWSTR();
-        PInvoke.GetApplicationUserModelId((HANDLE)processHandle, ref length, sb);
+        PInvoke.GetApplicationUserModelId((HANDLE)processHandle, &length, sb);
         if (length == 0)
             return null;
 
         var span = stackalloc char[(int)length];
         sb = new PWSTR(span);
-        PInvoke.GetApplicationUserModelId((HANDLE)processHandle, ref length, sb);
+        PInvoke.GetApplicationUserModelId((HANDLE)processHandle, &length, sb);
         return sb.ToString();
     }
 

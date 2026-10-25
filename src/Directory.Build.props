@@ -1,8 +1,16 @@
 <Project>
   <Import Project="..\Directory.Build.props" />
-  <Import Project="..\build\SharedVersion.props" />
-  <Import Project="..\build\SourceLink.props" Condition="'$(DisableSourceLink)' == ''" />
-  <Import Project="..\build\NetAnalyzers.props" />
-  <Import Project="..\build\TrimmingEnable.props" />
-  <Import Project="..\build\NullableEnable.props" />
+
+  <PropertyGroup>
+    <Product>Avalonia.Labs</Product>
+    <PackageDescription>Avalonia is a cross-platform UI framework for .NET providing a flexible styling system and supporting a wide range of Operating Systems such as Windows, Linux, macOS and with experimental support for Android, iOS and WebAssembly.</PackageDescription>
+    <PackageTags>avalonia;avaloniaui;mvvm;rx;reactive extensions;android;ios;mac;forms;wpf;net;uwp;xamarin</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>https://github.com/AvaloniaUI/Avalonia.Labs/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/AvaloniaUI/Avalonia.Labs/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
 </Project>

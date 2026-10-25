@@ -40,3 +40,19 @@ Add the `Avalonia.Labs.Controls.ControlThemes` theme after your main app theme i
 
 ## Nightly Builds
 Nightly builds are published on the Avalonia Nightly feed. Instructions for using them can be found here https://github.com/AvaloniaUI/Avalonia/wiki/Using-nightly-build-feed
+
+## Building
+
+Clone with submodules (`git clone --recursive`, or `git submodule update --init` after cloning), then use `dotnet build` / `dotnet test` as usual.
+
+Packaging is driven by a [NUKE](https://nuke.build) build in `build/`:
+
+```sh
+# Run tests, build and pack every library into artifacts/packages, then install
+# them into the local NuGet cache as 9999.0.0-localbuild for testing in other apps
+dotnet run --project build/_build.csproj
+
+# Only create the packages (and their SBOMs)
+dotnet run --project build/_build.csproj -- --target CreateNugetPackages
+```
+

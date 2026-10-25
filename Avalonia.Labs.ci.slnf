@@ -1,0 +1,18 @@
+{
+  "solution": {
+    "path": "Avalonia.Labs.slnx",
+    "projects": [
+      "samples\\Avalonia.Labs.Catalog\\Avalonia.Labs.Catalog.csproj",
+      "src\\Avalonia.Labs.AnimatedImage\\Avalonia.Labs.AnimatedImage.csproj",
+      "src\\Avalonia.Labs.CommandManager\\Avalonia.Labs.CommandManager.csproj",
+      "src\\Avalonia.Labs.Controls\\Avalonia.Labs.Controls.csproj",
+      "src\\Avalonia.Labs.ExpressionBuilder\\Avalonia.Labs.ExpressionBuilder.csproj",
+      "src\\Avalonia.Labs.Gif\\Avalonia.Labs.Gif.csproj",
+      "src\\Avalonia.Labs.Lottie\\Avalonia.Labs.Lottie.csproj",
+      "src\\Avalonia.Labs.Notifications\\Avalonia.Labs.Notifications.csproj",
+      "src\\Avalonia.Labs.Panels\\Avalonia.Labs.Panels.csproj",
+      "src\\Avalonia.Labs.Qr\\Avalonia.Labs.Qr.csproj",
+      "tests\\Avalonia.Labs.Controls.Tests\\Avalonia.Labs.Controls.Tests.csproj"
+    ]
+  }
+}

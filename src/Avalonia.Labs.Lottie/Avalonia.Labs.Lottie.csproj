@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
@@ -13,4 +12,5 @@
     <PackageReference Include="SkiaSharp.Skottie" />
   </ItemGroup>
 
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>

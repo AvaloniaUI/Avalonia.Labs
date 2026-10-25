@@ -38,13 +38,13 @@ internal class DesktopBridgeHelpers
     {
         var length = 0u;
         var sb = new PWSTR();
-        _ = PInvoke.GetCurrentPackageFullName(ref length, sb);
+        _ = PInvoke.GetCurrentPackageFullName(&length, sb);
         if (length == 0)
             return null;
 
         var span = stackalloc char[(int)length];
         sb = new PWSTR(span);
-        var res = PInvoke.GetCurrentPackageFullName(ref length, sb);
+        var res = PInvoke.GetCurrentPackageFullName(&length, sb);
         if (res == 0)
             return sb.ToString();
         return null;
@@ -52,18 +52,21 @@ internal class DesktopBridgeHelpers
 
     private static unsafe string? GetPackagePathByFullName(string packageFullName)
     {
-        var length = 0u;
-        var sb = new PWSTR();
-        _ = PInvoke.GetPackagePathByFullName(packageFullName, ref length, sb);
-        if (length == 0)
-            return null;
+        fixed (char* name = packageFullName)
+        {
+            var length = 0u;
+            var sb = new PWSTR();
+            _ = PInvoke.GetPackagePathByFullName(name, &length, sb);
+            if (length == 0)
+                return null;
 
-        var span = stackalloc char[(int)length];
-        sb = new PWSTR(span);
-        var res = PInvoke.GetPackagePathByFullName(packageFullName, ref length, sb);
-        if (res == 0)
-            return sb.ToString();
-        return null;
+            var span = stackalloc char[(int)length];
+            sb = new PWSTR(span);
+            var res = PInvoke.GetPackagePathByFullName(name, &length, sb);
+            if (res == 0)
+                return sb.ToString();
+            return null;
+        }
     }
 }
 #endif

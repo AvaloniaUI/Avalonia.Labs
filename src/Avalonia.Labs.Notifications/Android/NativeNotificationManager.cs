@@ -15,7 +15,7 @@ namespace Avalonia.Labs.Notifications.Android
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
         private global::Android.Content.Context _context;
         private bool _isActive;
-        private Activity _activity;
+        private Activity? _activity;
 
         public IReadOnlyDictionary<uint, INativeNotification> ActiveNotifications => _notifications;
 
@@ -50,7 +50,7 @@ namespace Avalonia.Labs.Notifications.Android
                 notification.Value?.Close();
             }
 
-            NotificationManagerCompat.From(_context).CancelAll();
+            NotificationManagerCompat.From(_context)!.CancelAll();
 
             _notifications.Clear();
         }
@@ -91,7 +91,7 @@ namespace Avalonia.Labs.Notifications.Android
         {
             if (_context != null && nativeNotification.CurrentNotification != null && await CheckPermission())
             {
-                NotificationManagerCompat.From(_context).Notify((int)nativeNotification.Id, nativeNotification.CurrentNotification);
+                NotificationManagerCompat.From(_context)!.Notify((int)nativeNotification.Id, nativeNotification.CurrentNotification);
 
                 _notifications[nativeNotification.Id] = nativeNotification;
             }
@@ -122,7 +122,7 @@ namespace Avalonia.Labs.Notifications.Android
 
         internal void Close(NativeNotification nativeNotification)
         {
-            NotificationManagerCompat.From(_context).Cancel((int)nativeNotification.Id);
+            NotificationManagerCompat.From(_context)!.Cancel((int)nativeNotification.Id);
             _notifications.Remove(nativeNotification.Id);
         }
 

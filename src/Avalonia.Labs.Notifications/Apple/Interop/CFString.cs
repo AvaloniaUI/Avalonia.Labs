@@ -82,11 +82,6 @@ internal sealed unsafe partial class CFString : IDisposable
     [DllImport(CoreFoundationLibrary)]
     private static extern void CFRelease(IntPtr ptr);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(CoreFoundationLibrary, StringMarshalling = StringMarshalling.Utf8)]
     private static partial IntPtr CFStringCreateWithCString(IntPtr cfString, string str, long encoding);
-#else
-    [DllImport(CoreFoundationLibrary)]
-    private static extern IntPtr CFStringCreateWithCString(IntPtr cfString, string str, long encoding);
-#endif
 }

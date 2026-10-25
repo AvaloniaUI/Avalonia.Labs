@@ -49,8 +49,8 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
         SetIvarValue("_managedThis", GCHandle.ToIntPtr(_managedHandle));
     }
 
-    public event EventHandler<string> WillPresentNotification;
-    public event EventHandler<(string notificationId, string actionId, string? response)> DidReceiveNotificationResponse;
+    public event EventHandler<string>? WillPresentNotification;
+    public event EventHandler<(string notificationId, string actionId, string? response)>? DidReceiveNotificationResponse;
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnWillPresentNotification(IntPtr self, IntPtr sel, IntPtr notificationCenter, IntPtr presentNotification, IntPtr completionHandler)
@@ -61,7 +61,8 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
             GCHandle.FromIntPtr(managedHandle).Target as UNUserNotificationCenterDelegate;
 
         var id = UNNotificationRequest.GetIdentifierFromUNNotification(presentNotification);
-        managedThis?.WillPresentNotification?.Invoke(managedThis, id);
+        if (id is not null)
+            managedThis?.WillPresentNotification?.Invoke(managedThis, id);
 
         var callback = (delegate* unmanaged[Cdecl]<IntPtr, int, void>)BlockLiteral.GetCallback(completionHandler);
         var options = s_allowedNotificationOptions;
@@ -81,7 +82,8 @@ internal unsafe class UNUserNotificationCenterDelegate : NSObject
         var response = actionId == "reply" ?
             UNNotificationRequest.GetActionUserTextFromUNNotificationResponse(notificationResponse) :
             null;
-        managedThis?.DidReceiveNotificationResponse?.Invoke(managedThis, (notificationId, actionId, response));
+        if (notificationId is not null && actionId is not null)
+            managedThis?.DidReceiveNotificationResponse?.Invoke(managedThis, (notificationId, actionId, response));
 
         var callback = (delegate* unmanaged[Cdecl]<IntPtr, void>)BlockLiteral.GetCallback(completionHandler);
         callback(completionHandler);
