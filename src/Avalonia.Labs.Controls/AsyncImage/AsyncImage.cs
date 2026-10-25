@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -191,8 +190,7 @@ namespace Avalonia.Labs.Controls
                 return bitmap;
             }
 
-            using var client = new HttpClient();
-            var stream = await client.GetStreamAsync(url, token).ConfigureAwait(false);
+            await using var stream = await ImageCache.Instance.HttpClient.GetStreamAsync(url, token).ConfigureAwait(false);
 
             await using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream, token).ConfigureAwait(false);
