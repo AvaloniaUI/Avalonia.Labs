@@ -9,14 +9,23 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    nuget:
+    build:
         uses: AvaloniaUI/build-common/.github/workflows/library-cicd.yml@main
         with:
             runs_on: windows-latest
             install_workloads: "android ios"
             global_json_file: global.json
             validate_release_branch: true
-            push_package: 'true'
-            nuget_feed: ${{ vars.RELEASE_MANAGER_UPLOAD_URL }}
-        secrets:
-            nuget_api_key: ${{ secrets.RELEASE_MANAGER_API_KEY }}
+            push_package: 'false'
+
+    push:
+        needs: build
+        runs-on: ubuntu-latest
+        environment: release
+        steps:
+            - uses: actions/download-artifact@v8
+              with:
+                  name: nupkg
+                  path: ./nupkgs
+            - name: Push to Release Manager
+              run: dotnet nuget push './nupkgs/*.nupkg' --api-key '${{ secrets.RELEASE_MANAGER_API_KEY }}' --source '${{ vars.RELEASE_MANAGER_UPLOAD_URL }}'
