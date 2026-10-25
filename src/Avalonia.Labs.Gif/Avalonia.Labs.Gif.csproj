@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -11,4 +10,5 @@
     <PackageReference Include="Avalonia" />
   </ItemGroup>
 
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>

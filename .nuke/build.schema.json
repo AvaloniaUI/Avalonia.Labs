@@ -24,7 +24,12 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
-        "CreateSbom"
+        "Compile",
+        "CopyPackagesToNuGetCache",
+        "CreateNugetPackages",
+        "CreateSbom",
+        "OutputParameters",
+        "RunTests"
       ]
     },
     "Verbosity": {
@@ -98,13 +103,16 @@
   "allOf": [
     {
       "properties": {
-        "Output": {
+        "Configuration": {
           "type": "string",
-          "description": "Directory the generated SBOMs are written to"
+          "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
+          "enum": [
+            "Debug",
+            "Release"
+          ]
         },
-        "Packages": {
-          "type": "string",
-          "description": "Directory containing the built .nupkg files to generate SBOMs for"
+        "Output": {
+          "type": "string"
         }
       }
     },

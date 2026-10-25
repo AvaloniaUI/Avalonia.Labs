@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -13,4 +12,5 @@
     <PackageReference Include="Avalonia.Skia" />
   </ItemGroup>
 
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>

@@ -6,7 +6,6 @@
     <SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net10.0-android'">26.0</SupportedOSPlatformVersion>
     <Nullable>annotations</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <IsPackable>true</IsPackable>
     <IsBrowser>$([System.String]::Copy('$(TargetFramework)').Contains('-browser'))</IsBrowser>
     <DefineConstants Condition="'$(TargetFramework)' == 'net8.0'">$(DefineConstants);INCLUDE_WINDOWS;INCLUDE_LINUX</DefineConstants>
     <!-- ModuleInitializer in microcom codegen -->
@@ -44,4 +43,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
+
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>

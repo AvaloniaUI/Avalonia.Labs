@@ -1,0 +1,5 @@
+<Project>
+  <Import Project="$(RepositoryTargetsRoot)/NullableEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/TrimmingEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/SignEnable.targets" />
+</Project>

@@ -7,16 +7,14 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Build/">
-    <File Path="azure-pipelines.yml" />
-    <File Path="build/avalonia.snk" />
-    <File Path="build/NetAnalyzers.props" />
-    <File Path="build/NullableEnable.props" />
-    <File Path="build/SharedVersion.props" />
-    <File Path="build/SourceLink.props" />
-    <File Path="build/TrimmingEnable.props" />
-    <File Path="build/XUnit.props" />
+    <File Path=".github/workflows/nightly.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path="Avalonia.Labs.ci.slnf" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
   </Folder>
   <Folder Name="/Samples/">
     <Project Path="samples/Avalonia.Labs.Catalog.Android/Avalonia.Labs.Catalog.Android.csproj">
@@ -33,6 +31,11 @@
     <File Path=".editorconfig" />
     <File Path="NuGet.Config" />
     <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Nuke/">
+    <Project Path="build/_build.csproj">
+      <Build Project="false" />
+    </Project>
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="tests/Avalonia.Labs.Controls.Tests/Avalonia.Labs.Controls.Tests.csproj" />
