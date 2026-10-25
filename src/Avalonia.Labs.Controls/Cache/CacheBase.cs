@@ -75,15 +75,13 @@ namespace Avalonia.Labs.Controls.Cache
         /// <summary>
         /// Gets instance of <see cref="HttpClient"/>
         /// </summary>
-        protected HttpClient HttpClient
+        internal HttpClient HttpClient
         {
             get
             {
                 if (_httpClient == null)
                 {
-                    var messageHandler = new HttpClientHandler();
-
-                    _httpClient = new HttpClient(messageHandler);
+                    Interlocked.CompareExchange(ref _httpClient, new HttpClient(), null);
                 }
 
                 return _httpClient;
@@ -442,16 +440,16 @@ namespace Avalonia.Labs.Controls.Cache
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (var stream = await HttpClient.GetStreamAsync(uri))
+                using (var stream = await HttpClient.GetStreamAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
-                    stream.CopyTo(ms);
+                    await stream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
                     ms.Flush();
 
                     ms.Position = 0;
 
                     using (var fs = File.Open(baseFile, FileMode.OpenOrCreate, FileAccess.Write))
                     {
-                        ms.CopyTo(fs);
+                        await ms.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
 
                         fs.Flush();
 

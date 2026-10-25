@@ -11,15 +11,9 @@ namespace Avalonia.Labs.Controls.Cache
     internal class ImageCache : CacheBase<Bitmap>
     {
         /// <summary>
-        /// Private singleton field.
-        /// </summary>
-        [ThreadStatic]
-        private static ImageCache? _instance;
-
-        /// <summary>
         /// Gets public singleton property.
         /// </summary>
-        public static ImageCache Instance => _instance ?? (_instance = new ImageCache());
+        public static ImageCache Instance { get; } = new ImageCache();
 
         /// <summary>
         /// Creates a bitmap from a stream
