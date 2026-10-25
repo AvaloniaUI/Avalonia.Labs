@@ -12,6 +12,9 @@ namespace Avalonia.Labs.Notifications.Linux
 {
     internal class LinuxNativeNotificationManager : INativeNotificationManagerImpl
     {
+        // Clicking the notification body only emits ActionInvoked if "default-action" is set to a non-"app." action.
+        private const string DefaultActionName = "default";
+
         private readonly Dictionary<uint, INativeNotification> _notifications = new();
         private readonly OrgFreedesktopPortalNotificationProxy _freedesktopPortalNotification = new(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
 
@@ -38,14 +41,14 @@ namespace Avalonia.Labs.Notifications.Linux
 
             _signalWatcher = await _freedesktopPortalNotification.WatchActionInvokedAsync((e, invoked) =>
             {
-                if (e is not null)
+                if (e is not null || !uint.TryParse(invoked.Id, NumberStyles.None, NumberFormatInfo.InvariantInfo, out var id))
                     return;
-                var id = uint.Parse(invoked.Id, NumberFormatInfo.InvariantInfo);
+                var isActivated = invoked.Action == DefaultActionName;
                 var args = new NativeNotificationCompletedEventArgs
                 {
                     NotificationId = id,
-                    IsActivated = true,
-                    ActionTag = invoked.Action
+                    IsActivated = isActivated,
+                    ActionTag = isActivated ? null : invoked.Action
                 };
 
                 NotificationCompleted?.Invoke(this, args);
@@ -80,7 +83,8 @@ namespace Avalonia.Labs.Notifications.Linux
             {
                 { "title", VariantValue.String(notification.Title ?? string.Empty) },
                 { "body", VariantValue.String(notification.Message ?? string.Empty) },
-                { "priority", VariantValue.String(NotificationPriorityToDBusPriority(notification.Priority)) }
+                { "priority", VariantValue.String(NotificationPriorityToDBusPriority(notification.Priority)) },
+                { "default-action", VariantValue.String(DefaultActionName) }
             };
 
             if (notification.Icon is not null)
@@ -88,8 +92,9 @@ namespace Avalonia.Labs.Notifications.Linux
                 using var memStream = new MemoryStream(notification.Icon.PixelSize.Width * notification.Icon.PixelSize.Height * 4);
                 notification.Icon.Save(memStream);
                 var iconData = memStream.ToArray();
-                var icon = Struct.Create("bytes", VariantValue.Array(iconData));
-                serializedNotification.Add("icon", VariantValue.Struct(icon));
+                // Serialized GBytesIcon: (sv) with "bytes" and the encoded image as ay.
+                var icon = VariantValue.Struct(VariantValue.String("bytes"), VariantValue.Variant(VariantValue.Array(iconData)));
+                serializedNotification.Add("icon", icon);
             }
 
             if (notification.Actions.Count != 0)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
 using AppleInterop;
+using Avalonia.Logging;
 using Avalonia.Threading;
 
 namespace Avalonia.Labs.Notifications.Apple;
@@ -89,9 +90,18 @@ internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, 
     public async void Show(AppleNativeNotification appleNativeNotification)
     {
         var current = UNUserNotificationCenter.Current;
-        var result = await current.RequestAlertAuthorization();
-        if (!result)
+        try
+        {
+            if (!await current.RequestAlertAuthorization())
+                return;
+        }
+        catch (Exception ex)
+        {
+            Logger
+                .TryGet(LogEventLevel.Warning, LogArea.Platform)?
+                .Log(this, "Notification authorization failed: {Message}", ex.Message);
             return;
+        }
 
         var content = new UNMutableNotificationContent();
         content.Title = CFString.Create(appleNativeNotification.Title);
