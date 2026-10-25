@@ -45,9 +45,9 @@ class Build : NukeBuild
 
     Target RunTests => _ => _
         .DependsOn(OutputParameters)
-        .Executes(() => DotNetTest(c => c
+        // Tests are a Microsoft.Testing.Platform executable, so run it directly.
+        .Executes(() => DotNetRun(c => c
             .SetProjectFile(TestProject)
-            .SetVerbosity(DotNetVerbosity.minimal)
             .SetConfiguration(Configuration)
         ));
 
