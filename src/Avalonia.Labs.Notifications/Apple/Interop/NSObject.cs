@@ -11,9 +11,6 @@ internal abstract class NSObject : IDisposable
     private static readonly IntPtr s_initSel = Libobjc.sel_getUid("init");
     private static readonly IntPtr s_retainSel = Libobjc.sel_getUid("retain");
     private static readonly IntPtr s_releaseSel = Libobjc.sel_getUid("release");
-    private static readonly IntPtr s_deallocSel = Libobjc.sel_getUid("dealloc");
-    private static readonly IntPtr s_autoreleaseSel = Libobjc.sel_getUid("autorelease");
-    private static readonly IntPtr s_retainCountSel = Libobjc.sel_getUid("retainCount");
     private static readonly IntPtr s_conformsToProtocol = Libobjc.sel_getUid("conformsToProtocol:");
 
     protected NSObject(IntPtr handle, bool owns)

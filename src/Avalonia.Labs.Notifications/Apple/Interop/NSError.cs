@@ -4,7 +4,6 @@ namespace AppleInterop;
 
 internal class NSError(IntPtr handle) : NSObject(handle, false)
 {
-    private static readonly IntPtr s_class = Libobjc.objc_getClass("NSError");
     private static readonly IntPtr s_localizedDescription = Libobjc.sel_getUid("localizedDescription");
 
     public string? LocalizedDescription =>
