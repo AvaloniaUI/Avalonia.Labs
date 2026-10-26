@@ -3,6 +3,6 @@
 
   <PropertyGroup>
     <LangVersion>preview</LangVersion>
-    <WarningsAsErrors>$(WarningsAsErrors);CS0618</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 </Project>
