@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<node name="/" xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+  <!--
+      org.freedesktop.host.portal.Registry:
+      @short_description: Registry for host system applications
+
+      Registers a D-Bus peer and associates it with an application ID.
+      The application ID must match the basename of a .desktop file.
+      Must be called before any other portal method call, at most once.
+      Does not work for sandboxed applications.
+
+      Available since xdg-desktop-portal 1.19.
+  -->
+  <interface name="org.freedesktop.host.portal.Registry">
+    <method name="Register">
+      <arg type="s" name="app_id" direction="in"/>
+      <arg type="a{sv}" name="options" direction="in"/>
+    </method>
+    <property name="version" type="u" access="read"/>
+  </interface>
+</node>
