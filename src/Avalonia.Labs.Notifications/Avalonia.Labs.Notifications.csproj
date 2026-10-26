@@ -19,6 +19,7 @@
   <ItemGroup>
     <MicroComIdl Include="Windows/WinRT/windows.ui.notifications.mcidl" />
     <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.portal.Notification.xml" DBusGeneratorMode="Proxy" />
+    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.host.portal.Registry.xml" DBusGeneratorMode="Proxy" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' AND '$(IsBrowser)' == 'false'">

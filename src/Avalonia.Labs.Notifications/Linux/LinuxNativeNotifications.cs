@@ -1,11 +1,13 @@
 #if INCLUDE_LINUX
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading;
 using Avalonia.Media.Imaging;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
+    [SupportedOSPlatform("linux")]
     internal class LinuxNativeNotification(NotificationChannel channel, LinuxNativeNotificationManager nativeNotificationManager) : INativeNotification
     {
         private static int s_currentId;

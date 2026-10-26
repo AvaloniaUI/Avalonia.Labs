@@ -45,6 +45,17 @@ public class AppNotificationOptions
     public Guid? ComActivatorGuidOverride { [SupportedOSPlatform("windows")] get; init; }
 #endif
 
+#if INCLUDE_LINUX
+    /// <summary>
+    /// Application ID registered with xdg-desktop-portal for notifications.
+    /// Must match the basename of the application's installed .desktop file
+    /// (for example, "org.example.MyApp" for "org.example.MyApp.desktop").
+    /// If not defined, the portal infers the ID from the process, which is empty for apps not started from a .desktop file.
+    /// Requires xdg-desktop-portal 1.19 or newer. Is ignored for sandboxed (Flatpak, Snap) applications.
+    /// </summary>
+    public string? AppId { [SupportedOSPlatform("linux")] get; init; }
+#endif
+
     public IReadOnlyList<NotificationChannel>? Channels { get; init; }
 
     /// <summary>

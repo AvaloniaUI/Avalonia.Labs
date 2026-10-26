@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Tmds.DBus.Protocol;
 using Tmds.DBus.SourceGenerator;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
+    [SupportedOSPlatform("linux")]
     internal class LinuxNativeNotificationManager : INativeNotificationManagerImpl
     {
         // Clicking the notification body only emits ActionInvoked if "default-action" is set to a non-"app." action.
@@ -29,6 +31,21 @@ namespace Avalonia.Labs.Notifications.Linux
 
         public async void Initialize(AppNotificationOptions? options)
         {
+            if (options?.AppId is { Length: > 0 } appId)
+            {
+                // Must happen before any other portal call on this connection.
+                try
+                {
+                    var registry = new OrgFreedesktopHostPortalRegistryProxy(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
+                    await registry.RegisterAsync(appId, new Dictionary<string, VariantValue>());
+                }
+                catch
+                {
+                    // Portal is too old, the app is sandboxed, or no matching .desktop file is installed.
+                    // Fall back to the app ID inferred by the portal.
+                }
+            }
+
             try
             {
                 await _freedesktopPortalNotification.GetVersionPropertyAsync();
