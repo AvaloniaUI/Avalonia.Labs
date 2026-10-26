@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>CS0618</NoWarn>
+    <NoWarn>$(NoWarn);CS0618;AVLN5001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
