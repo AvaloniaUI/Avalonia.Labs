@@ -871,11 +871,11 @@ public class VirtualizingWrapPanelTests
         window.Show();
         window.UpdateLayout();
 
-        var container0 = target.ContainerFromIndex(0);
-        var container1 = target.ContainerFromIndex(1);
-        var container2 = target.ContainerFromIndex(2);
-        var container3 = target.ContainerFromIndex(3);
-        var container4 = target.ContainerFromIndex(4);
+        var container0 = target.ContainerFromIndex(0)!;
+        var container1 = target.ContainerFromIndex(1)!;
+        var container2 = target.ContainerFromIndex(2)!;
+        var container3 = target.ContainerFromIndex(3)!;
+        var container4 = target.ContainerFromIndex(4)!;
 
         // Verify layout
         Assert.Equal(0, container0.Bounds.X); Assert.Equal(0, container0.Bounds.Y);
@@ -1128,7 +1128,7 @@ public class VirtualizingWrapPanelTests
         window.UpdateLayout();
 
         var container1 = target.ContainerFromIndex(1); // Row 0, item 1 (Mid 65)
-        var container3 = target.ContainerFromIndex(3); // Row 1, item 3 (Mid 50) - Distance 15
+        var container3 = target.ContainerFromIndex(3)!; // Row 1, item 3 (Mid 50) - Distance 15
         var container4 = target.ContainerFromIndex(4); // Row 1, item 4 (Mid 83.33) - Distance 18.33
 
         // Down from 1 should go to 3

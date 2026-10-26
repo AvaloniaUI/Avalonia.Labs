@@ -51,8 +51,8 @@ public class VirtualizingWrapPanelSampleView() : ControlSampleBase(new Virtualiz
     {
         var btn = (Button)sender!;
         
-        Sample.SampleListBox.ScrollIntoView((int)btn.Tag);
-        ViewModel.SelectedItem = ViewModel.SampleItems[(int)btn.Tag];
+        Sample.SampleListBox.ScrollIntoView((int)btn.Tag!);
+        ViewModel.SelectedItem = ViewModel.SampleItems[(int)btn.Tag!];
         
         int nextRandom = Random.Shared.Next(ViewModel.SampleItems.Length - 1);
         btn.Content = $"Scroll to random ({nextRandom})";

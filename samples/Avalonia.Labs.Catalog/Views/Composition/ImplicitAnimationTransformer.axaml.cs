@@ -100,7 +100,7 @@ namespace Avalonia.Labs.Catalog.Views
                     };
                     Placeholder.Children.Add(image);
 
-                    var visual = ElementComposition.GetElementVisual(image);
+                    var visual = ElementComposition.GetElementVisual(image)!;
                     visual.Offset = new Vector3(posXUpdated, posYUpdated, 0);
                 }
             }
@@ -136,7 +136,7 @@ namespace Avalonia.Labs.Catalog.Views
             //counter for adding elements to the grid
             int k = 0;
 
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 child.Offset = newOffset[k];
                 k++;
@@ -158,7 +158,7 @@ namespace Avalonia.Labs.Catalog.Views
             double theta = 0;
             double thetaRadians = 0;
 
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 // Change the Offset property of the visual. This will trigger the implicit animation that is associated with the Offset change.
                 // The position of the element on the circle is defined using parametric equation:
@@ -183,7 +183,7 @@ namespace Avalonia.Labs.Catalog.Views
             double theta = 0;
             double thetaOrientationRadians = _spiralOrientation * Math.PI / 180F;
 
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 // Change the Offset property of the visual. This will trigger the implicit animation that is associated with the Offset change.
                 // Define the position of the visual on the spiral using parametric equation:
@@ -208,7 +208,7 @@ namespace Avalonia.Labs.Catalog.Views
             double theta = 0;
             double thetaRadians = 0;
 
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 // Change the Offset property of the visual. This will trigger the implicit animation that is associated with the Offset change.
                 // The position of the element on the ellipse is defined using parametric equation:
@@ -230,7 +230,7 @@ namespace Avalonia.Labs.Catalog.Views
         /// <param name="e"></param>
         private void CollapseLayout(object sender, RoutedEventArgs e)
         {
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 // Change the Offset property of the visual. This will trigger the implicit animation that is associated with the Offset change.
                 // Define the same position for each visual
@@ -244,7 +244,7 @@ namespace Avalonia.Labs.Catalog.Views
         /// <param name="e"></param>
         private void Scale(object sender, RoutedEventArgs e)
         {
-            foreach (var child in _root.Children)
+            foreach (var child in _root!.Children)
             {
                 if (child.Scale == Vector3.One)
                 {
@@ -264,7 +264,7 @@ namespace Avalonia.Labs.Catalog.Views
         /// </summary>
         Vector3KeyFrameAnimation CreateOffsetAnimation()
         {
-            var _offsetKeyFrameAnimation = _compositor.CreateVector3KeyFrameAnimation();
+            var _offsetKeyFrameAnimation = _compositor!.CreateVector3KeyFrameAnimation();
             _offsetKeyFrameAnimation.Target = "Offset";
             
             // Final Value signifies the target value to which the visual will animate
@@ -280,17 +280,17 @@ namespace Avalonia.Labs.Catalog.Views
         /// </summary>
         CompositionAnimationGroup CreateScaleAnimation()
         {
-            var scaleKeyFrameAnimation = _compositor.CreateVector3KeyFrameAnimation();
+            var scaleKeyFrameAnimation = _compositor!.CreateVector3KeyFrameAnimation();
             scaleKeyFrameAnimation.Target = "Scale";
             scaleKeyFrameAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
             scaleKeyFrameAnimation.Duration = TimeSpan.FromSeconds(3);
 
-            var rotationAnimation = _compositor.CreateScalarKeyFrameAnimation();
+            var rotationAnimation = _compositor!.CreateScalarKeyFrameAnimation();
             rotationAnimation.Target = "RotationAngle";
             rotationAnimation.InsertExpressionKeyFrame(1.0f, "this.StartingValue + 0.78539816");
             rotationAnimation.Duration = TimeSpan.FromSeconds(3);
 
-            var animationGroup = _compositor.CreateAnimationGroup();
+            var animationGroup = _compositor!.CreateAnimationGroup();
 
             // AnimationGroup associates the animations with the target
             animationGroup.Add(scaleKeyFrameAnimation);
@@ -303,17 +303,17 @@ namespace Avalonia.Labs.Catalog.Views
         {
             if (animate)
             {
-                ImplicitAnimationCollection implicitAnimationCollection = _compositor.CreateImplicitAnimationCollection();
+                ImplicitAnimationCollection implicitAnimationCollection = _compositor!.CreateImplicitAnimationCollection();
                 implicitAnimationCollection["Offset"] = CreateOffsetAnimation();
                 implicitAnimationCollection["Scale"] = CreateScaleAnimation();
-                foreach (var child in _root.Children)
+                foreach (var child in _root!.Children)
                 {
                     child.ImplicitAnimations = implicitAnimationCollection;
                 }
             }
             else
             {
-                foreach (var child in _root.Children)
+                foreach (var child in _root!.Children)
                 {
                     child.ImplicitAnimations = null;
                 }
@@ -322,7 +322,7 @@ namespace Avalonia.Labs.Catalog.Views
 
         private void ImplicitAnimationTransformer_Unloaded(object sender, RoutedEventArgs e)
         {
-            foreach(var surface in _imageList)
+            foreach(var surface in _imageList!)
             {
                 surface.Dispose();
             }

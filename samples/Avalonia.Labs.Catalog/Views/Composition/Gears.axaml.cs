@@ -138,7 +138,7 @@ namespace Avalonia.Labs.Catalog.Views
             // Start the animation based on the Rotation Angle.
             currentGear.StartAnimation("RotationAngle", rotateExpression);
 
-            var rotationExpression = _compositor.CreateExpressionAnimation("-previousGear.RotationAngle");
+            var rotationExpression = _compositor!.CreateExpressionAnimation("-previousGear.RotationAngle");
             rotationExpression.SetReferenceParameter("previousGear", previousGear);
             currentGear.StartAnimation("RotationAngle", rotationExpression);
 
@@ -207,7 +207,7 @@ namespace Avalonia.Labs.Catalog.Views
 
             if (int.TryParse(NumberOfGears.Text, out gearsToAdd))
             {
-                int amount = gearsToAdd + _gearVisuals.Count - 1;
+                int amount = gearsToAdd + _gearVisuals!.Count - 1;
                 Setup();
 
                 var maxAreaPerTile = Math.Sqrt((Container.Bounds.Width * Container.Bounds.Height) / (amount + Container.Children.Count));
