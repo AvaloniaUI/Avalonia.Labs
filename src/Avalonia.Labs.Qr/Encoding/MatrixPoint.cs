@@ -1,6 +1,6 @@
 namespace Gma.QrCodeNet.Encoding;
 
-public struct MatrixPoint
+public record struct MatrixPoint
 {
 	internal MatrixPoint(int x, int y)
 		: this()

@@ -1,6 +1,6 @@
 namespace Gma.QrCodeNet.Encoding;
 
-public struct VersionDetail
+public record struct VersionDetail
 {
 	internal VersionDetail(int version, int numTotalBytes, int numDataBytes, int numECBlocks)
 		: this()
