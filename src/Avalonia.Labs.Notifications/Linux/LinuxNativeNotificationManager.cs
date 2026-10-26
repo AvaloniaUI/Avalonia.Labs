@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
+using Avalonia.Logging;
 using Tmds.DBus.Protocol;
 using Tmds.DBus.SourceGenerator;
 
@@ -39,10 +40,13 @@ namespace Avalonia.Labs.Notifications.Linux
                     var registry = new OrgFreedesktopHostPortalRegistryProxy(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
                     await registry.RegisterAsync(appId, new Dictionary<string, VariantValue>());
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Portal is too old, the app is sandboxed, or no matching .desktop file is installed.
                     // Fall back to the app ID inferred by the portal.
+                    Logger.TryGet(LogEventLevel.Warning, "Notifications")?.Log(this,
+                        "Unable to register app ID {AppId} with xdg-desktop-portal. Make sure {AppId}.desktop is installed. {Exception}",
+                        appId, appId, ex);
                 }
             }
 
