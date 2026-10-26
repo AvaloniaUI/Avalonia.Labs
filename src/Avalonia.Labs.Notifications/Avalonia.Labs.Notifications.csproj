@@ -37,7 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="build\Avalonia.Labs.Notifications.targets" PackagePath="buildTransitive" />
+    <None Include="build\Avalonia.Labs.Notifications.targets" Pack="true" PackagePath="buildTransitive" />
+    <!-- The Razor SDK treats *.json as Content, which iOS/Android try to bundle into the app. -->
+    <Content Remove="**\*.json" />
+    <None Include="**\*.json" Exclude="bin\**;obj\**" />
   </ItemGroup>
 
   <ItemGroup>
