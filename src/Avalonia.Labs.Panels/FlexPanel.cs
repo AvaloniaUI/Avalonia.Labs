@@ -16,6 +16,7 @@ namespace Avalonia.Labs.Panels
     /// <remarks>
     /// See CSS FlexBox specification: https://www.w3.org/TR/css-flexbox-1
     /// </remarks>
+    [Obsolete("Use Avalonia.Controls.FlexPanel instead")]
     public sealed class FlexPanel : Panel
     {
         private static readonly Func<Layoutable, int> s_getOrder = x => x is { } y ? Flex.GetOrder(y) : 0;
