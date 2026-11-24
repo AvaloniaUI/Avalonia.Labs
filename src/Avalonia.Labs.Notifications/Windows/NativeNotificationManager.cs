@@ -187,7 +187,7 @@ namespace Avalonia.Labs.Notifications.Windows
                 var name = Convert.ToHexString(SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(DateTime.Now.ToString() + Random.Shared.Next()))) + ".png";
                 Directory.CreateDirectory(folder);
                 var path = Path.Combine(folder, name);
-                bitmap.Save(path);
+                bitmap.Save(path, PngBitmapEncoderOptions.Default);
 
                 return new Uri(path).AbsoluteUri;
             }

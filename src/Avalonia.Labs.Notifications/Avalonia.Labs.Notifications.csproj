@@ -18,13 +18,13 @@
 
   <ItemGroup>
     <MicroComIdl Include="Windows/WinRT/windows.ui.notifications.mcidl" />
-    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.portal.Notification.xml" DBusGeneratorMode="Proxy" />
-    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.host.portal.Registry.xml" DBusGeneratorMode="Proxy" />
+    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.portal.Notification.xml" Namespace="Avalonia.Labs.Notifications.Linux.DBus" DBusGeneratorMode="Proxy" />
+    <AdditionalFiles Include="Linux/DBusXml/org.freedesktop.host.portal.Registry.xml" Namespace="Avalonia.Labs.Notifications.Linux.DBus" DBusGeneratorMode="Proxy" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' AND '$(IsBrowser)' == 'false'">
     <PackageReference Include="Tmds.DBus.Protocol" />
-    <PackageReference Include="Tmds.DBus.SourceGenerator" PrivateAssets="all" />
+    <PackageReference Include="Tmds.DBus.Generator" PrivateAssets="all" />
     <PackageReference Include="MicroCom.CodeGenerator.Roslyn" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Windows.CsWin32">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

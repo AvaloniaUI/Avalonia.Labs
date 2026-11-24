@@ -49,7 +49,7 @@ class BrowserNotification : INativeNotification
         if (ChannelIcon == null && Icon != null)
         {
             using var memStream = new MemoryStream();// Icon.PixelSize.Width * Icon.PixelSize.Height * 4);
-            Icon.Save(memStream);
+            Icon.Save(memStream, PngBitmapEncoderOptions.Default);
             icon = $"data:image/png;base64,{Convert.ToBase64String(memStream.ToArray())}";
         }
 

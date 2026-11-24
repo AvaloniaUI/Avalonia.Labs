@@ -11,7 +11,7 @@ namespace Avalonia.Labs.Notifications.Android
         public static AndroidBitmap? ToAndroid(this AvaloniaBitmap avaloniaBitmap)
         {
             using var stream = new MemoryStream();
-            avaloniaBitmap.Save(stream);
+            avaloniaBitmap.Save(stream, Avalonia.Media.Imaging.PngBitmapEncoderOptions.Default);
 
             return BitmapFactory.DecodeStream(stream);
         }
