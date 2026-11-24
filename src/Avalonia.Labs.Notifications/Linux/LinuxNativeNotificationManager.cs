@@ -7,8 +7,8 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Avalonia.Logging;
+using Avalonia.Media.Imaging;
 using Tmds.DBus.Protocol;
-using Tmds.DBus.SourceGenerator;
 
 namespace Avalonia.Labs.Notifications.Linux
 {
@@ -19,7 +19,7 @@ namespace Avalonia.Labs.Notifications.Linux
         private const string DefaultActionName = "default";
 
         private readonly Dictionary<uint, INativeNotification> _notifications = new();
-        private readonly OrgFreedesktopPortalNotificationProxy _freedesktopPortalNotification = new(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
+        private readonly DBus.Notification _freedesktopPortalNotification = new(DBusConnection.Session, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
 
         private bool _isAvailable;
         private IDisposable? _signalWatcher;
@@ -37,7 +37,7 @@ namespace Avalonia.Labs.Notifications.Linux
                 // Must happen before any other portal call on this connection.
                 try
                 {
-                    var registry = new OrgFreedesktopHostPortalRegistryProxy(DBusConnection.Session.AsConnection(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
+                    var registry = new DBus.Registry(DBusConnection.Session, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop");
                     await registry.RegisterAsync(appId, new Dictionary<string, VariantValue>());
                 }
                 catch (Exception ex)
@@ -52,7 +52,7 @@ namespace Avalonia.Labs.Notifications.Linux
 
             try
             {
-                await _freedesktopPortalNotification.GetVersionPropertyAsync();
+                await _freedesktopPortalNotification.GetVersionAsync();
                 _isAvailable = true;
             }
             catch
@@ -60,9 +60,9 @@ namespace Avalonia.Labs.Notifications.Linux
                 return;
             }
 
-            _signalWatcher = await _freedesktopPortalNotification.WatchActionInvokedAsync((e, invoked) =>
+            _signalWatcher = await _freedesktopPortalNotification.WatchActionInvokedAsync(invoked =>
             {
-                if (e is not null || !uint.TryParse(invoked.Id, NumberStyles.None, NumberFormatInfo.InvariantInfo, out var id))
+                if (!uint.TryParse(invoked.Id, NumberStyles.None, NumberFormatInfo.InvariantInfo, out var id))
                     return;
                 var isActivated = invoked.Action == DefaultActionName;
                 var args = new NativeNotificationCompletedEventArgs
@@ -111,7 +111,7 @@ namespace Avalonia.Labs.Notifications.Linux
             if (notification.Icon is not null)
             {
                 using var memStream = new MemoryStream(notification.Icon.PixelSize.Width * notification.Icon.PixelSize.Height * 4);
-                notification.Icon.Save(memStream);
+                notification.Icon.Save(memStream, PngBitmapEncoderOptions.Default);
                 var iconData = memStream.ToArray();
                 // Serialized GBytesIcon: (sv) with "bytes" and the encoded image as ay.
                 var icon = VariantValue.Struct(VariantValue.String("bytes"), VariantValue.Variant(VariantValue.Array(iconData)));

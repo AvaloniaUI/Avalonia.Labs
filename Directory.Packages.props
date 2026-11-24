@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <AvaloniaVersion>12.0.1</AvaloniaVersion>
-    <AvaloniaSampleVersion>12.0.1</AvaloniaSampleVersion>
+    <AvaloniaVersion>12.1.0</AvaloniaVersion>
+    <AvaloniaSampleVersion>12.1.0</AvaloniaSampleVersion>
     <SkiaSharpVersion>3.119.4</SkiaSharpVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -21,8 +21,8 @@
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.367" />
     <PackageVersion Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.Skottie" Version="$(SkiaSharpVersion)" />
-    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.92.0" />
-    <PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.22" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.1" />
+    <PackageVersion Include="Tmds.DBus.Generator" Version="0.94.1" />
     <PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.8.0" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.3" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
