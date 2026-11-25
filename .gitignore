@@ -356,3 +356,6 @@ MigrationBackup/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Compiled from src/Avalonia.Labs.Notifications/Browser on build
+src/Avalonia.Labs.Notifications/wwwroot/
