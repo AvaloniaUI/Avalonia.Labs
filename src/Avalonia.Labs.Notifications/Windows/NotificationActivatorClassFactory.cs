@@ -23,7 +23,7 @@ internal class NotificationActivatorClassFactory(Guid guid) : CallbackBase, ICla
             || iid == MicroComRuntime.GetGuidFor(typeof(INotificationActivationCallback))
             || iid == IUnknown.IID_Guid)
         {
-            *ppvObject = NotificationActivator.Instance.GetNativeIntPtr<INotificationActivationCallback>();
+            *ppvObject = NotificationActivator.Instance.GetNativeIntPtr<INotificationActivationCallback>(owned: true);
             return 0;
         }
 

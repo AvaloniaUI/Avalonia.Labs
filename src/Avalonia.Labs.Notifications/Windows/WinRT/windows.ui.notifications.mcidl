@@ -230,5 +230,5 @@ interface IClassFactory
 [uuid(53E31837-6600-4A81-9395-75CFFE746F94)]
 interface INotificationActivationCallback
 {
-    void Activate(IntPtr appUserModelId, IntPtr invokedArgs, NOTIFICATION_USER_INPUT_DATA* data, uint dataCount);
+    HRESULT Activate(IntPtr appUserModelId, IntPtr invokedArgs, NOTIFICATION_USER_INPUT_DATA* data, uint dataCount);
 }
