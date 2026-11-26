@@ -6,7 +6,6 @@ using System.Security;
 using System.Threading;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
-using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
@@ -105,16 +104,15 @@ namespace Avalonia.Labs.Notifications.Windows
                 {actions}
               </toast>
             """;
-            using var xmlDoc = NativeWinRTMethods.CreateInstance<IXmlDocument>("Windows.Data.Xml.Dom.XmlDocument");
-            using var xmlIO = xmlDoc.QueryInterface<IXmlDocumentIO>();
+            var xmlDoc = NativeWinRTMethods.CreateInstance<IXmlDocument>("Windows.Data.Xml.Dom.XmlDocument");
             using (var xmlIntPtr = new HStringWrapper(xml))
             {
-                xmlIO.LoadXml(xmlIntPtr);
+                ((IXmlDocumentIO)xmlDoc).LoadXml(xmlIntPtr);
             }
 
-            using var factory = NativeWinRTMethods.CreateActivationFactory<IToastNotificationFactory>("Windows.UI.Notifications.ToastNotification");
+            var factory = NativeWinRTMethods.CreateActivationFactory<IToastNotificationFactory>("Windows.UI.Notifications.ToastNotification");
             CurrentNotification = factory.CreateToastNotification(xmlDoc);
-            if (CurrentNotification.QueryInterface<IToastNotification2>() is { } toastNotification2)
+            if (CurrentNotification is IToastNotification2 toastNotification2)
             {
                 using var idPtr = new HStringWrapper(Id.ToString());
                 toastNotification2.SetTag(idPtr);
@@ -124,7 +122,6 @@ namespace Avalonia.Labs.Notifications.Windows
             }
 
             _manager.Show(this);
-            CurrentNotification?.Dispose();
             CurrentNotification = null;
         }
 
