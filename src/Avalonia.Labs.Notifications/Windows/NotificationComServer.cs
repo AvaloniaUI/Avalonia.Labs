@@ -22,21 +22,35 @@ internal class NotificationComServer
         if (s_classFactory is not null)
             throw new InvalidOperationException("Already registered.");
 
-        if (!DesktopBridgeHelpers.IsContainerized())
-            RegisterComServer(uuid);
+        try
+        {
+            if (!DesktopBridgeHelpers.IsContainerized())
+                RegisterComServer(uuid);
 
-        s_classFactory = new NotificationActivatorClassFactory(uuid);
-        PInvoke.CoRegisterClassObject(uuid,
-            (IUnknown*)s_classFactory.GetNativeIntPtr<IClassFactory>(),
-            CLSCTX.CLSCTX_LOCAL_SERVER,
-            REGCLS.REGCLS_MULTIPLEUSE,
-            out s_cookie).ThrowOnFailure();
+            var classFactory = new NotificationActivatorClassFactory(uuid);
+            PInvoke.CoRegisterClassObject(uuid,
+                (IUnknown*)classFactory.GetNativeIntPtr<IClassFactory>(),
+                CLSCTX.CLSCTX_LOCAL_SERVER,
+                REGCLS.REGCLS_MULTIPLEUSE,
+                out s_cookie).ThrowOnFailure();
+            s_classFactory = classFactory;
+        }
+        catch
+        {
+            // Don't leave a registration behind that points at a class object that was never registered.
+            DeleteActivatorRegistration(uuid);
+            throw;
+        }
     }
 
     public static void UnregisterActivator()
     {
+        if (s_classFactory is null)
+            return;
+
         s_classFactory = null;
         PInvoke.CoRevokeClassObject(s_cookie);
+        s_cookie = 0;
     }
 
     private static void RegisterComServer(Guid guid)
