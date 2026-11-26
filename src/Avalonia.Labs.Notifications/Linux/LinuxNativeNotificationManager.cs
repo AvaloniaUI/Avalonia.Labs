@@ -68,6 +68,7 @@ namespace Avalonia.Labs.Notifications.Linux
                 var args = new NativeNotificationCompletedEventArgs
                 {
                     NotificationId = id,
+                    NotificationTag = _notifications.TryGetValue(id, out var notification) ? notification.Tag : null,
                     IsActivated = isActivated,
                     ActionTag = isActivated ? null : invoked.Action
                 };

@@ -15,6 +15,8 @@ namespace Avalonia.Labs.Notifications
         string Category { get; }
         string? Title { get; set; }
 
+        /// <summary>Application-defined value, returned in <see cref="NativeNotificationCompletedEventArgs.NotificationTag"/>.</summary>
+        /// <remarks>In the browser, notifications with the same tag replace each other.</remarks>
         string? Tag { get; set; }
         string? Message { get; set; }
         TimeSpan? Expiration { get; set; }
@@ -72,6 +74,9 @@ namespace Avalonia.Labs.Notifications
         // tag of the action
         public string? ActionTag { get; init; }
         public uint? NotificationId { get; init; }
+
+        /// <summary><see cref="INativeNotification.Tag"/> of the notification that raised the event.</summary>
+        public string? NotificationTag { get; init; }
 
         // could be used for text input
         public object? UserData { get; init; }
