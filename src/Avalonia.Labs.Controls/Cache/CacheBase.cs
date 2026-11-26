@@ -190,7 +190,7 @@ namespace Avalonia.Labs.Controls.Cache
 
             foreach (var uri in uriForCachedItems)
             {
-                string fileName = GetCacheFileName(uri);
+                string fileName = CacheHelper.GetCacheFileName(uri);
                 if (hashDictionary.TryGetValue(fileName, out var file))
                 {
                     filesToDelete.Add(file);
@@ -237,7 +237,7 @@ namespace Avalonia.Labs.Controls.Cache
         {
             var folder = await GetCacheFolderAsync().ConfigureAwait(false);
 
-            return Path.Combine(folder!, GetCacheFileName(uri));
+            return Path.Combine(folder!, CacheHelper.GetCacheFileName(uri));
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Avalonia.Labs.Controls.Cache
         {
             T? instance = default(T);
 
-            string fileName = GetCacheFileName(uri);
+            string fileName = CacheHelper.GetCacheFileName(uri);
 
             if ( _inMemoryFileStorage?.MaxItemCount > 0)
             {
@@ -296,29 +296,11 @@ namespace Avalonia.Labs.Controls.Cache
             return info.Length == 0 || DateTime.Now.Subtract(info.LastWriteTime) > duration;
         }
 
-        private static string GetCacheFileName(Uri uri)
-        {
-            return CreateHash64(uri.ToString()).ToString();
-        }
-
-        private static ulong CreateHash64(string str)
-        {
-            byte[] utf8 = System.Text.Encoding.UTF8.GetBytes(str);
-
-            ulong value = (ulong)utf8.Length;
-            for (int n = 0; n < utf8.Length; n++)
-            {
-                value += (ulong)utf8[n] << ((n * 5) % 56);
-            }
-
-            return value;
-        }
-
         private async Task<T?> GetItemAsync(Uri uri, bool throwOnError, bool preCacheOnly, CancellationToken cancellationToken)
         {
             T? instance = default(T);
 
-            string fileName = GetCacheFileName(uri);
+            string fileName = CacheHelper.GetCacheFileName(uri);
             _concurrentTasks.TryGetValue(fileName, out var request);
 
             // if similar request exists check if it was preCacheOnly and validate that current request isn't preCacheOnly
