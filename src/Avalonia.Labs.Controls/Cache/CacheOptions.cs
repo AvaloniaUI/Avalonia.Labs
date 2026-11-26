@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 
 namespace Avalonia.Labs.Controls.Cache
 {
@@ -14,5 +15,9 @@ namespace Avalonia.Labs.Controls.Cache
 
         public string? BaseCachePath { get; set; }
         public TimeSpan? CacheDuration { get; set; }
+
+        /// <summary>Gets or sets the client used to download http(s) images, e.g. to customize request headers.</summary>
+        /// <remarks>When <see langword="null"/>, a default client is used. The cache never disposes it.</remarks>
+        public HttpClient? HttpClient { get; set; }
     }
 }
