@@ -40,6 +40,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
         _secondaryButton.Click += OnButtonClick;
         _closeButton = e.NameScope.Get<Button>(s_tpCloseButton);
         _closeButton.Click += OnButtonClick;
+        _backgroundElement = e.NameScope.Find<Control>(s_tpBackgroundElement);
 
         EnsureDefaultButton();
         EnsureButtonsOrder();
@@ -121,6 +122,26 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
                 break;
         }
         base.OnKeyDown(e);
+    }
+
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+
+        // Hide would overwrite the result of a close that is already in progress.
+        if (e.Handled || !IsLightDismissEnabled || _backgroundElement is null || _hasDeferralActive
+            || _tcs is not { Task.IsCompleted: false })
+        {
+            return;
+        }
+
+        // Ancestors of the dialog box are background; presses inside it or its popups are not.
+        if (e.Source is Visual source
+            && (ReferenceEquals(source, this) || source.IsVisualAncestorOf(_backgroundElement)))
+        {
+            e.Handled = true;
+            Hide(ContentDialogResult.None);
+        }
     }
 
 
@@ -599,6 +620,7 @@ public partial class ContentDialog : ContentControl, ICustomKeyboardNavigation
     private Button? _primaryButton;
     private Button? _secondaryButton;
     private Button? _closeButton;
+    private Control? _backgroundElement;
     private bool _hasDeferralActive;
     private IDisposable? _keyEventFilter;
 }

@@ -44,6 +44,9 @@
         <CheckBox Content="FullSizeDesired" IsChecked="{Binding FullSizeDesired}"
                   ToolTip.ShowDelay="100"
                   ToolTip.Tip="Full size stretches the dialog to &quot;full screen&quot;. &#x0a; Though, it just stretches it to the height size of a Content Dialog. &#x0a;"/>
+        <CheckBox Content="IsLightDismissEnabled" IsChecked="{Binding IsLightDismissEnabled}"
+                  ToolTip.ShowDelay="100"
+                  ToolTip.Tip="Close the dialog when the area outside of it is pressed."/>
       </StackPanel>
     </StackPanel>
 
