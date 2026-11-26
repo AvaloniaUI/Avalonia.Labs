@@ -1,23 +1,75 @@
 <Project>
-  <Target Name="CopyNotificationStaticAssets" BeforeTargets="ResolveStaticWebAssetsInputs"
-          Condition="Exists('$(MSBuildProjectDirectory)\wwwroot')">
-    <ItemGroup>
-      <_NotificationAssets Include="$(MSBuildThisFileDirectory)..\staticwebassets\notifications-service-worker.js" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_NotificationAssets)"
-          DestinationFolder="$(MSBuildProjectDirectory)\wwwroot\"
-          SkipUnchangedFiles="true"
-          Condition="Exists('@(_NotificationAssets)')" />
-  </Target>
+  <!-- staticwebassets/ in the package, wwwroot/ in the repo. -->
+  <PropertyGroup>
+    <_AvaloniaNotificationsJsDir Condition="Exists('$(MSBuildThisFileDirectory)../staticwebassets/notifications.js')">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../staticwebassets'))</_AvaloniaNotificationsJsDir>
+    <_AvaloniaNotificationsJsDir Condition="'$(_AvaloniaNotificationsJsDir)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../wwwroot'))</_AvaloniaNotificationsJsDir>
+  </PropertyGroup>
 
-  <Target Name="CopyNotificationStaticAssetsPublish" BeforeTargets="BeforePublish"
-          Condition="Exists('$(MSBuildProjectDirectory)\wwwroot')">
-    <ItemGroup>
-      <_NotificationAssets Include="$(MSBuildThisFileDirectory)..\staticwebassets\notifications-service-worker.js" />
+  <!-- Legacy WASM projects have no static web assets pipeline. -->
+  <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'browser' and '$(UsingMicrosoftNETSdkStaticWebAssets)' != 'true'">
+    <WasmExtraFilesToDeploy Include="$(_AvaloniaNotificationsJsDir)notifications.js*"
+                            TargetPath="_content/Avalonia.Labs.Notifications/%(FileName)%(Extension)" />
+    <WasmExtraFilesToDeploy Include="$(_AvaloniaNotificationsJsDir)notifications-service-worker.js*"
+                            TargetPath="%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Assets are defined in the app's build rather than packed, as Avalonia.Browser does. -->
+  <Target Name="_AvaloniaNotificationsDefineStaticWebAssets"
+          Condition="'$(TargetPlatformIdentifier)' == 'browser' and '$(UsingMicrosoftNETSdkStaticWebAssets)' == 'true'"
+          AfterTargets="ResolveProjectStaticWebAssets"
+          DependsOnTargets="ResolveStaticWebAssetsConfiguration;ResolveReferences">
+
+    <!-- Re-check now that the project reference has been built: Bun writes wwwroot/ during that build. -->
+    <PropertyGroup>
+      <_AvaloniaNotificationsJsDir Condition="Exists('$(MSBuildThisFileDirectory)../wwwroot/notifications.js')">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)../wwwroot'))</_AvaloniaNotificationsJsDir>
+    </PropertyGroup>
+
+    <!-- Design time builds do not build the project reference, so wwwroot may legitimately be absent. -->
+    <Error Condition="!Exists('$(_AvaloniaNotificationsJsDir)notifications.js') and '$(DesignTimeBuild)' != 'true'"
+           Text="Avalonia.Labs.Notifications JavaScript assets were not found in '$(_AvaloniaNotificationsJsDir)'. This usually indicates a packaging error." />
+
+    <ItemGroup Condition="Exists('$(_AvaloniaNotificationsJsDir)notifications.js')">
+      <!-- Imported from a fixed URL, so it is not fingerprinted. -->
+      <_AvaloniaNotificationsContentJs Include="$(_AvaloniaNotificationsJsDir)notifications.js;$(_AvaloniaNotificationsJsDir)notifications.js.map" />
+      <!-- serviceWorker.register resolves against the document and scopes the worker to its own directory. -->
+      <_AvaloniaNotificationsRootJs Include="$(_AvaloniaNotificationsJsDir)notifications-service-worker.js;$(_AvaloniaNotificationsJsDir)notifications-service-worker.js.map" />
+
+      <!-- Separate update: %(Filename) would be a self-reference (MSB4120). -->
+      <_AvaloniaNotificationsContentJs>
+        <RelativePath>_content/Avalonia.Labs.Notifications/%(Filename)%(Extension)</RelativePath>
+      </_AvaloniaNotificationsContentJs>
+      <_AvaloniaNotificationsRootJs>
+        <RelativePath>%(Filename)%(Extension)</RelativePath>
+      </_AvaloniaNotificationsRootJs>
+      <_AvaloniaNotificationsJs Include="@(_AvaloniaNotificationsContentJs);@(_AvaloniaNotificationsRootJs)" />
     </ItemGroup>
-    <Copy SourceFiles="@(_NotificationAssets)"
-          DestinationFolder="$(PublishDir)\wwwroot\"
-          SkipUnchangedFiles="true"
-          Condition="Exists('@(_NotificationAssets)')" />
+
+    <DefineStaticWebAssets
+      Condition="'@(_AvaloniaNotificationsJs)' != ''"
+      CandidateAssets="@(_AvaloniaNotificationsJs)"
+      FingerprintCandidates="false"
+      SourceId="Avalonia.Labs.Notifications"
+      SourceType="Computed"
+      AssetKind="All"
+      AssetRole="Primary"
+      CopyToOutputDirectory="PreserveNewest"
+      CopyToPublishDirectory="PreserveNewest"
+      ContentRoot="$(_AvaloniaNotificationsJsDir)"
+      BasePath="$(StaticWebAssetBasePath)">
+      <Output TaskParameter="Assets" ItemName="_AvaloniaNotificationsStaticWebAsset" />
+    </DefineStaticWebAssets>
+
+    <DefineStaticWebAssetEndpoints
+      Condition="'@(_AvaloniaNotificationsStaticWebAsset)' != ''"
+      CandidateAssets="@(_AvaloniaNotificationsStaticWebAsset)"
+      ExistingEndpoints="@(StaticWebAssetEndpoint)"
+      ContentTypeMappings="@(StaticWebAssetContentTypeMapping)">
+      <Output TaskParameter="Endpoints" ItemName="_AvaloniaNotificationsStaticWebAssetEndpoint" />
+    </DefineStaticWebAssetEndpoints>
+
+    <ItemGroup>
+      <StaticWebAsset Include="@(_AvaloniaNotificationsStaticWebAsset)" />
+      <StaticWebAssetEndpoint Include="@(_AvaloniaNotificationsStaticWebAssetEndpoint)" />
+    </ItemGroup>
   </Target>
 </Project>

@@ -13,4 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Avalonia.Labs.Catalog\Avalonia.Labs.Catalog.csproj" />
   </ItemGroup>
+
+  <!-- NuGet imports these from the package; a project reference needs them imported explicitly. -->
+  <Import Project="..\..\src\Avalonia.Labs.Notifications\build\Avalonia.Labs.Notifications.targets" />
 </Project>

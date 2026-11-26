@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFrameworks>net8.0;net10.0-android;net10.0-ios;net10.0-browser</TargetFrameworks>
@@ -34,14 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\Avalonia.Labs.Notifications.targets" Pack="true" PackagePath="buildTransitive" />
-    <!-- The Razor SDK treats *.json as Content, which iOS/Android try to bundle into the app. -->
-    <Content Remove="**\*.json" />
-    <None Include="**\*.json" Exclude="bin\**;obj\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <None Include="build\Avalonia.Labs.Notifications.targets" Pack="true" PackagePath="build/;buildTransitive/" />
   </ItemGroup>
 
   <!-- Compiles Browser/*.ts into wwwroot with Bun as a .NET tool, as Avalonia.Browser does. -->
@@ -56,11 +49,10 @@
     <Exec Command="dnx Bun.Unofficial.Tool --yes -- --bun run build" WorkingDirectory="Browser" />
   </Target>
 
-  <!-- wwwroot is empty when the SDK collects it on a clean build, so the scripts become static web assets here. -->
-  <Target Name="IncludeNotificationsScripts" DependsOnTargets="BuildNotificationsScripts"
-          BeforeTargets="ResolveProjectStaticWebAssets">
+  <!-- Packed as plain files; build/Avalonia.Labs.Notifications.targets defines the static web assets in the app. -->
+  <Target Name="IncludeNotificationsPackageFiles" DependsOnTargets="BuildNotificationsScripts" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
-      <Content Include="wwwroot\**" Exclude="@(Content)" />
+      <Content Include="wwwroot\**" Pack="true" PackagePath="staticwebassets/" CopyToOutputDirectory="Never" />
     </ItemGroup>
   </Target>
 
