@@ -49,6 +49,11 @@ namespace Avalonia.Labs.Catalog.ViewModels
             {
                 Response = "Notification was dismissed";
             }
+
+            if (e.NotificationTag != null)
+            {
+                Response += $" (tag: {e.NotificationTag})";
+            }
             _currentNotification?.Close();
         }
 
@@ -66,7 +71,8 @@ namespace Avalonia.Labs.Catalog.ViewModels
             {
                 notification.Title = "Hello Avalonia";
                 notification.Message = "Hello, this is a basic notification. It doesn't pop out.";
-                
+                notification.Tag = "basic";
+
                 notification.Show();
             }
         }

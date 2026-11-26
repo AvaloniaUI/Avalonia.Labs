@@ -1,6 +1,7 @@
 #if INCLUDE_WINDOWS
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
@@ -105,18 +106,21 @@ namespace Avalonia.Labs.Notifications.Windows
             var splits = invokedArgs.Split(';');
             foreach(var split in splits)
             {
-                var parts = split.Split('=');
-                args[parts[0]] = parts[1];
+                var parts = split.Split('=', 2);
+                if (parts.Length == 2)
+                    args[parts[0]] = Uri.UnescapeDataString(parts[1]);
             }
 
-            if (args.ContainsKey("notificationId"))
+            if (args.TryGetValue("notificationId", out var notificationIdString)
+                && uint.TryParse(notificationIdString, NumberStyles.None, CultureInfo.InvariantCulture, out var notificationId))
             {
-                var action = args["action"];
-                var userAction = action == "user" ? args["userAction"] : null;
-                var input = pairs.ContainsKey("input") ? pairs["input"] : null;
+                var action = args.GetValueOrDefault("action");
+                var userAction = action == "user" ? args.GetValueOrDefault("userAction") : null;
+                var input = pairs.GetValueOrDefault("input");
                 var eventArgs = new NativeNotificationCompletedEventArgs()
                 {
-                    NotificationId = uint.Parse(args["notificationId"]),
+                    NotificationId = notificationId,
+                    NotificationTag = args.GetValueOrDefault("tag"),
                     IsActivated = action == "activate",
                     ActionTag = userAction,
                     UserData = input

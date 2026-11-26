@@ -55,7 +55,8 @@ partial class BrowserNotificationManager : INativeNotificationManagerImpl
             NotificationCompleted?.Invoke(this, new NativeNotificationCompletedEventArgs()
             {
                 IsCancelled = true,
-                NotificationId = id
+                NotificationId = id,
+                NotificationTag = item.Tag
             });
         }
     }
@@ -71,7 +72,8 @@ partial class BrowserNotificationManager : INativeNotificationManagerImpl
                 ActionTag = obj.action,
                 IsActivated = string.IsNullOrWhiteSpace(obj.action),
                 IsCancelled = false,
-                NotificationId = id
+                NotificationId = id,
+                NotificationTag = item.Tag
             });
         }
     }
@@ -88,6 +90,7 @@ partial class BrowserNotificationManager : INativeNotificationManagerImpl
                 IsActivated = string.IsNullOrWhiteSpace(obj.action),
                 IsCancelled = false,
                 NotificationId = id,
+                NotificationTag = item.Tag,
                 UserData = reply
             });            
         }

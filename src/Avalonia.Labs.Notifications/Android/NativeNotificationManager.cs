@@ -1,6 +1,7 @@
 ﻿#if ANDROID
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
@@ -102,14 +103,15 @@ namespace Avalonia.Labs.Notifications.Android
             if (intent == null)
                 return;
 
-            var id = intent.Extras?.GetInt("notification-id");
-            if (id != null)
+            // Stored as a string extra, GetInt would return 0.
+            if (uint.TryParse(intent.Extras?.GetString("notification-id"), NumberStyles.None, CultureInfo.InvariantCulture, out var id))
             {
                 var action = intent.Extras?.GetString("notification-action");
                 var userAction = intent.Extras?.GetString("user-action");
                 var eventArgs = new NativeNotificationCompletedEventArgs()
                 {
-                    NotificationId = (uint?)id,
+                    NotificationId = id,
+                    NotificationTag = intent.Extras?.GetString("notification-tag"),
                     IsActivated = action == "activate",
                     IsCancelled = action == "cancel",
                     ActionTag = userAction,

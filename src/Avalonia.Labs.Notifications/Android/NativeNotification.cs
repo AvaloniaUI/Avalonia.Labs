@@ -84,9 +84,11 @@ namespace Avalonia.Labs.Notifications.Android
             tapBundle.PutString("type", "notification");
             tapBundle.PutString("notification-id", Id.ToString());
             tapBundle.PutString("notification-action", "activate");
+            tapBundle.PutString("notification-tag", Tag);
             deleteBundle.PutString("type", "notification");
             deleteBundle.PutString("notification-id", Id.ToString());
             deleteBundle.PutString("notification-action", "cancel");
+            deleteBundle.PutString("notification-tag", Tag);
             var tapIntent = new Intent(_context, _context.Class)
                 .SetFlags(ActivityFlags.SingleTop)
                 .PutExtras(tapBundle);
@@ -95,7 +97,8 @@ namespace Avalonia.Labs.Notifications.Android
                 .SetFlags(ActivityFlags.SingleTop)
                 .PutExtras(deleteBundle);
 
-            var flags = OperatingSystem.IsAndroidVersionAtLeast(31) ? PendingIntentFlags.Mutable : PendingIntentFlags.UpdateCurrent;
+            // Notifications with the same Tag share request codes, UpdateCurrent keeps their extras fresh.
+            var flags = OperatingSystem.IsAndroidVersionAtLeast(31) ? PendingIntentFlags.Mutable | PendingIntentFlags.UpdateCurrent : PendingIntentFlags.UpdateCurrent;
             
             builder.SetContentIntent(PendingIntent.GetActivity(_context, pendingIntentId + 1, tapIntent, flags))!
                 .SetDeleteIntent(PendingIntent.GetBroadcast(_context, pendingIntentId + 2, deleteIntent, flags));
@@ -123,7 +126,8 @@ namespace Avalonia.Labs.Notifications.Android
                 var actionbundle = new Bundle();
                 actionbundle.PutString("type", "notification");
                 actionbundle.PutString("notification-id", Id.ToString());
-                tapBundle.PutString("notification-action", "action");
+                actionbundle.PutString("notification-action", "action");
+                actionbundle.PutString("notification-tag", Tag);
                 actionbundle.PutString("user-action", action.Tag);
 
                 var icon = action.Icon != null && action.Icon.ToAndroid() is { } bitmap ? IconCompat.CreateWithBitmap(bitmap) : IconCompat.CreateWithResource(_context, _context.ApplicationInfo?.Icon ?? 0);

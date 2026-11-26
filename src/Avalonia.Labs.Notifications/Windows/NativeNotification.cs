@@ -69,7 +69,7 @@ namespace Avalonia.Labs.Notifications.Windows
                     {
                         hasInput = true;
                     }
-                    subActions += $"<action content='{SecurityElement.Escape(action.Caption)}' {(ReplyActionTag == action.Tag && Actions.Count == 1 ? $"hint-inputId='input'" : "")} arguments='action=user;userAction={SecurityElement.Escape(action.Tag)};notificationId={Id}'/>";
+                    subActions += $"<action content='{SecurityElement.Escape(action.Caption)}' {(ReplyActionTag == action.Tag && Actions.Count == 1 ? $"hint-inputId='input'" : "")} arguments='{SecurityElement.Escape(BuildArguments("user", action.Tag))}'/>";
                 }
 
                 if (hasInput)
@@ -79,8 +79,8 @@ namespace Avalonia.Labs.Notifications.Windows
 
                 actions = $"""
                     <actions>
-                        ${inputAction}
-                        ${subActions}
+                        {inputAction}
+                        {subActions}
                     </actions>
                     """;
             }
@@ -94,7 +94,7 @@ namespace Avalonia.Labs.Notifications.Windows
             }
 
             var xml = $"""
-              <toast launch='action=activate;notificationId={Id};tag={SecurityElement.Escape(Tag)}'>">
+              <toast launch='{SecurityElement.Escape(BuildArguments("activate", null))}'>
                 <visual>
                   <binding template="ToastGeneric">
                     <text>{SecurityElement.Escape(Title)}</text>
@@ -126,6 +126,17 @@ namespace Avalonia.Labs.Notifications.Windows
             _manager.Show(this);
             CurrentNotification?.Dispose();
             CurrentNotification = null;
+        }
+
+        private string BuildArguments(string action, string? userAction)
+        {
+            // Percent-encoded, so ';' and '=' in values can't break OnNotificationReceived parsing.
+            var arguments = $"action={action};notificationId={Id}";
+            if (userAction is not null)
+                arguments += $";userAction={Uri.EscapeDataString(userAction)}";
+            if (Tag is not null)
+                arguments += $";tag={Uri.EscapeDataString(Tag)}";
+            return arguments;
         }
 
         private static uint GetNextId()

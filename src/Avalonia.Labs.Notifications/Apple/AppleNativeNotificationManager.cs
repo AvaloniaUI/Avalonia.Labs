@@ -72,6 +72,7 @@ internal class AppleNativeNotificationManager : INativeNotificationManagerImpl, 
         NotificationCompleted?.Invoke(this, new NativeNotificationCompletedEventArgs
         {
             NotificationId = notificationTuple.Item1.Id,
+            NotificationTag = notificationTuple.Item1.Tag,
             IsActivated = e.actionId == defaultActionId,
             ActionTag = e.actionId == defaultActionId ? null : e.actionId,
             UserData = e.userText
