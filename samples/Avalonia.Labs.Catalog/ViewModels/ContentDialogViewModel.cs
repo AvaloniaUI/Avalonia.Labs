@@ -44,6 +44,9 @@ public partial class ContentDialogViewModel : ViewModelBase
     [ObservableProperty]
     public partial bool FullSizeDesired { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsLightDismissEnabled { get; set; }
+
     public ContentDialogButton[] ContentDialogButtons { get; } = Enum.GetValues<ContentDialogButton>();
 
     [ObservableProperty]
@@ -96,6 +99,7 @@ public partial class ContentDialogViewModel : ViewModelBase
                     IsSecondaryButtonEnabled = IsSecondaryButtonEnabled,
                     DefaultButton = ContentDialogDefaultButton,
                     FullSizeDesired = FullSizeDesired,
+                    IsLightDismissEnabled = IsLightDismissEnabled,
                     ButtonsOrder = ContentDialogButtonsOrder
                 };
                 hasDeferral = parameter is DialogMode.Deferal;

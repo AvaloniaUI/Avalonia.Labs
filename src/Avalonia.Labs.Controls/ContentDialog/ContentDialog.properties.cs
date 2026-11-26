@@ -12,6 +12,7 @@ namespace Avalonia.Labs.Controls;
 [TemplatePart(s_tpPrimaryButton, typeof(Button))]
 [TemplatePart(s_tpSecondaryButton, typeof(Button))]
 [TemplatePart(s_tpCloseButton, typeof(Button))]
+[TemplatePart(s_tpBackgroundElement, typeof(Control))]
 public partial class ContentDialog
 {
     /// <summary>
@@ -103,6 +104,12 @@ public partial class ContentDialog
     /// </summary>
     public static readonly StyledProperty<bool> FullSizeDesiredProperty =
         AvaloniaProperty.Register<ContentDialog, bool>(nameof(FullSizeDesired));
+
+    /// <summary>
+    /// Defines the <see cref="IsLightDismissEnabled"/> property
+    /// </summary>
+    public static readonly StyledProperty<bool> IsLightDismissEnabledProperty =
+        AvaloniaProperty.Register<ContentDialog, bool>(nameof(IsLightDismissEnabled));
 
     /// <summary>
     /// Defines the <see cref="ButtonsOrder"/> property
@@ -332,6 +339,15 @@ public partial class ContentDialog
     }
 
     /// <summary>
+    /// Gets or sets whether pressing outside the dialog box closes it with <see cref="ContentDialogResult.None"/>.
+    /// </summary>
+    public bool IsLightDismissEnabled
+    {
+        get => GetValue(IsLightDismissEnabledProperty);
+        set => SetValue(IsLightDismissEnabledProperty, value);
+    }
+
+    /// <summary>
     /// Gets or sets visual order of the dialog buttons.
     /// </summary>
     public ContentDialogButtonsOrder ButtonsOrder
@@ -379,6 +395,7 @@ public partial class ContentDialog
     private const string s_tpPrimaryButton = "PART_PrimaryButton";
     private const string s_tpSecondaryButton = "PART_SecondaryButton";
     private const string s_tpCloseButton = "PART_CloseButton";
+    private const string s_tpBackgroundElement = "BackgroundElement";
 
     private const string s_pcPrimary = ":primary";
     private const string s_pcSecondary = ":secondary";
