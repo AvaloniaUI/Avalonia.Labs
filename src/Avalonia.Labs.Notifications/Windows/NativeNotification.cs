@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
+using System.Security;
 using System.Threading;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Media.Imaging;
@@ -68,7 +69,7 @@ namespace Avalonia.Labs.Notifications.Windows
                     {
                         hasInput = true;
                     }
-                    subActions += $"<action content='{action.Caption}' {(ReplyActionTag == action.Tag && Actions.Count == 1 ? $"hint-inputId='input'" : "")} arguments='action=user;userAction={action.Tag};notificationId={Id}'/>";
+                    subActions += $"<action content='{SecurityElement.Escape(action.Caption)}' {(ReplyActionTag == action.Tag && Actions.Count == 1 ? $"hint-inputId='input'" : "")} arguments='action=user;userAction={SecurityElement.Escape(action.Tag)};notificationId={Id}'/>";
                 }
 
                 if (hasInput)
@@ -89,15 +90,15 @@ namespace Avalonia.Labs.Notifications.Windows
             {
                 var name = _manager.SaveBitmapToAppPath(icon);
 
-                image = $"<image placement='appLogoOverride' src='{name}'/>";
+                image = $"<image placement='appLogoOverride' src='{SecurityElement.Escape(name)}'/>";
             }
 
             var xml = $"""
-              <toast launch='action=activate;notificationId={Id};tag={Tag}'>">
+              <toast launch='action=activate;notificationId={Id};tag={SecurityElement.Escape(Tag)}'>">
                 <visual>
                   <binding template="ToastGeneric">
-                    <text>{Title}</text>
-                    <text>{Message}</text>
+                    <text>{SecurityElement.Escape(Title)}</text>
+                    <text>{SecurityElement.Escape(Message)}</text>
                     {image}
                   </binding>
                 </visual>
