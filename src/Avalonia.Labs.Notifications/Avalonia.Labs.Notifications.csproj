@@ -48,5 +48,25 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <!-- Compiles Browser/*.ts into wwwroot with Bun as a .NET tool, as Avalonia.Browser does. -->
+  <ItemGroup>
+    <NotificationsScriptSource Include="Browser\*.ts;Browser\tsconfig*.json;Browser\package.json" />
+  </ItemGroup>
+
+  <Target Name="BuildNotificationsScripts" BeforeTargets="DispatchToInnerBuilds;BeforeBuild"
+          Condition="'$(DesignTimeBuild)' != 'true'"
+          Inputs="@(NotificationsScriptSource)" Outputs="wwwroot\notifications.js;wwwroot\notifications-service-worker.js">
+    <Exec Command="dnx Bun.Unofficial.Tool --yes -- install" WorkingDirectory="Browser" />
+    <Exec Command="dnx Bun.Unofficial.Tool --yes -- --bun run build" WorkingDirectory="Browser" />
+  </Target>
+
+  <!-- wwwroot is empty when the SDK collects it on a clean build, so the scripts become static web assets here. -->
+  <Target Name="IncludeNotificationsScripts" DependsOnTargets="BuildNotificationsScripts"
+          BeforeTargets="ResolveProjectStaticWebAssets">
+    <ItemGroup>
+      <Content Include="wwwroot\**" Exclude="@(Content)" />
+    </ItemGroup>
+  </Target>
+
   <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
 </Project>
