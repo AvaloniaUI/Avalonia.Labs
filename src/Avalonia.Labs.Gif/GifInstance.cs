@@ -17,7 +17,6 @@ internal class GifInstance : IDisposable
     private readonly WriteableBitmap? _targetBitmap;
     private TimeSpan _totalTime;
     private readonly List<TimeSpan>? _frameTimes;
-    private uint _iterationCount;
     private int _currentFrameIndex;
 
     private CancellationTokenSource CurrentCts { get; }
@@ -80,11 +79,6 @@ internal class GifInstance : IDisposable
 
     public WriteableBitmap? ProcessFrameTime(TimeSpan elapsed)
     {
-        if (!IterationCount.IsInfinite && _iterationCount > IterationCount.Value)
-        {
-            return null;
-        }
-
         if (CurrentCts.IsCancellationRequested)
         {
             return null;
@@ -100,8 +94,14 @@ internal class GifInstance : IDisposable
             return ProcessFrameIndex(0);
         }
 
-
         var elapsedTicks = elapsed.Ticks;
+
+        // Once all iterations have played, hold the frame the animation ended on.
+        if (!IterationCount.IsInfinite && (ulong)(elapsedTicks / totalTicks) >= IterationCount.Value)
+        {
+            return ProcessFrameIndex(IterationCount.Value == 0 ? 0 : _frameTimes.Count - 1);
+        }
+
         var timeModulus = TimeSpan.FromTicks(elapsedTicks % totalTicks);
         var targetFrame = _frameTimes.FirstOrDefault(x => timeModulus < x);
         var currentFrame = _frameTimes.IndexOf(targetFrame);
@@ -110,8 +110,6 @@ internal class GifInstance : IDisposable
 
         if (_currentFrameIndex == currentFrame)
             return _targetBitmap;
-
-        _iterationCount = (uint)(elapsedTicks / totalTicks);
 
         return ProcessFrameIndex(currentFrame);
     }
