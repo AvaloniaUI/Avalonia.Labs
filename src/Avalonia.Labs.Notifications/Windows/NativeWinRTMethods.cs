@@ -1,10 +1,11 @@
 ﻿#if INCLUDE_WINDOWS
 using System;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Versioning;
 using System.Threading;
 using Windows.Win32;
 using Windows.Win32.System.WinRT;
-using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows;
 
@@ -12,6 +13,32 @@ namespace Avalonia.Labs.Notifications.Windows;
 internal static unsafe class NativeWinRTMethods
 {
     private static bool s_initialized;
+
+    internal static StrategyBasedComWrappers ComWrappers { get; } = new();
+
+    internal static T CreateInstance<T>(string fullName) where T : class
+    {
+        using var fullNameStr = new HStringWrapper(fullName);
+        EnsureRoInitialized();
+
+        IInspectable* inspectable;
+        PInvoke.RoActivateInstance(fullNameStr, &inspectable).ThrowOnFailure();
+
+        return GetObjectForComInstance<T>(inspectable);
+    }
+
+    internal static TFactory CreateActivationFactory<TFactory>(string fullName) where TFactory : class
+    {
+        using var fullNameStr = new HStringWrapper(fullName);
+        EnsureRoInitialized();
+
+        var guid = typeof(TFactory).GUID;
+        void* pUnk;
+        PInvoke.RoGetActivationFactory(fullNameStr, &guid, &pUnk).ThrowOnFailure();
+
+        return GetObjectForComInstance<TFactory>(pUnk);
+    }
+
     private static void EnsureRoInitialized()
     {
         if (s_initialized)
@@ -22,29 +49,17 @@ internal static unsafe class NativeWinRTMethods
         s_initialized = true;
     }
 
-    internal static T CreateInstance<T>(string fullName) where T : IUnknown
+    private static T GetObjectForComInstance<T>(void* pUnk) where T : class
     {
-        using var fullNameStr = new HStringWrapper(fullName);
-        EnsureRoInitialized();
-
-        IInspectable* inspectable;
-        PInvoke.RoActivateInstance(fullNameStr, &inspectable).ThrowOnFailure();
-
-        using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(inspectable, true);
-        return unk.QueryInterface<T>();
-    }
-
-    internal static TFactory CreateActivationFactory<TFactory>(string fullName) where TFactory : IUnknown
-    {
-        using var fullNameStr = new HStringWrapper(fullName);
-        EnsureRoInitialized();
-
-        var guid = MicroComRuntime.GetGuidFor(typeof(TFactory));
-        void* pUnk;
-        PInvoke.RoGetActivationFactory(fullNameStr, &guid, &pUnk).ThrowOnFailure();
-
-        using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
-        return unk.QueryInterface<TFactory>();
+        try
+        {
+            return (T)ComWrappers.GetOrCreateObjectForComInstance((nint)pUnk, CreateObjectFlags.None);
+        }
+        finally
+        {
+            // The wrapper holds its own reference.
+            Marshal.Release((nint)pUnk);
+        }
     }
 }
 

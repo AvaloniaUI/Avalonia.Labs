@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
@@ -9,9 +10,11 @@ namespace Avalonia.Labs.Catalog.MarkupExtensions;
 
     public sealed class EnumItemsSourceExtension : MarkupExtension
     {
-        #region MarkupExtension Members
+    #region MarkupExtension Members
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
+    [UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072")]
+    public override object ProvideValue(IServiceProvider serviceProvider)
         {
             if (Type == null) throw new InvalidOperationException("You need to set the Enum type");
 

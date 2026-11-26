@@ -43,4 +43,5 @@
     <Folder Include="Assets\AnimatedImages\" />
   </ItemGroup>
 
+  <Import Project="$(RepositoryTargetsRoot)/TrimmingEnable.targets" />
 </Project>

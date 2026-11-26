@@ -9,7 +9,6 @@ using System.Text;
 using Avalonia.Labs.Notifications.Windows.WinRT;
 using Avalonia.Logging;
 using Avalonia.Media.Imaging;
-using MicroCom.Runtime;
 
 namespace Avalonia.Labs.Notifications.Windows
 {
@@ -35,17 +34,17 @@ namespace Avalonia.Labs.Notifications.Windows
 
         public void CloseAll()
         {
-            using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
-            if (managerStatics.QueryInterface<IToastNotificationManagerStatics2>() is { } manager2)
+            var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
+            if (managerStatics is IToastNotificationManagerStatics2 manager2)
             {
                 if (_aumid.syntetic)
                 {
                     using var hstring = new HStringWrapper(_aumid.id);
-                    manager2.History.ClearWithId(hstring);
+                    manager2.GetHistory().ClearWithId(hstring);
                 }
                 else
                 {
-                    manager2.History.Clear();
+                    manager2.GetHistory().Clear();
                 }
             }
         }
@@ -135,7 +134,7 @@ namespace Avalonia.Labs.Notifications.Windows
             if (nativeNotification.CurrentNotification == null)
                 return;
 
-            using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
+            var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
 
             IToastNotifier notifier;
 
@@ -149,17 +148,14 @@ namespace Avalonia.Labs.Notifications.Windows
                 notifier = managerStatics.CreateToastNotifier();
             }
 
-            using (notifier)
-            {
-                notifier.Show(nativeNotification.CurrentNotification);
-                _notifications[nativeNotification.Id] = nativeNotification;
-            }
+            notifier.Show(nativeNotification.CurrentNotification);
+            _notifications[nativeNotification.Id] = nativeNotification;
         }
 
         internal void Close(NativeNotification nativeNotification)
         {
-            using var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
-            if(managerStatics.QueryInterface<IToastNotificationManagerStatics2>() is { } manager2)
+            var managerStatics = NativeWinRTMethods.CreateActivationFactory<IToastNotificationManagerStatics>("Windows.UI.Notifications.ToastNotificationManager");
+            if(managerStatics is IToastNotificationManagerStatics2 manager2)
             {
                 using var tagStr = new HStringWrapper(nativeNotification.Id.ToString());
                 using var groupStr = new HStringWrapper(NotificationsGroupName);
@@ -167,11 +163,11 @@ namespace Avalonia.Labs.Notifications.Windows
                 if (_aumid.syntetic)
                 {
                     using var appIdStr = new HStringWrapper(_aumid.id);
-                    manager2.History.RemoveGroupedTagWithId(tagStr, groupStr, appIdStr);
+                    manager2.GetHistory().RemoveGroupedTagWithId(tagStr, groupStr, appIdStr);
                 }
                 else
                 {
-                    manager2.History.RemoveGroupedTag(tagStr, groupStr);
+                    manager2.GetHistory().RemoveGroupedTag(tagStr, groupStr);
                 }
             }
             _notifications.Remove(nativeNotification.Id);

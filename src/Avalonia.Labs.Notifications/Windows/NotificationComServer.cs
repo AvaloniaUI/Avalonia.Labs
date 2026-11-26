@@ -1,11 +1,10 @@
 ﻿#if INCLUDE_WINDOWS
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.System.Com;
-using Avalonia.Labs.Notifications.Windows.WinRT;
-using MicroCom.Runtime;
 using Microsoft.Win32;
 using IUnknown = Windows.Win32.System.Com.IUnknown;
 
@@ -14,22 +13,24 @@ namespace Avalonia.Labs.Notifications.Windows;
 [SupportedOSPlatform("windows8.1")]
 internal class NotificationComServer
 {
-    private static NotificationActivatorClassFactory? s_classFactory;
+    private static nint s_classFactory;
     private static uint s_cookie;
 
     public static unsafe void CreateAndRegisterActivator(Guid uuid)
     {
-        if (s_classFactory is not null)
+        if (s_classFactory != 0)
             throw new InvalidOperationException("Already registered.");
 
+        var classFactory = nint.Zero;
         try
         {
             if (!DesktopBridgeHelpers.IsContainerized())
                 RegisterComServer(uuid);
 
-            var classFactory = new NotificationActivatorClassFactory(uuid);
+            classFactory = NativeWinRTMethods.ComWrappers.GetOrCreateComInterfaceForObject(
+                new NotificationActivatorClassFactory(uuid), CreateComInterfaceFlags.None);
             PInvoke.CoRegisterClassObject(uuid,
-                (IUnknown*)classFactory.GetNativeIntPtr<IClassFactory>(),
+                (IUnknown*)classFactory,
                 CLSCTX.CLSCTX_LOCAL_SERVER,
                 REGCLS.REGCLS_MULTIPLEUSE,
                 out s_cookie).ThrowOnFailure();
@@ -37,6 +38,9 @@ internal class NotificationComServer
         }
         catch
         {
+            if (classFactory != 0)
+                Marshal.Release(classFactory);
+
             // Don't leave a registration behind that points at a class object that was never registered.
             DeleteActivatorRegistration(uuid);
             throw;
@@ -45,11 +49,12 @@ internal class NotificationComServer
 
     public static void UnregisterActivator()
     {
-        if (s_classFactory is null)
+        if (s_classFactory == 0)
             return;
 
-        s_classFactory = null;
         PInvoke.CoRevokeClassObject(s_cookie);
+        Marshal.Release(s_classFactory);
+        s_classFactory = 0;
         s_cookie = 0;
     }
 

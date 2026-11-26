@@ -35,23 +35,23 @@ namespace Avalonia.Labs.Catalog.ViewModels
             RemoveItemCommand = new RelayCommand(RemoveItem, () => SelectedItem != null);
         }
 
-        public IEnumerable DirectionValues { get; } = Enum.GetValues(typeof(FlexDirection));
+        public IEnumerable DirectionValues { get; } = Enum.GetValues<FlexDirection>();
 
-        public IEnumerable JustifyContentValues { get; } = Enum.GetValues(typeof(JustifyContent));
+        public IEnumerable JustifyContentValues { get; } = Enum.GetValues<JustifyContent>();
 
-        public IEnumerable AlignItemsValues { get; } = Enum.GetValues(typeof(AlignItems));
+        public IEnumerable AlignItemsValues { get; } = Enum.GetValues<AlignItems>();
 
-        public IEnumerable AlignContentValues { get; } = Enum.GetValues(typeof(AlignContent));
+        public IEnumerable AlignContentValues { get; } = Enum.GetValues<AlignContent>();
 
-        public IEnumerable WrapValues { get; } = Enum.GetValues(typeof(FlexWrap));
+        public IEnumerable WrapValues { get; } = Enum.GetValues<FlexWrap>();
 
-        public IEnumerable FlexBasisKindValues { get; } = Enum.GetValues(typeof(FlexBasisKind));
+        public IEnumerable FlexBasisKindValues { get; } = Enum.GetValues<FlexBasisKind>();
 
-        public IEnumerable HorizontalAlignmentValues { get; } = Enum.GetValues(typeof(HorizontalAlignment));
+        public IEnumerable HorizontalAlignmentValues { get; } = Enum.GetValues<HorizontalAlignment>();
 
-        public IEnumerable VerticalAlignmentValues { get; } = Enum.GetValues(typeof(VerticalAlignment));
+        public IEnumerable VerticalAlignmentValues { get; } = Enum.GetValues<VerticalAlignment>();
 
-        public IEnumerable AlignSelfValues { get; } = Enum.GetValues(typeof(AlignItems)).Cast<AlignItems>().Prepend(FlexItemViewModel.AlignSelfAuto);
+        public IEnumerable AlignSelfValues { get; } = Enum.GetValues<AlignItems>().Prepend(FlexItemViewModel.AlignSelfAuto);
 
         [ObservableProperty]
         public partial FlexDirection Direction { get; set; } = FlexDirection.Row;
