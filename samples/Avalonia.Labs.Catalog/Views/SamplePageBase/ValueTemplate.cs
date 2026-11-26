@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using Avalonia.Labs.Controls;
+using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings;
 
 namespace Avalonia.Labs.Catalog.Views.SamplePageBase;
 
@@ -23,18 +28,21 @@ public class ValueTemplate : IDataTemplate
 
         if (propertyType.IsEnum)
         {
-            var control = new ComboBox()
-            {
-                ItemsSource = Enum.GetValues(propertyType)
-            };
+            var control = new ComboBox();
+            if (propertyType == typeof(SpacingMode))
+                control.ItemsSource = Enum.GetValues<SpacingMode>();
+            else if (propertyType == typeof(Orientation))
+                control.ItemsSource = Enum.GetValues<Orientation>();
+            else
+                throw new NotImplementedException();
             CreateBinding(control, SelectingItemsControl.SelectedItemProperty, context);
             return control;
         }
 
-        
         return new TextBlock()
         {
-            [!TextBlock.TextProperty] = new Binding(context.TargetProperty.Name)
+            [!TextBlock.TextProperty] = new CompiledBinding(new CompiledBindingPathBuilder()
+                .Property(context.TargetProperty, PropertyInfoAccessorFactory.CreateAvaloniaPropertyAccessor).Build())
             {
                 Mode = BindingMode.OneWay,
                 Source = context.TargetObject
@@ -44,7 +52,8 @@ public class ValueTemplate : IDataTemplate
 
     private void CreateBinding(Control control, AvaloniaProperty controlProperty, PropertyGridItem context)
     {
-        control[!controlProperty] = new Binding(context.TargetProperty.Name)
+        control[!controlProperty] = new CompiledBinding(new CompiledBindingPathBuilder()
+            .Property(context.TargetProperty, PropertyInfoAccessorFactory.CreateAvaloniaPropertyAccessor).Build())
         {
             Mode = BindingMode.TwoWay,
             Source = context.TargetObject

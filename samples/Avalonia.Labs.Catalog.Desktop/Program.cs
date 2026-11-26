@@ -49,7 +49,7 @@ sealed class Program
                 AppName = "Avalonia.Labs",
                 AppUserModelId = "com.Avalonia.Labs.Catalog",
                 // Is required for Packaged project, optional for the rest.
-                // ComActivatorGuidOverride = Guid.Parse("67890354-2A47-444C-B15F-DBF513C82F03")
+                ComActivatorGuidOverride = Guid.Parse("67890354-2A47-444C-B15F-DBF513C82F03")
             })
             .AfterSetup(builder =>
             {
