@@ -73,12 +73,17 @@ namespace Avalonia.Labs.Controls.Cache
         }
 
         /// <summary>
-        /// Gets instance of <see cref="HttpClient"/>
+        /// Gets <see cref="CacheOptions.HttpClient"/>, or a default <see cref="HttpClient"/> instance.
         /// </summary>
         internal HttpClient HttpClient
         {
             get
             {
+                if (CacheOptions.Default.HttpClient is { } customClient)
+                {
+                    return customClient;
+                }
+
                 if (_httpClient == null)
                 {
                     Interlocked.CompareExchange(ref _httpClient, new HttpClient(), null);
