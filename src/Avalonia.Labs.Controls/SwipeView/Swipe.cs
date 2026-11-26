@@ -437,6 +437,7 @@ public class Swipe : Grid
     private bool _isVerticalSwipe;
     private SwipeDirection _swipeDirection;
     private bool _isInternalStateChange;
+    private bool _hasPendingOpenTranslate;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Swipe"/> class.
@@ -631,6 +632,20 @@ public class Swipe : Grid
         }
     }
 
+    /// <inheritdoc />
+    protected override Size ArrangeOverride(Size arrangeSize)
+    {
+        var result = base.ArrangeOverride(arrangeSize);
+
+        if (_hasPendingOpenTranslate && !_isHorizontalSwipe && !_isVerticalSwipe
+            && TryApplyOpenTranslate(SwipeState))
+        {
+            _hasPendingOpenTranslate = false;
+        }
+
+        return result;
+    }
+
     private void UpdatePanDirections()
     {
         if (_panGestureRecognizer is null)
@@ -736,33 +751,34 @@ public class Swipe : Grid
             case SwipeState.RightVisible:
                 _rightContainer.IsVisible = true;
                 MaterializeDataTemplate(_rightContainer, Right);
-                ApplySwipeTransform(() => SetTranslate(-_rightContainer.Bounds.Width, 0), _rightContainer);
+                ApplyOpenTranslate(state);
                 FocusFirstFocusable(_rightContainer);
                 break;
 
             case SwipeState.LeftVisible:
                 _leftContainer.IsVisible = true;
                 MaterializeDataTemplate(_leftContainer, Left);
-                ApplySwipeTransform(() => SetTranslate(_leftContainer.Bounds.Width, 0), _leftContainer);
+                ApplyOpenTranslate(state);
                 FocusFirstFocusable(_leftContainer);
                 break;
 
             case SwipeState.TopVisible:
                 _topContainer.IsVisible = true;
                 MaterializeDataTemplate(_topContainer, Top);
-                ApplySwipeTransform(() => SetTranslate(0, _topContainer.Bounds.Height), _topContainer);
+                ApplyOpenTranslate(state);
                 FocusFirstFocusable(_topContainer);
                 break;
 
             case SwipeState.BottomVisible:
                 _bottomContainer.IsVisible = true;
                 MaterializeDataTemplate(_bottomContainer, Bottom);
-                ApplySwipeTransform(() => SetTranslate(0, -_bottomContainer.Bounds.Height), _bottomContainer);
+                ApplyOpenTranslate(state);
                 FocusFirstFocusable(_bottomContainer);
                 break;
 
             case SwipeState.Hidden:
             default:
+                _hasPendingOpenTranslate = false;
                 SetTranslate(0, 0);
                 // Return focus to the main body when closed.
                 _bodyContainer.Focus();
@@ -801,18 +817,42 @@ public class Swipe : Grid
         return Math.Max(container.Bounds.Height, container.DesiredSize.Height);
     }
 
-    private void ApplySwipeTransform(Action transformAction, ContentPresenter container)
+    private void ApplyOpenTranslate(SwipeState state)
     {
-        if (container.Bounds.Width > 0 || container.Bounds.Height > 0)
+        // Bounds may be empty or stale if the side wasn't laid out yet, so re-apply after the next arrange.
+        TryApplyOpenTranslate(state);
+        _hasPendingOpenTranslate = true;
+        InvalidateArrange();
+    }
+
+    private bool TryApplyOpenTranslate(SwipeState state)
+    {
+        double x = 0, y = 0;
+        switch (state)
         {
-            transformAction();
-        }
-        else
-        {
-            // If bounds are not ready, defer to next render pass.
-            Dispatcher.UIThread.Post(transformAction, DispatcherPriority.Render);
+            case SwipeState.RightVisible when _rightContainer.Bounds.Width > 0:
+                x = -_rightContainer.Bounds.Width;
+                break;
+            case SwipeState.LeftVisible when _leftContainer.Bounds.Width > 0:
+                x = _leftContainer.Bounds.Width;
+                break;
+            case SwipeState.TopVisible when _topContainer.Bounds.Height > 0:
+                y = _topContainer.Bounds.Height;
+                break;
+            case SwipeState.BottomVisible when _bottomContainer.Bounds.Height > 0:
+                y = -_bottomContainer.Bounds.Height;
+                break;
+            default:
+                return false;
         }
 
+        // Avoid restarting the transition when the translation is already correct.
+        if (x != _currentX || y != _currentY || _bodyContainer.RenderTransform is null)
+        {
+            SetTranslate(x, y);
+        }
+
+        return true;
     }
 
     private void SetTranslate(double x, double y)
@@ -877,6 +917,7 @@ public class Swipe : Grid
 
     private void HandlePanStarted()
     {
+        _hasPendingOpenTranslate = false;
         _initialX = _currentX;
         _initialY = _currentY;
 

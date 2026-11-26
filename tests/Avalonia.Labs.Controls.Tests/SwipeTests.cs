@@ -1795,6 +1795,114 @@ public class SwipeTests
         swipe.IsSwipeEnabled = true;
         Assert.Equal(PanDirection.Right | PanDirection.Left, GetPanDirection(swipe));
     }
+
+    // Regression tests for #120: programmatic SwipeState must reveal never-displayed side content.
+    [AvaloniaTheory]
+    [InlineData(SwipeState.LeftVisible, 70.0, 0.0)]
+    [InlineData(SwipeState.RightVisible, -80.0, 0.0)]
+    [InlineData(SwipeState.TopVisible, 0.0, 40.0)]
+    [InlineData(SwipeState.BottomVisible, 0.0, -50.0)]
+    public void Programmatic_SwipeState_Reveals_Content_That_Was_Never_Displayed(SwipeState state, double expectedX, double expectedY)
+    {
+        var (swipe, window) = CreateSwipeInWindow();
+
+        swipe.SwipeState = state;
+        PumpLayout();
+
+        Assert.Equal((expectedX, expectedY), GetCurrentTranslate(swipe));
+        Assert.Equal(state, swipe.SwipeState);
+        window.Close();
+    }
+
+    [AvaloniaTheory]
+    [InlineData(SwipeState.LeftVisible, 70.0, 0.0)]
+    [InlineData(SwipeState.RightVisible, -80.0, 0.0)]
+    public void SwipeState_Set_Before_First_Layout_Is_Applied_After_Layout(SwipeState state, double expectedX, double expectedY)
+    {
+        var (swipe, window) = CreateSwipeInWindow(show: false);
+
+        swipe.SwipeState = state;
+        // Let any queued dispatcher work run before the control gets its first layout pass.
+        Dispatcher.UIThread.RunJobs();
+        window.Show();
+        PumpLayout();
+
+        Assert.Equal((expectedX, expectedY), GetCurrentTranslate(swipe));
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void SwipeState_Set_While_Parent_Is_Hidden_Is_Applied_When_Shown()
+    {
+        var (swipe, window) = CreateSwipeInWindow(show: false);
+        window.Content = null;
+        var host = new Border { IsVisible = false, Child = swipe };
+        window.Content = host;
+        window.Show();
+        PumpLayout();
+
+        swipe.SwipeState = SwipeState.RightVisible;
+        PumpLayout();
+
+        host.IsVisible = true;
+        PumpLayout();
+
+        Assert.Equal((-80.0, 0.0), GetCurrentTranslate(swipe));
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Pending_Reveal_Is_Discarded_When_SwipeState_Returns_To_Hidden()
+    {
+        var (swipe, window) = CreateSwipeInWindow();
+
+        swipe.SwipeState = SwipeState.RightVisible;
+        swipe.SwipeState = SwipeState.Hidden;
+        PumpLayout();
+
+        Assert.Equal((0.0, 0.0), GetCurrentTranslate(swipe));
+        Assert.Equal(SwipeState.Hidden, swipe.SwipeState);
+        window.Close();
+    }
+
+    private static (Swipe Swipe, Window Window) CreateSwipeInWindow(bool show = true)
+    {
+        var swipe = new Swipe
+        {
+            Width = 300,
+            Height = 200,
+            AnimationDuration = TimeSpan.Zero,
+            Content = new Border { Background = Avalonia.Media.Brushes.Red },
+            Left = new FuncDataTemplate<object?>((_, _) => new Border { Width = 70 }),
+            Right = new FuncDataTemplate<object?>((_, _) => new Border { Width = 80 }),
+            Top = new FuncDataTemplate<object?>((_, _) => new Border { Height = 40 }),
+            Bottom = new FuncDataTemplate<object?>((_, _) => new Border { Height = 50 }),
+            DataContext = new object()
+        };
+
+        var window = new Window { Width = 400, Height = 400, Content = swipe };
+        if (show)
+        {
+            window.Show();
+            PumpLayout();
+        }
+
+        return (swipe, window);
+    }
+
+    private static void PumpLayout()
+    {
+        Dispatcher.UIThread.RunJobs();
+        Avalonia.Headless.AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static (double X, double Y) GetCurrentTranslate(Swipe swipe)
+    {
+        var x = (double)typeof(Swipe).GetField("_currentX", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(swipe)!;
+        var y = (double)typeof(Swipe).GetField("_currentY", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(swipe)!;
+        return (x, y);
+    }
 }
 
 
