@@ -6,6 +6,7 @@ using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Labs.Notifications.Windows.WinRT;
+using Avalonia.Logging;
 using Avalonia.Media.Imaging;
 using MicroCom.Runtime;
 
@@ -14,7 +15,8 @@ namespace Avalonia.Labs.Notifications.Windows
     [SupportedOSPlatform("windows10.0.17763.0")]
     internal class NativeNotificationManager : INativeNotificationManagerImpl, IDisposable
     {
-        public const string NotificationsGroupName = "AvaloniaUI"; 
+        public const string NotificationsGroupName = "AvaloniaUI";
+        private const string LogArea = "Notifications";
         private readonly Dictionary<uint, INativeNotification> _notifications = new Dictionary<uint, INativeNotification>();
         private (string id, bool syntetic) _aumid;
         private Guid? _serverUuid;
@@ -53,13 +55,33 @@ namespace Avalonia.Labs.Notifications.Windows
 
             if (options is null || !options.DisableComServer)
             {
-                _serverUuid = options?.ComActivatorGuidOverride ?? AumidHelper.GetGuidFromId(_aumid.id);
-                NotificationComServer.CreateAndRegisterActivator(_serverUuid.Value);
+                var serverUuid = options?.ComActivatorGuidOverride ?? AumidHelper.GetGuidFromId(_aumid.id);
+                try
+                {
+                    NotificationComServer.CreateAndRegisterActivator(serverUuid);
+                    _serverUuid = serverUuid;
+                }
+                catch (Exception ex)
+                {
+                    // E.g. locked-down COM security policies. Toasts still work, only activations are lost.
+                    Logger.TryGet(LogEventLevel.Warning, LogArea)?.Log(this,
+                        "Unable to register the notification COM activator {Guid}. NotificationCompleted won't be raised for toast activations. {Exception}",
+                        serverUuid, ex);
+                }
             }
 
             if (_aumid.syntetic)
             {
-                AumidHelper.RegisterAumid(_aumid.id, _serverUuid, options?.AppName, options?.AppIcon);
+                try
+                {
+                    AumidHelper.RegisterAumid(_aumid.id, _serverUuid, options?.AppName, options?.AppIcon);
+                }
+                catch (Exception ex)
+                {
+                    Logger.TryGet(LogEventLevel.Warning, LogArea)?.Log(this,
+                        "Unable to register AppUserModelId {Aumid} for notifications. {Exception}",
+                        _aumid.id, ex);
+                }
             }
         }
 
@@ -166,6 +188,7 @@ namespace Avalonia.Labs.Notifications.Windows
 
             if (_serverUuid is not null)
             {
+                NotificationComServer.UnregisterActivator();
                 NotificationComServer.DeleteActivatorRegistration(_serverUuid.Value);
             }
         }
